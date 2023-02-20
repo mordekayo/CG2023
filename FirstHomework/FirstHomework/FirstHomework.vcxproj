@@ -19,7 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DisplayWin32.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameComponent.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
+    <ClCompile Include="ThirdParty\SimpleMath.cpp" />
+    <ClCompile Include="TriangleComponent.cpp" />
     <None Include="Shaders\MyVeryFirstShader.hlsl">
       <FileType>Document</FileType>
     </None>
@@ -27,6 +32,10 @@
   <ItemGroup>
     <ClInclude Include="Game.h" />
     <ClInclude Include="DisplayWin32.h" />
+    <ClInclude Include="GameComponent.h" />
+    <ClInclude Include="Resources.h" />
+    <ClInclude Include="ThirdParty\SimpleMath.h" />
+    <ClInclude Include="TriangleComponent.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
