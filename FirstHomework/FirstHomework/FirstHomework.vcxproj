@@ -19,10 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Game.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
-    <ClCompile Include="DisplayWin32.cpp" />
     <None Include="Shaders\MyVeryFirstShader.hlsl">
       <FileType>Document</FileType>
     </None>
