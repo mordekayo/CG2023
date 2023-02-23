@@ -143,8 +143,7 @@ void TriangleComponent::Initialize()
 	Game::GetInstance()->SetRes(Game::GetInstance()->GetDevice()->CreateRasterizerState(rastDesc.get(), rastState.GetAddressOf()));
 
 	Game::GetInstance()->GetContext()->RSSetState(rastState.Get());
-
-	// MOVEMENT //
+	
 	constBufDesc.get()->Usage = D3D11_USAGE_DEFAULT;
 	constBufDesc.get()->BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	constBufDesc.get()->CPUAccessFlags = 0;
@@ -152,14 +151,11 @@ void TriangleComponent::Initialize()
 	constBufDesc.get()->StructureByteStride = 0;
 	constBufDesc.get()->ByteWidth = sizeof(DirectX::SimpleMath::Vector4);
 	Game::GetInstance()->GetDevice()->CreateBuffer(constBufDesc.get(), nullptr, constBuf.GetAddressOf());
-	// MOVEMENT //
 }
 
 void TriangleComponent::Update()
 {
-	// MOVEMENT //
 	Game::GetInstance()->GetContext()->UpdateSubresource(constBuf.Get(), 0, nullptr, Game::GetInstance()->GetOffset(), 0, 0);
-	// MOVEMENT //
 
 	Game::GetInstance()->GetContext()->ClearState();
 
@@ -173,25 +169,23 @@ void TriangleComponent::Update()
 	viewport.get()->TopLeftY = 0;
 
 	Game::GetInstance()->GetContext()->RSSetViewports(1, viewport.get());
+}
 
+void TriangleComponent::Draw()
+{
 	Game::GetInstance()->GetContext()->IASetInputLayout(layout.Get());
 	Game::GetInstance()->GetContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	Game::GetInstance()->GetContext()->IASetIndexBuffer(ib.Get(), DXGI_FORMAT_R32_UINT, 0);
 	Game::GetInstance()->GetContext()->IASetVertexBuffers(0, 1, vb.GetAddressOf(), strides, offsets);
 	Game::GetInstance()->GetContext()->VSSetShader(vertexShader.Get(), nullptr, 0);
 	Game::GetInstance()->GetContext()->PSSetShader(pixelShader.Get(), nullptr, 0);
-
-	// MOVEMENT //
+	
 	Game::GetInstance()->GetContext()->VSSetConstantBuffers(0, 1, constBuf.GetAddressOf());
-	// MOVEMENT //
-}
-
-void TriangleComponent::Draw()
-{
-	Game::GetInstance()->GetContext()->DrawIndexed(6, 0, 0); // Main function for draw (DrawCall)
+	
+	Game::GetInstance()->GetContext()->DrawIndexed(6, 0, 0);
 }
 
 void TriangleComponent::DestroyResources()
 {
-	// there're nothing to release in TriangleComponent class
+
 }
