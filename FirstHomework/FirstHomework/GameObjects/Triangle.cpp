@@ -5,7 +5,7 @@
 #include <d3dcommon.h>
 #include <d3dcompiler.h>
 #include <directxmath.h>
-
+#include "../ThirdParty/SimpleMath.h"
 #include "../DisplayWin32.h"
 
 Triangle::Triangle()
@@ -118,7 +118,7 @@ void Triangle::Init()
 	VertexBufDesc.CPUAccessFlags = 0;
 	VertexBufDesc.MiscFlags = 0;
 	VertexBufDesc.StructureByteStride = 0;
-	VertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * std::size(Points);
+	VertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * static_cast<UINT>(std::size(Points));
 
 	D3D11_SUBRESOURCE_DATA VertexData = {};
 	VertexData.pSysMem = Points;
@@ -127,6 +127,9 @@ void Triangle::Init()
 	
 	Game::Instance()->GetDevice()->CreateBuffer(&VertexBufDesc, &VertexData, VertexBuffer.GetAddressOf());
 
+	Strides[0] = 32;
+	Offsets[0] = 0;
+	
     const int Indeces[] = { 0,1,2, 1,0,3 };
 	D3D11_BUFFER_DESC IndexBufDesc = {};
 	IndexBufDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -134,7 +137,7 @@ void Triangle::Init()
 	IndexBufDesc.CPUAccessFlags = 0;
 	IndexBufDesc.MiscFlags = 0;
 	IndexBufDesc.StructureByteStride = 0;
-	IndexBufDesc.ByteWidth = sizeof(int) * std::size(Indeces);
+	IndexBufDesc.ByteWidth = sizeof(int) * static_cast<UINT>(std::size(Indeces));
 
 	D3D11_SUBRESOURCE_DATA IndexData = {};
 	IndexData.pSysMem = Indeces;
@@ -142,15 +145,6 @@ void Triangle::Init()
 	IndexData.SysMemSlicePitch = 0;
 	
 	Game::Instance()->GetDevice()->CreateBuffer(&IndexBufDesc, &IndexData, IndexBuffer.GetAddressOf());
-	
-	CD3D11_RASTERIZER_DESC RastDesc = {};
-	RastDesc.CullMode = D3D11_CULL_NONE;
-	RastDesc.FillMode = D3D11_FILL_SOLID;
-
-	ID3D11RasterizerState* RastState;
-	Game::Instance()->GetDevice()->CreateRasterizerState(&RastDesc, &RastState);
-
-	Game::Instance()->GetContext()->RSSetState(RastState);
 
 	D3D11_BUFFER_DESC ConstBufDesc = {};
 	ConstBufDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -166,20 +160,8 @@ void Triangle::Update()
 {
 	GameObject::Update();
 
-	Game::Instance()->GetContext()->UpdateSubresource(ConstantBuffer.Get(), 0, nullptr, Game::Instance()->GetOffset(), 0, 0);
-
-	Game::Instance()->GetContext()->ClearState();
-
-	Game::Instance()->GetContext()->RSSetState(rastState.Get());
-
-	Viewport->Width = static_cast<float>(Game::Instance()->GetDisplay().GetScreenWidth());
-	Viewport->Height = static_cast<float>(Game::Instance()->GetDisplay().GetScreenHeight());
-	Viewport->MinDepth = 0;
-	Viewport->MaxDepth = 1.0f;
-	Viewport->TopLeftX = 0;
-	Viewport->TopLeftY = 0;
-
-	Game::Instance()->GetContext()->RSSetViewports(1, Viewport.Get());
+	DirectX::SimpleMath::Vector4 SrcData = {1.0f, 0.0f, 0.0f, 0.0f};
+	Game::Instance()->GetContext()->UpdateSubresource(ConstantBuffer.Get(), 0, nullptr, &SrcData, 0, 0);
 }
 
 void Triangle::Draw()
@@ -189,7 +171,7 @@ void Triangle::Draw()
 	Game::Instance()->GetContext()->IASetInputLayout(InputLayout.Get());
 	Game::Instance()->GetContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	Game::Instance()->GetContext()->IASetIndexBuffer(IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	Game::Instance()->GetContext()->IASetVertexBuffers(0, 1, VertexBuffer.GetAddressOf(), strides, offsets);
+	Game::Instance()->GetContext()->IASetVertexBuffers(0, 1, VertexBuffer.GetAddressOf(), Strides, Offsets);
 	Game::Instance()->GetContext()->VSSetShader(VertexShader.Get(), nullptr, 0);
 	Game::Instance()->GetContext()->PSSetShader(PixelShader.Get(), nullptr, 0);
 	

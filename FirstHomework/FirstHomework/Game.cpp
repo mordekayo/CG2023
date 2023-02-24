@@ -2,8 +2,10 @@
 
 #include "DisplayWin32.h"
 #include "GameObjects/GameObject.h"
-
+#include "Sources.h"
 #include <chrono>
+
+Game* Game::GameInstance = nullptr;
 
 Game::Game()
 {
@@ -51,6 +53,14 @@ void Game::CreateResources()
 	
 	SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackTex);	// __uuidof(ID3D11Texture2D)
 	Device->CreateRenderTargetView(BackTex.Get(), nullptr, &RenderTargetView);
+
+	CD3D11_RASTERIZER_DESC RastDesc = {};
+	RastDesc.CullMode = D3D11_CULL_NONE;
+	RastDesc.FillMode = D3D11_FILL_SOLID;
+	
+	Device->CreateRasterizerState(&RastDesc, RasterizerState.GetAddressOf());
+
+	Context->RSSetState(RasterizerState.Get());
 }
 
 void Game::InitGameObjects() const
@@ -105,13 +115,53 @@ Game* Game::Instance()
 	return GameInstance;
 }
 
+void Game::InternalUpdate()
+{
+	auto curTime = std::chrono::steady_clock::now();
+	const float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
+	PrevTime = curTime;
+
+	totalTime += deltaTime;
+	frameCount++;
+
+	if (totalTime > 1.0f)
+	{
+		float fps = frameCount / totalTime;
+
+		totalTime -= 1.0f;
+
+		WCHAR text[256];
+		swprintf_s(text, TEXT("FPS: %f"), fps);
+		SetWindowText(Display->GetHWnd(), text);
+
+		frameCount = 0;
+	}
+
+	GetContext()->ClearState();
+
+	GetContext()->RSSetState(RasterizerState.Get());
+
+	Viewport.Width = static_cast<float>(Game::Instance()->GetDisplay().GetScreenWidth());
+	Viewport.Height = static_cast<float>(Game::Instance()->GetDisplay().GetScreenHeight());
+	Viewport.MinDepth = 0;
+	Viewport.MaxDepth = 1.0f;
+	Viewport.TopLeftX = 0;
+	Viewport.TopLeftY = 0;
+
+	Game::Instance()->GetContext()->RSSetViewports(1, &Viewport);
+	
+	BeginFrame();
+	DrawGameObjects();
+	EndFrame();
+}
+
 void Game::Run()
 {
 	CreateResources();
 	
 	InitGameObjects();
 	
-	std::chrono::time_point<std::chrono::steady_clock> PrevTime = std::chrono::steady_clock::now();
+	PrevTime = std::chrono::steady_clock::now();
 	float totalTime = 0;
 	unsigned int frameCount = 0;
 
@@ -131,52 +181,8 @@ void Game::Run()
 		{
 			isExitRequested = true;
 		}
-
-		Context->ClearState();
-
-		Context->RSSetState(rastState);
-
-		D3D11_VIEWPORT viewport = {};
-		viewport.Width = static_cast<float>(ScreenWidth);
-		viewport.Height = static_cast<float>(ScreenHeight);
-		viewport.TopLeftX = 0;
-		viewport.TopLeftY = 0;
-		viewport.MinDepth = 0;
-		viewport.MaxDepth = 1.0f;
-
-		Context->RSSetViewports(1, &viewport);
-
-		Context->IASetInputLayout(layout);
-		Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		Context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
-		Context->IASetVertexBuffers(0, 1, &vb, strides, offsets);
-		Context->VSSetShader(vertexShader, nullptr, 0);
-		Context->PSSetShader(pixelShader, nullptr, 0);
-
-
-		auto	curTime = std::chrono::steady_clock::now();
-		float	deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
-		PrevTime = curTime;
-
-		totalTime += deltaTime;
-		frameCount++;
-
-		if (totalTime > 1.0f)
-		{
-			float fps = frameCount / totalTime;
-
-			totalTime -= 1.0f;
-
-			WCHAR text[256];
-			swprintf_s(text, TEXT("FPS: %f"), fps);
-			SetWindowText(Display->GetHWnd(), text);
-
-			frameCount = 0;
-		}
-
-		BeginFrame();
-		DrawGameObjects();
-		EndFrame();
+		
+		InternalUpdate();
 	}
 }
 
@@ -213,8 +219,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 		{
 			// If a key is pressed send it to the input object so it can record that state.
 			std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
-
-			if (static_cast<unsigned int>(wparam) == 27) PostQuitMessage(0);
+			
+			return 0;
+		}
+	case WM_CLOSE:
+		{
+			PostQuitMessage(0);
 			return 0;
 		}
 	default:

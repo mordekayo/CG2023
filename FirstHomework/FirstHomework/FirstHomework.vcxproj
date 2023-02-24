@@ -95,6 +95,7 @@
     </ClCompile>
     <ClCompile Include="GameObjects\Triangle.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
+    <ClCompile Include="ThirdParty\SimpleMath.cpp" />
     <None Include="Shaders\MyVeryFirstShader.hlsl">
       <FileType>Document</FileType>
     </None>
@@ -104,6 +105,8 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObjects\GameObject.h" />
     <ClInclude Include="GameObjects\Triangle.h" />
+    <ClInclude Include="Sources.h" />
+    <ClInclude Include="ThirdParty\SimpleMath.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <windows.h>
 #include <iostream>
 #include <wrl.h>
@@ -18,6 +19,7 @@ public:
 	void operator = (const Game&) = delete;
 
 	static Game* Instance();
+	void InternalUpdate();
 
 	void Run();
 
@@ -40,6 +42,10 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> BackTex = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> RenderTargetView = nullptr;
+
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> RasterizerState;
+	D3D11_VIEWPORT Viewport;
+	
 	void CreateResources();
 	
 	void InitGameObjects() const;
@@ -55,6 +61,10 @@ private:
 	LPCWSTR ApplicationName;
 	int ScreenWidth;
 	int ScreenHeight;
+
+	std::chrono::time_point<std::chrono::steady_clock> PrevTime;
+	float totalTime = 0;
+	unsigned frameCount = 0;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
