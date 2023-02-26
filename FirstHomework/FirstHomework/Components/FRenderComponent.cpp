@@ -1,23 +1,21 @@
-#include "Triangle.h"
-
-#include "../Game.h"
+#include "FRenderComponent.h"
 
 #include <d3dcommon.h>
 #include <d3dcompiler.h>
-#include <directxmath.h>
-#include "../ThirdParty/SimpleMath.h"
-#include "../DisplayWin32.h"
+#include "../Utils/SimpleMath.h"
+#include "../FDisplayWin32.h"
+#include "../FGame.h"
 
-Triangle::Triangle()
+FRenderComponent::~FRenderComponent()
 {
-	
+    
 }
 
-void Triangle::Init()
+void FRenderComponent::Init()
 {
-    GameObject::Init();
+	FObjectComponent::Init();
 
-	Microsoft::WRL::ComPtr<ID3DBlob> VertexShaderByteCode;
+		Microsoft::WRL::ComPtr<ID3DBlob> VertexShaderByteCode;
 	ID3DBlob* ErrorCode = nullptr;
 	
 	HRESULT Result = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
@@ -42,7 +40,7 @@ void Triangle::Init()
 		// If there was  nothing in the error message then it simply could not find the shader file itself.
 		else
 		{
-			MessageBox(Game::Instance()->GetDisplay().GetHWnd(), L"MyVeryFirstShader.hlsl", L"Missing Shader File", MB_OK);
+			MessageBox(FGame::Instance()->GetDisplay().GetHWnd(), L"MyVeryFirstShader.hlsl", L"Missing Shader File", MB_OK);
 		}
 
 		return;
@@ -62,12 +60,12 @@ void Triangle::Init()
 		&PixelShaderByteCode,
 		&ErrorCode);
 	
-	Game::Instance()->GetDevice()->CreateVertexShader(
+	FGame::Instance()->GetDevice()->CreateVertexShader(
 		VertexShaderByteCode->GetBufferPointer(),
 		VertexShaderByteCode->GetBufferSize(),
 		nullptr, VertexShader.GetAddressOf());
 
-	Game::Instance()->GetDevice()->CreatePixelShader(
+	FGame::Instance()->GetDevice()->CreatePixelShader(
 		PixelShaderByteCode->GetBufferPointer(),
 		PixelShaderByteCode->GetBufferSize(),
 		nullptr, PixelShader.GetAddressOf());
@@ -96,7 +94,7 @@ void Triangle::Init()
 		}
 	};
 	
-	Game::Instance()->GetDevice()->CreateInputLayout(
+	FGame::Instance()->GetDevice()->CreateInputLayout(
 		InputElements,
 		2,
 		VertexShaderByteCode->GetBufferPointer(),
@@ -125,7 +123,7 @@ void Triangle::Init()
 	VertexData.SysMemPitch = 0;
 	VertexData.SysMemSlicePitch = 0;
 	
-	Game::Instance()->GetDevice()->CreateBuffer(&VertexBufDesc, &VertexData, VertexBuffer.GetAddressOf());
+	FGame::Instance()->GetDevice()->CreateBuffer(&VertexBufDesc, &VertexData, VertexBuffer.GetAddressOf());
 
 	Strides[0] = 32;
 	Offsets[0] = 0;
@@ -144,7 +142,7 @@ void Triangle::Init()
 	IndexData.SysMemPitch = 0;
 	IndexData.SysMemSlicePitch = 0;
 	
-	Game::Instance()->GetDevice()->CreateBuffer(&IndexBufDesc, &IndexData, IndexBuffer.GetAddressOf());
+	FGame::Instance()->GetDevice()->CreateBuffer(&IndexBufDesc, &IndexData, IndexBuffer.GetAddressOf());
 
 	D3D11_BUFFER_DESC ConstBufDesc = {};
 	ConstBufDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -153,29 +151,27 @@ void Triangle::Init()
 	ConstBufDesc.MiscFlags = 0;
 	ConstBufDesc.StructureByteStride = 0;
 	ConstBufDesc.ByteWidth = sizeof(DirectX::SimpleMath::Vector4);
-	Game::Instance()->GetDevice()->CreateBuffer(&ConstBufDesc, nullptr, ConstantBuffer.GetAddressOf());
+	FGame::Instance()->GetDevice()->CreateBuffer(&ConstBufDesc, nullptr, ConstantBuffer.GetAddressOf());
 }
 
-void Triangle::Update()
+void FRenderComponent::Update()
 {
-	GameObject::Update();
+	FObjectComponent::Update();
 
 	DirectX::SimpleMath::Vector4 SrcData = {1.0f, 0.0f, 0.0f, 0.0f};
-	Game::Instance()->GetContext()->UpdateSubresource(ConstantBuffer.Get(), 0, nullptr, &SrcData, 0, 0);
+	FGame::Instance()->GetContext()->UpdateSubresource(ConstantBuffer.Get(), 0, nullptr, &SrcData, 0, 0);
 }
 
-void Triangle::Draw()
+void FRenderComponent::Draw()
 {
-	GameObject::Draw();
-
-	Game::Instance()->GetContext()->IASetInputLayout(InputLayout.Get());
-	Game::Instance()->GetContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	Game::Instance()->GetContext()->IASetIndexBuffer(IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	Game::Instance()->GetContext()->IASetVertexBuffers(0, 1, VertexBuffer.GetAddressOf(), Strides, Offsets);
-	Game::Instance()->GetContext()->VSSetShader(VertexShader.Get(), nullptr, 0);
-	Game::Instance()->GetContext()->PSSetShader(PixelShader.Get(), nullptr, 0);
+    FGame::Instance()->GetContext()->IASetInputLayout(InputLayout.Get());
+    FGame::Instance()->GetContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    FGame::Instance()->GetContext()->IASetIndexBuffer(IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+    FGame::Instance()->GetContext()->IASetVertexBuffers(0, 1, VertexBuffer.GetAddressOf(), Strides, Offsets);
+    FGame::Instance()->GetContext()->VSSetShader(VertexShader.Get(), nullptr, 0);
+    FGame::Instance()->GetContext()->PSSetShader(PixelShader.Get(), nullptr, 0);
 	
-	Game::Instance()->GetContext()->VSSetConstantBuffers(0, 1, ConstantBuffer.GetAddressOf());
+    FGame::Instance()->GetContext()->VSSetConstantBuffers(0, 1, ConstantBuffer.GetAddressOf());
 	
-	Game::Instance()->GetContext()->DrawIndexed(6, 0, 0);
+    FGame::Instance()->GetContext()->DrawIndexed(6, 0, 0);
 }

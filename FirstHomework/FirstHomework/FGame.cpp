@@ -1,22 +1,22 @@
-#include "Game.h"
+#include "FGame.h"
 
-#include "DisplayWin32.h"
-#include "GameObjects/GameObject.h"
-#include "Sources.h"
+#include "FDisplayWin32.h"
+#include "GameObjects/FGameObject.h"
+#include "FSources.h"
 #include <chrono>
 
-Game* Game::GameInstance = nullptr;
+FGame* FGame::GameInstance = nullptr;
 
-Game::Game()
+FGame::FGame()
 {
-	ApplicationName = L"My game engine";
+	ApplicationName = L"My FGame engine";
 	ScreenWidth = 800;
 	ScreenHeight = 800;
 }
 
-void Game::CreateResources()
+void FGame::CreateResources()
 {
-	Display = new DisplayWin32(ApplicationName, ScreenWidth, ScreenHeight, WndProc);
+	Display = new FDisplayWin32(ApplicationName, ScreenWidth, ScreenHeight, WndProc);
 	
 	constexpr D3D_FEATURE_LEVEL FeatureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 
@@ -63,59 +63,59 @@ void Game::CreateResources()
 	Context->RSSetState(RasterizerState.Get());
 }
 
-void Game::InitGameObjects() const
+void FGame::InitGameObjects() const
 {
-	for (GameObject* Object : GameObjects)
+	for (FGameObject* Object : GameObjects)
 	{
 		Object->Init();
 	}
 }
 
-void Game::UpdateGameObjects() const
+void FGame::UpdateGameObjects() const
 {
-	for (GameObject* Object : GameObjects)
+	for (FGameObject* Object : GameObjects)
 	{
 		Object->Update();
 	}
 }
 
-void Game::DrawGameObjects() const
+void FGame::DrawGameObjects() const
 {
-	for (GameObject* Object : GameObjects)
+	for (FGameObject* Object : GameObjects)
 	{
 		Object->Draw();
 	}
 }
 
-void Game::BeginFrame()
+void FGame::BeginFrame()
 {
 	Context->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), nullptr);
 	const float Color[] = { 1.0f, 0.1f, 0.1f, 1.0f };
 	Context->ClearRenderTargetView(RenderTargetView.Get(), Color);
 }
 
-void Game::RenderFrame()
+void FGame::RenderFrame()
 {
 	
 }
 
-void Game::EndFrame()
+void FGame::EndFrame()
 {
 	Context->OMSetRenderTargets(0, nullptr, nullptr);
 
 	SwapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
 }
 
-Game* Game::Instance()
+FGame* FGame::Instance()
 {
 	if(!GameInstance)
 	{
-		GameInstance = new Game();
+		GameInstance = new FGame();
 	}
 	return GameInstance;
 }
 
-void Game::InternalUpdate()
+void FGame::InternalUpdate()
 {
 	auto curTime = std::chrono::steady_clock::now();
 	const float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
@@ -141,21 +141,21 @@ void Game::InternalUpdate()
 
 	GetContext()->RSSetState(RasterizerState.Get());
 
-	Viewport.Width = static_cast<float>(Game::Instance()->GetDisplay().GetScreenWidth());
-	Viewport.Height = static_cast<float>(Game::Instance()->GetDisplay().GetScreenHeight());
+	Viewport.Width = static_cast<float>(FGame::Instance()->GetDisplay().GetScreenWidth());
+	Viewport.Height = static_cast<float>(FGame::Instance()->GetDisplay().GetScreenHeight());
 	Viewport.MinDepth = 0;
 	Viewport.MaxDepth = 1.0f;
 	Viewport.TopLeftX = 0;
 	Viewport.TopLeftY = 0;
 
-	Game::Instance()->GetContext()->RSSetViewports(1, &Viewport);
+	FGame::Instance()->GetContext()->RSSetViewports(1, &Viewport);
 	
 	BeginFrame();
 	DrawGameObjects();
 	EndFrame();
 }
 
-void Game::Run()
+void FGame::Run()
 {
 	CreateResources();
 	
@@ -186,27 +186,27 @@ void Game::Run()
 	}
 }
 
-DisplayWin32& Game::GetDisplay()
+FDisplayWin32& FGame::GetDisplay()
 {
 	return *Display;
 }
 
-Microsoft::WRL::ComPtr<ID3D11Device> Game::GetDevice() const
+Microsoft::WRL::ComPtr<ID3D11Device> FGame::GetDevice() const
 {
 	return Device;
 }
 
-Microsoft::WRL::ComPtr<ID3D11DeviceContext> Game::GetContext() const
+Microsoft::WRL::ComPtr<ID3D11DeviceContext> FGame::GetContext() const
 {
 	return Context;
 }
 
-void Game::AddGameObject(GameObject* ObjectToAdd)
+void FGame::AddGameObject(FGameObject* ObjectToAdd)
 {
 	GameObjects.insert(ObjectToAdd);
 }
 
-void Game::DeleteGameObject(GameObject* ObjectToDelete)
+void FGame::DeleteGameObject(FGameObject* ObjectToDelete)
 {
 	GameObjects.erase(ObjectToDelete);
 }

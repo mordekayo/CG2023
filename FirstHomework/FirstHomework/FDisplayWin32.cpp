@@ -1,8 +1,8 @@
-#include "DisplayWin32.h"
+#include "FDisplayWin32.h"
 
 #include <windows.h>
 
-DisplayWin32::DisplayWin32(const LPCWSTR& ApplicationName, int ScreenWidth, int ScreenHeight, WNDPROC WndProc)
+FDisplayWin32::FDisplayWin32(const LPCWSTR& ApplicationName, int ScreenWidth, int ScreenHeight, WNDPROC WndProc)
 {
     this->ApplicationName = ApplicationName;
     this->ScreenWidth = ScreenWidth;
@@ -55,23 +55,23 @@ DisplayWin32::DisplayWin32(const LPCWSTR& ApplicationName, int ScreenWidth, int 
 #pragma endregion Window init
 }
 
-DisplayWin32::~DisplayWin32()
+FDisplayWin32::~FDisplayWin32()
 {
     UnregisterClass(ApplicationName, hInstance);
     DestroyWindow(HWnd);
 }
 
-HWND& DisplayWin32::GetHWnd()
+HWND& FDisplayWin32::GetHWnd()
 {
     return HWnd;
 }
 
-int DisplayWin32::GetScreenWidth() const
+int FDisplayWin32::GetScreenWidth() const
 {
     return ScreenWidth;
 }
 
-int DisplayWin32::GetScreenHeight() const
+int FDisplayWin32::GetScreenHeight() const
 {
     return ScreenHeight;
 }

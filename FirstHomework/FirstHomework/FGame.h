@@ -8,34 +8,34 @@
 #include <d3d11.h>
 #include <set>
 
-class DisplayWin32;
-class GameObject;
+class FDisplayWin32;
+class FGameObject;
 
-class Game
+class FGame
 {
 public:
 	
-	Game(const Game&) = delete;
-	void operator = (const Game&) = delete;
+	FGame(const FGame&) = delete;
+	void operator = (const FGame&) = delete;
 
-	static Game* Instance();
+	static FGame* Instance();
 	void InternalUpdate();
 
 	void Run();
 
-	DisplayWin32& GetDisplay();
+	FDisplayWin32& GetDisplay();
 	Microsoft::WRL::ComPtr<ID3D11Device> GetDevice() const;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext() const;
 
-	void AddGameObject(GameObject* ObjectToAdd);
-	void DeleteGameObject(GameObject* ObjectToDelete);
+	void AddGameObject(FGameObject* ObjectToAdd);
+	void DeleteGameObject(FGameObject* ObjectToDelete);
 	
 private:
 
-	Game();
-	static Game* GameInstance;
+	FGame();
+	static FGame* GameInstance;
 
-	DisplayWin32* Display;
+	FDisplayWin32* Display;
 	Microsoft::WRL::ComPtr<ID3D11Device> Device = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> Context = nullptr;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> SwapChain = nullptr;
@@ -56,7 +56,7 @@ private:
 	void RenderFrame();
 	void EndFrame();
 	
-	std::set<GameObject*> GameObjects;
+	std::set<FGameObject*> GameObjects;
 	
 	LPCWSTR ApplicationName;
 	int ScreenWidth;

@@ -1,12 +1,12 @@
 #pragma once
 #include <WinString.h>
 
-class DisplayWin32
+class FDisplayWin32
 {
 public:
     
-    DisplayWin32(const LPCWSTR& ApplicationName, int ScreenWidth, int ScreenHeight, WNDPROC WndProc);
-    ~DisplayWin32();
+    FDisplayWin32(const LPCWSTR& ApplicationName, int ScreenWidth, int ScreenHeight, WNDPROC WndProc);
+    ~FDisplayWin32();
 
     HWND& GetHWnd();
 

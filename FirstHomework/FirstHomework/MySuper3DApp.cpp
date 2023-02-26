@@ -1,14 +1,16 @@
 // MySuper3DApp.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#include "Game.h"
-#include "GameObjects/Triangle.h"
+#include "FGame.h"
+#include "Components/FRenderComponent.h"
+#include "GameObjects/FGameObject.h"
 
 int main()
 {
-    Game* MyGame = Game::Instance();
-    Triangle* NewTriangle = new Triangle();
-    MyGame->AddGameObject(NewTriangle);
+    FGame* MyGame = FGame::Instance();
+    FGameObject* GameObject = new FGameObject();
+    GameObject->AddComponent(new FRenderComponent());
+    MyGame->AddGameObject(GameObject);
     MyGame->Run();
     delete MyGame;
 }

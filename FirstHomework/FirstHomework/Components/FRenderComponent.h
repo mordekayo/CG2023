@@ -1,22 +1,19 @@
 #pragma once
-
+#include "FObjectComponent.h"
 #include <d3d11.h>
 #include <windows.h>
 #include <wrl.h>
-#include "GameObject.h"
 
-class Triangle : public GameObject
+class FRenderComponent : public FObjectComponent
 {
 public:
 
-    Triangle();
-
+    virtual ~FRenderComponent();
     void Init() override;
     void Update() override;
-    void Draw() override;
+    virtual void Draw();
 
 private:
-
     UINT Strides[1];
     UINT Offsets[1];
     
