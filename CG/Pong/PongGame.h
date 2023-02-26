@@ -1,4 +1,6 @@
 #pragma once
+#include <DirectXMath.h>
+
 #include "../GameFramework/Game.h"
 
 class PongGame : public FGame
@@ -22,5 +24,8 @@ private:
 	FGameObject* LeftPlayer = nullptr;
 	FGameObject* RightPlayer = nullptr;
 	FGameObject* Ball = nullptr;
+
+	DirectX::FXMVECTOR BallDirection = {1.0f, 0.5f, 0.0f, 0.0f};
+	float BallSpeed = 0.5f;
 
 };

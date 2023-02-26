@@ -1,6 +1,8 @@
 #include "PongGame.h"
 #include <DirectXMath.h>
 #include "../GameFramework/Components/RenderComponent.h"
+#include "../GameFramework/Components/CollisionComponents/BoxCollisionComponent.h"
+#include "../GameFramework/Components/CollisionComponents/SphereCollisionComponent.h"
 #include "../GameFramework/GameObjects/GameObject.h"
 #include "../GameFramework/Utils/InputDevice.h"
 
@@ -22,14 +24,8 @@ void PongGame::Update(float DeltaTime)
 {
 	FGame::Update(DeltaTime);
 	
-	if (Input->IsKeyDown(Keys::A)) 
-	{
-		LeftPlayer->AddTransform({-0.3f * DeltaTime, 0.0f, 0.0f, 0.0f}); 
-	}
-	if (Input->IsKeyDown(Keys::D)) 
-	{
-		LeftPlayer->AddTransform({0.3f * DeltaTime, 0.0f, 0.0f, 0.0f});  
-	}
+	if (Input->IsKeyDown(Keys::A)) { }
+	if (Input->IsKeyDown(Keys::D)) { }
 	if (Input->IsKeyDown(Keys::W)) 
 	{
 		LeftPlayer->AddTransform({0.0f, 0.5f * DeltaTime, 0.0f, 0.0f}); 
@@ -39,14 +35,8 @@ void PongGame::Update(float DeltaTime)
 		LeftPlayer->AddTransform({0.0f, -0.5f * DeltaTime, 0.0f, 0.0f});  
 	}
 
-	if (Input->IsKeyDown(Keys::Left))  
-	{ 
-		RightPlayer->AddTransform({-0.3f * DeltaTime, 0.0f, 0.0f, 0.0f}); 
-	}
-	if (Input->IsKeyDown(Keys::Right)) 
-	{
-		RightPlayer->AddTransform({0.3f * DeltaTime, 0.0f, 0.0f, 0.0f});
-	}
+	if (Input->IsKeyDown(Keys::Left))  { }
+	if (Input->IsKeyDown(Keys::Right)) { }
 	if (Input->IsKeyDown(Keys::Up))    
 	{
 		RightPlayer->AddTransform({0.0f, 0.5f * DeltaTime, 0.0f, 0.0f});
@@ -55,6 +45,8 @@ void PongGame::Update(float DeltaTime)
 	{
 		RightPlayer->AddTransform({0.0f, -0.5f * DeltaTime, 0.0f, 0.0f});
 	}
+
+	Ball->AddTransform(DirectX::XMVectorScale( BallDirection, BallSpeed * DeltaTime));
 }
 
 void PongGame::Construct()
@@ -65,10 +57,19 @@ void PongGame::Construct()
 	
 	FRenderComponent* LeftPlayerRacketMesh = new FRenderComponent();
 	LeftPlayer->AddComponent(LeftPlayerRacketMesh);
+	FBoxCollisionComponent* LeftPlayerRacketCollision = new FBoxCollisionComponent();
+	LeftPlayer->AddComponent(LeftPlayerRacketCollision);
+	
 	FRenderComponent* RightPlayerRacketMesh = new FRenderComponent();
 	RightPlayer->AddComponent(RightPlayerRacketMesh);
+	FBoxCollisionComponent* RightPlayerRacketCollision = new FBoxCollisionComponent();
+	RightPlayer->AddComponent(RightPlayerRacketCollision);
+	
 	FRenderComponent* BallMesh = new FRenderComponent();
 	Ball->AddComponent(BallMesh);
+	FSphereCollisionComponent* BallCollision = new FSphereCollisionComponent();
+	BallCollision->SetRadius(0.053f);
+	Ball->AddComponent(BallCollision);
 	
 	LeftPlayerRacketMesh->SetPoints(
 	{

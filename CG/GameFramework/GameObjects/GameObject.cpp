@@ -23,8 +23,7 @@ void FGameObject::Draw() const
 {
     for(FObjectComponent* Component : Components)
     {
-        FRenderComponent* RenderComponent = static_cast<FRenderComponent*>(Component);
-        if(RenderComponent != nullptr)
+        if(FRenderComponent* RenderComponent = dynamic_cast<FRenderComponent*>(Component))
         {
             RenderComponent->Draw();
         }
