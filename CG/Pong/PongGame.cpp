@@ -7,5 +7,9 @@ PongGame::PongGame()
 
 PongGame* PongGame::Instance()
 {
-	return static_cast<PongGame*>(FGame::Instance());
+	if (!GameInstance)
+	{
+		GameInstance = new PongGame();
+	}
+	return static_cast<PongGame*>(GameInstance);
 }
