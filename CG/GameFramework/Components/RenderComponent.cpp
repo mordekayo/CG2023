@@ -6,6 +6,7 @@
 #include "../Utils/SimpleMath.h"
 #include "../DisplayWin32.h"
 #include "../Game.h"
+#include "../GameObjects/GameObject.h"
 
 FRenderComponent::~FRenderComponent()
 {
@@ -102,50 +103,10 @@ void FRenderComponent::Init()
 		VertexShaderByteCode->GetBufferPointer(),
 		VertexShaderByteCode->GetBufferSize(),
 		InputLayout.GetAddressOf());
-
-    constexpr DirectX::XMFLOAT4 Points[8] =
-	{
-		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
-		DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-	};
-
-
-	D3D11_BUFFER_DESC VertexBufDesc = {};
-	VertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
-	VertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	VertexBufDesc.CPUAccessFlags = 0;
-	VertexBufDesc.MiscFlags = 0;
-	VertexBufDesc.StructureByteStride = 0;
-	VertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * static_cast<UINT>(std::size(Points));
-
-	D3D11_SUBRESOURCE_DATA VertexData = {};
-	VertexData.pSysMem = Points;
-	VertexData.SysMemPitch = 0;
-	VertexData.SysMemSlicePitch = 0;
 	
-	FGame::Instance()->GetDevice()->CreateBuffer(&VertexBufDesc, &VertexData, VertexBuffer.GetAddressOf());
-
 	Strides[0] = 32;
 	Offsets[0] = 0;
 	
-    const int Indeces[] = { 0,1,2, 1,0,3 };
-	D3D11_BUFFER_DESC IndexBufDesc = {};
-	IndexBufDesc.Usage = D3D11_USAGE_DEFAULT;
-	IndexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	IndexBufDesc.CPUAccessFlags = 0;
-	IndexBufDesc.MiscFlags = 0;
-	IndexBufDesc.StructureByteStride = 0;
-	IndexBufDesc.ByteWidth = sizeof(int) * static_cast<UINT>(std::size(Indeces));
-
-	D3D11_SUBRESOURCE_DATA IndexData = {};
-	IndexData.pSysMem = Indeces;
-	IndexData.SysMemPitch = 0;
-	IndexData.SysMemSlicePitch = 0;
-	
-	FGame::Instance()->GetDevice()->CreateBuffer(&IndexBufDesc, &IndexData, IndexBuffer.GetAddressOf());
-
 	D3D11_BUFFER_DESC ConstBufDesc = {};
 	ConstBufDesc.Usage = D3D11_USAGE_DEFAULT;
 	ConstBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -160,6 +121,46 @@ void FRenderComponent::Update()
 {
 	FObjectComponent::Update();
 
+	std::vector<DirectX::XMFLOAT4> GlobalPoints = Points;
+	DirectX::XMFLOAT4 OwnerTransform = Owner->GetTransform();
+	for (DirectX::XMFLOAT4 &Point : GlobalPoints)
+	{
+		Point.x += OwnerTransform.x;
+		Point.y += OwnerTransform.y;
+		Point.z += OwnerTransform.z;
+		Point.w += OwnerTransform.w;
+	}
+
+	D3D11_BUFFER_DESC VertexBufDesc = {};
+	VertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
+	VertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	VertexBufDesc.CPUAccessFlags = 0;
+	VertexBufDesc.MiscFlags = 0;
+	VertexBufDesc.StructureByteStride = 0;
+	VertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * static_cast<UINT>(std::size(GlobalPoints));
+
+	D3D11_SUBRESOURCE_DATA VertexData = {};
+	VertexData.pSysMem = GlobalPoints.data();
+	VertexData.SysMemPitch = 0;
+	VertexData.SysMemSlicePitch = 0;
+	
+	FGame::Instance()->GetDevice()->CreateBuffer(&VertexBufDesc, &VertexData, VertexBuffer.GetAddressOf());
+
+	D3D11_BUFFER_DESC IndexBufDesc = {};
+	IndexBufDesc.Usage = D3D11_USAGE_DEFAULT;
+	IndexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	IndexBufDesc.CPUAccessFlags = 0;
+	IndexBufDesc.MiscFlags = 0;
+	IndexBufDesc.StructureByteStride = 0;
+	IndexBufDesc.ByteWidth = sizeof(int) * static_cast<UINT>(std::size(Indicies));
+
+	D3D11_SUBRESOURCE_DATA IndexData = {};
+	IndexData.pSysMem = Indicies.data();
+	IndexData.SysMemPitch = 0;
+	IndexData.SysMemSlicePitch = 0;
+	
+	FGame::Instance()->GetDevice()->CreateBuffer(&IndexBufDesc, &IndexData, IndexBuffer.GetAddressOf());
+	
 	DirectX::SimpleMath::Vector4 SrcData = {1.0f, 0.0f, 0.0f, 0.0f};
 	FGame::Instance()->GetContext()->UpdateSubresource(ConstantBuffer.Get(), 0, nullptr, &SrcData, 0, 0);
 }
@@ -176,4 +177,14 @@ void FRenderComponent::Draw()
     FGame::Instance()->GetContext()->VSSetConstantBuffers(0, 1, ConstantBuffer.GetAddressOf());
 	
     FGame::Instance()->GetContext()->DrawIndexed(6, 0, 0);
+}
+
+void FRenderComponent::SetPoints(std::vector<DirectX::XMFLOAT4>&& NewPoints)
+{
+	Points = std::move(NewPoints);
+}
+
+void FRenderComponent::SetIndicies(std::vector<int>&& NewIndicies)
+{
+	Indicies = std::move(NewIndicies);
 }

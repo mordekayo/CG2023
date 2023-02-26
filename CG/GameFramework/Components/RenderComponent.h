@@ -3,6 +3,10 @@
 #include <d3d11.h>
 #include <windows.h>
 #include <wrl.h>
+#include "../Utils/SimpleMath.h"
+#include <vector>
+
+class FGameObject;
 
 class FRenderComponent : public FObjectComponent
 {
@@ -13,7 +17,14 @@ public:
     void Update() override;
     virtual void Draw();
 
+    void SetPoints(std::vector<DirectX::XMFLOAT4> &&NewPoints);
+    void SetIndicies(std::vector<int> &&NewIndicies);
+
 private:
+
+    std::vector<DirectX::XMFLOAT4> Points;
+    std::vector<int> Indicies;
+    
     UINT Strides[1];
     UINT Offsets[1];
     

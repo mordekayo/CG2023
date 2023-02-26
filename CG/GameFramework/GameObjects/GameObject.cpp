@@ -31,12 +31,28 @@ void FGameObject::Draw() const
     }
 }
 
+DirectX::SimpleMath::Vector4 FGameObject::GetTransform() const
+{
+    return Position;
+}
+
 void FGameObject::AddComponent(FObjectComponent* ComponentToAdd)
 {
+    ComponentToAdd->SetOwner(this);
     Components.insert(ComponentToAdd);
 }
 
 void FGameObject::DeleteComponent(FObjectComponent* ComponentToDelete)
 {
     Components.erase(ComponentToDelete);
+}
+
+void FGameObject::AddTransform(DirectX::SimpleMath::Vector4 Transform)
+{
+    Position += Transform;
+}
+
+void FGameObject::SetPosition(DirectX::SimpleMath::Vector4 NewPosition)
+{
+    Position = NewPosition;
 }

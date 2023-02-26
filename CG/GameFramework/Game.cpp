@@ -2,6 +2,7 @@
 
 #include "DisplayWin32.h"
 #include "GameObjects/GameObject.h"
+#include "Utils/InputDevice.h"
 #include "Sources.h"
 #include <chrono>
 
@@ -15,6 +16,7 @@ FGame::FGame()
 void FGame::CreateResources()
 {
 	Display = new FDisplayWin32(ApplicationName, ScreenWidth, ScreenHeight, WndProc);
+	Input = new InputDevice(this);
 	
 	constexpr D3D_FEATURE_LEVEL FeatureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 
@@ -113,15 +115,8 @@ FGame* FGame::Instance()
 	return GameInstance;
 }
 
-void FGame::InternalUpdate()
+void FGame::Update(float DeltaTime)
 {
-	auto curTime = std::chrono::steady_clock::now();
-	const float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
-	PrevTime = curTime;
-
-	totalTime += deltaTime;
-	frameCount++;
-
 	if (totalTime > 1.0f)
 	{
 		float fps = frameCount / totalTime;
@@ -147,6 +142,8 @@ void FGame::InternalUpdate()
 	Viewport.TopLeftY = 0;
 
 	FGame::Instance()->GetContext()->RSSetViewports(1, &Viewport);
+
+	UpdateGameObjects();
 	
 	BeginFrame();
 	DrawGameObjects();
@@ -180,7 +177,13 @@ void FGame::Run()
 			isExitRequested = true;
 		}
 		
-		InternalUpdate();
+		const auto CurTime = std::chrono::steady_clock::now();
+		const float DeltaTime = std::chrono::duration_cast<std::chrono::microseconds>(CurTime - PrevTime).count() / 1000000.0f;
+		PrevTime = CurTime;
+		totalTime += DeltaTime;
+		frameCount++;
+		
+		Update(DeltaTime);
 	}
 }
 
@@ -211,23 +214,66 @@ void FGame::DeleteGameObject(FGameObject* ObjectToDelete)
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
+	return FGame::Instance()->MessageHandler(hwnd, umessage, wparam, lparam);
+}
+
+LRESULT FGame::MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
 	switch (umessage)
 	{
-	case WM_KEYDOWN:
+	case WM_INPUT:
+	{
+		UINT dwSize = 0;
+		GetRawInputData(reinterpret_cast<HRAWINPUT>(lparam), RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER));
+		LPBYTE lpb = new BYTE[dwSize];
+
+		if (lpb == nullptr)
 		{
-			// If a key is pressed send it to the input object so it can record that state.
-			std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
-			
 			return 0;
 		}
-	case WM_CLOSE:
+
+		if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
 		{
-			PostQuitMessage(0);
-			return 0;
+			OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
 		}
+
+		RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(lpb);
+
+		if (raw->header.dwType == RIM_TYPEKEYBOARD)
+		{
+			//printf(" Kbd: make=%04i Flags:%04i Reserved:%04i ExtraInformation:%08i, msg=%04i VK=%i \n",
+			//	raw->data.keyboard.MakeCode,
+			//	raw->data.keyboard.Flags,
+			//	raw->data.keyboard.Reserved,
+			//	raw->data.keyboard.ExtraInformation,
+			//	raw->data.keyboard.Message,
+			//	raw->data.keyboard.VKey);
+
+			Input->OnKeyDown({
+				raw->data.keyboard.MakeCode,
+				raw->data.keyboard.Flags,
+				raw->data.keyboard.VKey,
+				raw->data.keyboard.Message
+				});
+		}
+		else if (raw->header.dwType == RIM_TYPEMOUSE)
+		{
+			//printf(" Mouse: X=%04d Y:%04d \n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+			Input->OnMouseMove({
+				raw->data.mouse.usFlags,
+				raw->data.mouse.usButtonFlags,
+				static_cast<int>(raw->data.mouse.ulExtraInformation),
+				static_cast<int>(raw->data.mouse.ulRawButtons),
+				static_cast<short>(raw->data.mouse.usButtonData),
+				raw->data.mouse.lLastX,
+				raw->data.mouse.lLastY
+				});
+		}
+		delete[] lpb;
+		return DefWindowProc(hwnd, umessage, wparam, lparam);
+	}
 	default:
-		{
-			return DefWindowProc(hwnd, umessage, wparam, lparam);
-		}
+	{
+		return DefWindowProc(hwnd, umessage, wparam, lparam);
+	}
 	}
 }

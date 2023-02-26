@@ -9,6 +9,7 @@
 
 class FDisplayWin32;
 class FGameObject;
+class InputDevice;
 
 class FGame
 {
@@ -18,26 +19,31 @@ public:
 	void operator = (const FGame&) = delete;
 
 	static FGame* Instance();
-	void InternalUpdate();
 
-	void Run();
+	virtual void Run();
 
 	FDisplayWin32& GetDisplay();
-	Microsoft::WRL::ComPtr<ID3D11Device> GetDevice() const;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext() const;
+	[[nodiscard]] Microsoft::WRL::ComPtr<ID3D11Device> GetDevice() const;
+	[[nodiscard]] Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext() const;
 
 	void AddGameObject(FGameObject* ObjectToAdd);
 	void DeleteGameObject(FGameObject* ObjectToDelete);
 	
+	LRESULT MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
 protected:
 
-		inline static FGame* GameInstance = nullptr;
+	inline static FGame* GameInstance = nullptr;
 
-		FGame();
+	FGame();
 
+	virtual void Update(float DeltaTime);
+	
+	InputDevice* Input;
+	
 private:
-
+	
 	FDisplayWin32* Display;
+	
 	Microsoft::WRL::ComPtr<ID3D11Device> Device = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> Context = nullptr;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> SwapChain = nullptr;
