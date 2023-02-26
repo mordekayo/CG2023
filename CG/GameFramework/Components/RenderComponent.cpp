@@ -20,7 +20,7 @@ void FRenderComponent::Init()
 	ID3DBlob* ErrorCode = nullptr;
 	
 	//"././GameFramework/Shaders/MyVeryFirstShader.hlsl"
-	HRESULT Result = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
+	HRESULT Result = D3DCompileFromFile(L"../GameFramework/Shaders/MyVeryFirstShader.hlsl",
 		nullptr /*macros*/,
 		nullptr /*include*/,
 		"VSMain",
@@ -52,7 +52,7 @@ void FRenderComponent::Init()
 
 	Microsoft::WRL::ComPtr<ID3DBlob> PixelShaderByteCode;
 	
-	Result = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
+	Result = D3DCompileFromFile(L"../GameFramework/Shaders/MyVeryFirstShader.hlsl",
 		Shader_Macros /*macros*/,
 		nullptr /*include*/,
 		"PSMain",
