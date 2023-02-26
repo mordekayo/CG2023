@@ -1,5 +1,5 @@
 #pragma once
-#include "FObjectComponent.h"
+#include "ObjectComponent.h"
 #include <d3d11.h>
 #include <windows.h>
 #include <wrl.h>

@@ -1,11 +1,9 @@
-#include "FGame.h"
+#include "Game.h"
 
-#include "FDisplayWin32.h"
-#include "GameObjects/FGameObject.h"
-#include "FSources.h"
+#include "DisplayWin32.h"
+#include "GameObjects/GameObject.h"
+#include "Sources.h"
 #include <chrono>
-
-FGame* FGame::GameInstance = nullptr;
 
 FGame::FGame()
 {

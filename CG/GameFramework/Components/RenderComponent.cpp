@@ -1,10 +1,11 @@
-#include "FRenderComponent.h"
+#include "RenderComponent.h"
 
+#include <iostream>
 #include <d3dcommon.h>
 #include <d3dcompiler.h>
 #include "../Utils/SimpleMath.h"
-#include "../FDisplayWin32.h"
-#include "../FGame.h"
+#include "../DisplayWin32.h"
+#include "../Game.h"
 
 FRenderComponent::~FRenderComponent()
 {
@@ -18,6 +19,7 @@ void FRenderComponent::Init()
 		Microsoft::WRL::ComPtr<ID3DBlob> VertexShaderByteCode;
 	ID3DBlob* ErrorCode = nullptr;
 	
+	//"././GameFramework/Shaders/MyVeryFirstShader.hlsl"
 	HRESULT Result = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
 		nullptr /*macros*/,
 		nullptr /*include*/,
@@ -59,7 +61,7 @@ void FRenderComponent::Init()
 		0,
 		&PixelShaderByteCode,
 		&ErrorCode);
-	
+
 	FGame::Instance()->GetDevice()->CreateVertexShader(
 		VertexShaderByteCode->GetBufferPointer(),
 		VertexShaderByteCode->GetBufferSize(),

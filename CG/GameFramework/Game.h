@@ -2,7 +2,6 @@
 
 #include <chrono>
 #include <windows.h>
-#include <iostream>
 #include <wrl.h>
 #include <d3d.h>
 #include <d3d11.h>
@@ -30,10 +29,13 @@ public:
 	void AddGameObject(FGameObject* ObjectToAdd);
 	void DeleteGameObject(FGameObject* ObjectToDelete);
 	
-private:
+protected:
 
-	FGame();
-	static FGame* GameInstance;
+		inline static FGame* GameInstance = nullptr;
+
+		FGame();
+
+private:
 
 	FDisplayWin32* Display;
 	Microsoft::WRL::ComPtr<ID3D11Device> Device = nullptr;

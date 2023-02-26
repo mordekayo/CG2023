@@ -1,4 +1,4 @@
-#include "FObjectComponent.h"
+#include "ObjectComponent.h"
 
 void FObjectComponent::Init()
 {

@@ -1,6 +1,8 @@
-FirstHomework/FirstHomework/Debug/*
-FirstHomework/Debug/*
-FirstHomework/.vs/*
-FirstHomework/x64/*
-FirstHomework/FirstHomework/x64/*
-FirstHomework/.idea/*
+CG/GameFramework/Debug/*
+CG/Debug/*
+CG/.vs/*
+CG/x64/*
+CG/GameFramework/x64/*
+CG/.idea/*
+CG/Pong/Debug/*
+CG/Pong/x64/*
