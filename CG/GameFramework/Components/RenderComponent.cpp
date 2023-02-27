@@ -168,7 +168,7 @@ void FRenderComponent::Update()
 void FRenderComponent::Draw()
 {
     FGame::Instance()->GetContext()->IASetInputLayout(InputLayout.Get());
-    FGame::Instance()->GetContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    FGame::Instance()->GetContext()->IASetPrimitiveTopology(Topology);
     FGame::Instance()->GetContext()->IASetIndexBuffer(IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
     FGame::Instance()->GetContext()->IASetVertexBuffers(0, 1, VertexBuffer.GetAddressOf(), Strides, Offsets);
     FGame::Instance()->GetContext()->VSSetShader(VertexShader.Get(), nullptr, 0);
@@ -187,4 +187,9 @@ void FRenderComponent::SetPoints(std::vector<DirectX::XMFLOAT4>&& NewPoints)
 void FRenderComponent::SetIndicies(std::vector<int>&& NewIndicies)
 {
 	Indicies = std::move(NewIndicies);
+}
+
+void FRenderComponent::SetTopology(D3D11_PRIMITIVE_TOPOLOGY NewTopology)
+{
+	Topology = NewTopology;
 }

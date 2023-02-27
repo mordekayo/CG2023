@@ -39,7 +39,11 @@ protected:
 	virtual void Update(float DeltaTime);
 	
 	InputDevice* Input;
-	
+
+	LPCWSTR ApplicationName;
+	int ScreenWidth;
+	int ScreenHeight;
+
 private:
 	
 	FDisplayWin32* Display;
@@ -66,10 +70,6 @@ private:
 	
 	std::set<FGameObject*> GameObjects;
 	
-	LPCWSTR ApplicationName;
-	int ScreenWidth;
-	int ScreenHeight;
-
 	std::chrono::time_point<std::chrono::steady_clock> PrevTime;
 	float totalTime = 0;
 	unsigned frameCount = 0;

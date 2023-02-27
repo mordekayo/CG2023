@@ -19,11 +19,13 @@ public:
 
     void SetPoints(std::vector<DirectX::XMFLOAT4> &&NewPoints);
     void SetIndicies(std::vector<int> &&NewIndicies);
+    void SetTopology(D3D11_PRIMITIVE_TOPOLOGY NewTopology);
 
 private:
 
     std::vector<DirectX::XMFLOAT4> Points;
     std::vector<int> Indicies;
+    D3D11_PRIMITIVE_TOPOLOGY Topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     
     UINT Strides[1];
     UINT Offsets[1];

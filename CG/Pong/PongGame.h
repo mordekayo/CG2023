@@ -1,7 +1,8 @@
 #pragma once
-#include <DirectXMath.h>
 
 #include "../GameFramework/Game.h"
+#include "../GameFramework/Utils/SimpleMath.h"
+#include "DirectXCollision.h"
 
 class PongGame : public FGame
 {
@@ -22,10 +23,18 @@ protected:
 private:
 	
 	FGameObject* LeftPlayer = nullptr;
+	DirectX::BoundingBox* LeftPlayerRacketCollision = nullptr;
+	FGameObject* LeftPlayerRacketCollisionVisualizer = nullptr;
+	
 	FGameObject* RightPlayer = nullptr;
+	DirectX::BoundingBox* RightPlayerRacketCollision = nullptr;
+	FGameObject* RightPlayerRacketCollisionVisualizer = nullptr;
+	
 	FGameObject* Ball = nullptr;
-
-	DirectX::FXMVECTOR BallDirection = {1.0f, 0.5f, 0.0f, 0.0f};
-	float BallSpeed = 0.5f;
+	DirectX::BoundingSphere* BallCollision = nullptr;
+	FGameObject* BallCollisionVisualizer = nullptr;
+	
+	DirectX::SimpleMath::Vector4 BallDirection = {-0.3f, 0.1f, 0.0f, 0.0f};
+	float BallSpeed = 0.3f;
 
 };

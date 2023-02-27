@@ -90,7 +90,7 @@ void FGame::DrawGameObjects() const
 void FGame::BeginFrame()
 {
 	Context->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), nullptr);
-	const float Color[] = { 1.0f, 0.1f, 0.1f, 1.0f };
+	const float Color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	Context->ClearRenderTargetView(RenderTargetView.Get(), Color);
 }
 
