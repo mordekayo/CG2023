@@ -22,7 +22,6 @@ public:
     void SetTopology(D3D11_PRIMITIVE_TOPOLOGY NewTopology);
 
 private:
-    DirectX::XMMATRIX Transform;
     
     std::vector<DirectX::XMFLOAT4> LocalPoints;
     std::vector<int> Indicies;

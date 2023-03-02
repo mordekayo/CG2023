@@ -24,7 +24,7 @@ class FGameObject
 
 protected:
 
-	DirectX::SimpleMath::Vector4 Position = {0.0f, 0.0f, 0.0f, 0.0f};
+	DirectX::SimpleMath::Vector4 Position = {0.0f, 0.0f, 0.0f, 1.0f};
 	std::set<FObjectComponent*> Components; 
 	
 };

@@ -161,13 +161,8 @@ void FRenderComponent::Update()
 
 	const DirectX::XMMATRIX TranslatedMatrix = DirectX::XMMatrixTranslation(OwnerTransform.x, OwnerTransform.y, OwnerTransform.z);
 
-	//Transform = DirectX::XMMatrixMultiply(ScaledMatrix, TranslatedMatrix);
+	const DirectX::XMMATRIX Transform = DirectX::XMMatrixTranspose(DirectX::XMMatrixMultiply(ScaledMatrix, TranslatedMatrix));
 
-	Transform = {1.0f, 0.0f, 0.0f, 0.0f,
-	             0.0f, 1.0f, 0.0f, 0.0f,
-				 0.0f, 0.0f, 1.0f, 0.0f,
-				 0.0f, 0.0f, 0.0f, 1.0f};
-	
 	FGame::Instance()->GetContext()->UpdateSubresource(ConstantBuffer, 0, nullptr, &Transform, 0, 0);
 }
 
