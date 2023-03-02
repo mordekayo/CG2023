@@ -49,12 +49,12 @@ void FRenderComponent::Init()
 		return;
 	}
 
-    const D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
+    const D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 0.0f, 0.0f, 1.0f)", nullptr, nullptr };
 
 	Microsoft::WRL::ComPtr<ID3DBlob> PixelShaderByteCode;
 	
 	Result = D3DCompileFromFile(L"../GameFramework/Shaders/MyVeryFirstShader.hlsl",
-		Shader_Macros /*macros*/,
+		nullptr /*macros*/,
 		nullptr /*include*/,
 		"PSMain",
 		"ps_5_0",
@@ -106,30 +106,6 @@ void FRenderComponent::Init()
 	
 	Strides[0] = 32;
 	Offsets[0] = 0;
-	
-	D3D11_BUFFER_DESC ConstBufDesc = {};
-	ConstBufDesc.Usage = D3D11_USAGE_DEFAULT;
-	ConstBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	ConstBufDesc.CPUAccessFlags = 0;
-	ConstBufDesc.MiscFlags = 0;
-	ConstBufDesc.StructureByteStride = 0;
-	ConstBufDesc.ByteWidth = sizeof(DirectX::SimpleMath::Vector4);
-	FGame::Instance()->GetDevice()->CreateBuffer(&ConstBufDesc, nullptr, ConstantBuffer.GetAddressOf());
-}
-
-void FRenderComponent::Update()
-{
-	FObjectComponent::Update();
-
-	std::vector<DirectX::XMFLOAT4> GlobalPoints = Points;
-	DirectX::XMFLOAT4 OwnerTransform = Owner->GetTransform();
-	for (DirectX::XMFLOAT4 &Point : GlobalPoints)
-	{
-		Point.x += OwnerTransform.x;
-		Point.y += OwnerTransform.y;
-		Point.z += OwnerTransform.z;
-		Point.w += OwnerTransform.w;
-	}
 
 	D3D11_BUFFER_DESC VertexBufDesc = {};
 	VertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -137,10 +113,10 @@ void FRenderComponent::Update()
 	VertexBufDesc.CPUAccessFlags = 0;
 	VertexBufDesc.MiscFlags = 0;
 	VertexBufDesc.StructureByteStride = 0;
-	VertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * static_cast<UINT>(std::size(GlobalPoints));
+	VertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * static_cast<UINT>(std::size(LocalPoints));
 
 	D3D11_SUBRESOURCE_DATA VertexData = {};
-	VertexData.pSysMem = GlobalPoints.data();
+	VertexData.pSysMem = LocalPoints.data();
 	VertexData.SysMemPitch = 0;
 	VertexData.SysMemSlicePitch = 0;
 	
@@ -161,8 +137,38 @@ void FRenderComponent::Update()
 	
 	FGame::Instance()->GetDevice()->CreateBuffer(&IndexBufDesc, &IndexData, IndexBuffer.GetAddressOf());
 	
-	DirectX::SimpleMath::Vector4 SrcData = {1.0f, 0.0f, 0.0f, 0.0f};
-	FGame::Instance()->GetContext()->UpdateSubresource(ConstantBuffer.Get(), 0, nullptr, &SrcData, 0, 0);
+	D3D11_BUFFER_DESC ConstBufDesc = {};
+	ConstBufDesc.Usage = D3D11_USAGE_DEFAULT;
+	ConstBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	ConstBufDesc.CPUAccessFlags = 0;
+	ConstBufDesc.MiscFlags = 0;
+	ConstBufDesc.StructureByteStride = 0;
+	ConstBufDesc.ByteWidth = sizeof(DirectX::XMMATRIX);
+	FGame::Instance()->GetDevice()->CreateBuffer(&ConstBufDesc, nullptr, &ConstantBuffer);
+}
+
+void FRenderComponent::Update()
+{
+	FObjectComponent::Update();
+	
+	const DirectX::XMFLOAT4 OwnerTransform = Owner->GetTransform();
+	
+	const DirectX::XMMATRIX ScaledMatrix = DirectX::XMMatrixScaling(
+			static_cast<float>(FGame::Instance()->GetDisplay().GetScreenHeight())/
+			static_cast<float>(FGame::Instance()->GetDisplay().GetScreenWidth()),
+			1.0f,
+			1.0f);
+
+	const DirectX::XMMATRIX TranslatedMatrix = DirectX::XMMatrixTranslation(OwnerTransform.x, OwnerTransform.y, OwnerTransform.z);
+
+	//Transform = DirectX::XMMatrixMultiply(ScaledMatrix, TranslatedMatrix);
+
+	Transform = {1.0f, 0.0f, 0.0f, 0.0f,
+	             0.0f, 1.0f, 0.0f, 0.0f,
+				 0.0f, 0.0f, 1.0f, 0.0f,
+				 0.0f, 0.0f, 0.0f, 1.0f};
+	
+	FGame::Instance()->GetContext()->UpdateSubresource(ConstantBuffer, 0, nullptr, &Transform, 0, 0);
 }
 
 void FRenderComponent::Draw()
@@ -174,14 +180,14 @@ void FRenderComponent::Draw()
     FGame::Instance()->GetContext()->VSSetShader(VertexShader.Get(), nullptr, 0);
     FGame::Instance()->GetContext()->PSSetShader(PixelShader.Get(), nullptr, 0);
 	
-    FGame::Instance()->GetContext()->VSSetConstantBuffers(0, 1, ConstantBuffer.GetAddressOf());
+    FGame::Instance()->GetContext()->VSSetConstantBuffers(0, 1, &ConstantBuffer);
 	
-    FGame::Instance()->GetContext()->DrawIndexed(6, 0, 0);
+    FGame::Instance()->GetContext()->DrawIndexed(Indicies.size(), 0, 0);
 }
 
 void FRenderComponent::SetPoints(std::vector<DirectX::XMFLOAT4>&& NewPoints)
 {
-	Points = std::move(NewPoints);
+	LocalPoints = std::move(NewPoints);
 }
 
 void FRenderComponent::SetIndicies(std::vector<int>&& NewIndicies)

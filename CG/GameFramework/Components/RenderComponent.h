@@ -22,8 +22,9 @@ public:
     void SetTopology(D3D11_PRIMITIVE_TOPOLOGY NewTopology);
 
 private:
-
-    std::vector<DirectX::XMFLOAT4> Points;
+    DirectX::XMMATRIX Transform;
+    
+    std::vector<DirectX::XMFLOAT4> LocalPoints;
     std::vector<int> Indicies;
     D3D11_PRIMITIVE_TOPOLOGY Topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     
@@ -35,5 +36,5 @@ private:
     Microsoft::WRL::ComPtr<ID3D11InputLayout> InputLayout;
     Microsoft::WRL::ComPtr<ID3D11Buffer> VertexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> IndexBuffer;
-    Microsoft::WRL::ComPtr<ID3D11Buffer> ConstantBuffer;
+    ID3D11Buffer* ConstantBuffer;
 };
