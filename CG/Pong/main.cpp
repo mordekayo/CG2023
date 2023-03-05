@@ -10,5 +10,4 @@ int main()
     GameObject->AddComponent(new FRenderComponent());
     MyGame->AddGameObject(GameObject);
     MyGame->Run();
-    delete MyGame;
 }

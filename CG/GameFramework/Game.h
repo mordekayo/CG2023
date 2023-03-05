@@ -73,6 +73,8 @@ private:
 	std::chrono::time_point<std::chrono::steady_clock> PrevTime;
 	float totalTime = 0;
 	unsigned frameCount = 0;
+
+	bool isExitRequested = false;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

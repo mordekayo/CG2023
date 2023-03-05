@@ -162,7 +162,6 @@ void FGame::Run()
 
 
 	MSG msg = {};
-	bool isExitRequested = false;
 	while (!isExitRequested)
 	{
 	
@@ -220,6 +219,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 LRESULT FGame::MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
 	switch (umessage)
 	{
+	case WM_CLOSE:
+		{
+			PostQuitMessage(0);
+			isExitRequested = true;
+			return 0;
+		}
 	case WM_INPUT:
 	{
 		UINT dwSize = 0;

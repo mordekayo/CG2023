@@ -7,5 +7,6 @@ int main()
 {
     SolarSystemGame* MyGame = SolarSystemGame::Instance();
     MyGame->Run();
-    delete MyGame;
+
+    return 0;
 }
