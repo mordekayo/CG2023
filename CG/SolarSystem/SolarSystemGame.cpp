@@ -34,35 +34,6 @@ void SolarSystemGame::Construct()
 
 void SolarSystemGame::Update(float DeltaTime)
 {
-    if (Input->IsKeyDown(Keys::P))
-    {
-        if (!WasProjectionKeyDown)
-        {
-            WasProjectionKeyDown = true;
-            Camera->TogglePerspective();
-        }
-    }
-    else
-    {
-        WasProjectionKeyDown = false;
-    }
-	if (Input->IsKeyDown(Keys::A))
-    {
-        
-    }
-	if (Input->IsKeyDown(Keys::D)) 
-    {
-
-    }
-	if (Input->IsKeyDown(Keys::W))
-	{
-
-	}
-	if (Input->IsKeyDown(Keys::S))
-	{
-
-	}
-
-
     FGame::Update(DeltaTime);
 }
+

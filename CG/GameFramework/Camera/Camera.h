@@ -13,6 +13,12 @@ public:
 
     void TogglePerspective();
 
+    void AddTransform(DirectX::SimpleMath::Vector3 NewTransform);
+    void SetTransform(DirectX::SimpleMath::Vector3 NewTransform);
+    DirectX::SimpleMath::Vector3 GetTransform();
+
+    void SetTarget(DirectX::SimpleMath::Vector3 NewTarget);
+
 private:
 
     bool IsPerspective = true;
@@ -22,7 +28,7 @@ private:
     DirectX::SimpleMath::Matrix ViewMatrix;
     DirectX::SimpleMath::Matrix ProjectionMatrix;
     
-    DirectX::SimpleMath::Vector3 Position = {0.0f, 0.0f, -0.5f};
+    DirectX::SimpleMath::Vector3 Transform = {0.0f, 0.0f, -1.0f};
     DirectX::SimpleMath::Vector3 UpVector = {0.0f, 1.0f, 0.0f};
     DirectX::SimpleMath::Vector3 Target = {0.0f, 0.0f, 0.0f};
     

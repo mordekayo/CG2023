@@ -11,11 +11,11 @@ FCamera::FCamera()
 
 void FCamera::Update(float DeltaTime)
 {
-    //std::cout << "Pos x: " << Position.x << " Pos y: " << Position.y << " Pos z: " << Position.z << std::endl;
-    //std::cout << "Tar x: " << Target.x << " Pos y: " << Target.y << " Tar z: " << Target.z << std::endl;
-    //std::cout << "Up x: " << UpVector.x << " Up y: " << UpVector.y << " Up z: " << UpVector.z << std::endl;
-    //
-    ViewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(Position, Target, UpVector);
+    std::cout << "Pos x: " << Transform.x << " Pos y: " << Transform.y << " Pos z: " << Transform.z << std::endl;
+    std::cout << "Tar x: " << Target.x << " Pos y: " << Target.y << " Tar z: " << Target.z << std::endl;
+    std::cout << "Up x: " << UpVector.x << " Up y: " << UpVector.y << " Up z: " << UpVector.z << std::endl;
+    
+    ViewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(Transform, Target, UpVector);
 
     if (IsPerspective)
     {
@@ -44,4 +44,24 @@ DirectX::SimpleMath::Matrix FCamera::GetViewProjectionMatrix(DirectX::SimpleMath
 void FCamera::TogglePerspective()
 {
     IsPerspective = !IsPerspective;
+}
+
+void FCamera::AddTransform(DirectX::SimpleMath::Vector3 NewTransform)
+{
+    Transform += NewTransform;
+}
+
+void FCamera::SetTransform(DirectX::SimpleMath::Vector3 NewTransform)
+{
+    Transform = NewTransform;
+}
+
+DirectX::SimpleMath::Vector3 FCamera::GetTransform()
+{
+    return Transform;
+}
+
+void FCamera::SetTarget(DirectX::SimpleMath::Vector3 NewTarget)
+{
+    Target = NewTarget;
 }

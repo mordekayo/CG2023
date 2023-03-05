@@ -44,7 +44,8 @@ private:
 	int Player1Points = 0;
 	int Player2Points = 0;
 	
-	DirectX::SimpleMath::Vector4 BallDirection = {-0.3f, 0.0f, 0.0f, 0.0f};
+	DirectX::SimpleMath::Vector3 BallDirection = {-0.3f, 0.0f, 0.0f};
+	
 	float BallSpeed = 0.5f;
 	float RacketSpeed = 1.0f;
 

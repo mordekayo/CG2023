@@ -17,7 +17,6 @@ protected:
     void Update(float DeltaTime) override;
 
 private:
-
-    bool WasProjectionKeyDown = false;
+    
     std::map<std::string, Planet*> Planets;
 };

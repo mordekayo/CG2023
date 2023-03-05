@@ -7,6 +7,7 @@
 #include <chrono>
 
 #include "Camera/Camera.h"
+#include "Camera/FPSCameraController.h"
 
 FGame::FGame()
 {
@@ -20,6 +21,8 @@ void FGame::CreateResources()
 	Display = new FDisplayWin32(ApplicationName, ScreenWidth, ScreenHeight, WndProc);
 	Input = new InputDevice(this);
 	Camera = new FCamera();
+	FPSCameraController = new FFPSCameraController();
+	FPSCameraController->SetCamera(Camera);
 
 	constexpr D3D_FEATURE_LEVEL FeatureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 
@@ -153,6 +156,7 @@ void FGame::Update(float DeltaTime)
 	EndFrame();
 
 	Camera->Update(DeltaTime);
+	FPSCameraController->Update(DeltaTime);
 }
 
 void FGame::Construct()
@@ -206,6 +210,11 @@ FDisplayWin32& FGame::GetDisplay()
 	return *Display;
 }
 
+InputDevice* FGame::GetInputDevice() const
+{
+	return Input;
+}
+
 Microsoft::WRL::ComPtr<ID3D11Device> FGame::GetDevice() const
 {
 	return Device;
@@ -216,7 +225,7 @@ Microsoft::WRL::ComPtr<ID3D11DeviceContext> FGame::GetContext() const
 	return Context;
 }
 
-FCamera* FGame::GetCamera()
+FCamera* FGame::GetCamera() const
 {
 	return Camera;
 }

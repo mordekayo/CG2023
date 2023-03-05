@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera\Camera.cpp" />
+    <ClCompile Include="Camera\FPSCameraController.cpp" />
     <ClCompile Include="Components\CollisionComponents\BoxCollisionComponent.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -321,6 +322,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera\Camera.h" />
+    <ClInclude Include="Camera\FPSCameraController.h" />
     <ClInclude Include="Components\CollisionComponents\BoxCollisionComponent.h" />
     <ClInclude Include="Components\CollisionComponents\CollisionComponent.h" />
     <ClInclude Include="Components\CollisionComponents\SphereCollisionComponent.h" />

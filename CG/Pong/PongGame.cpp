@@ -28,9 +28,9 @@ void PongGame::Update(float DeltaTime)
 	if (BallCollision->Center.x < -1.0f)
 	{
 		BallSpeed = 0.3f;
-		Ball->SetPosition({0.0f,0.0f,0.0f, 0.0f});
+		Ball->SetTransform({0.0f,0.0f,0.0f});
 		BallCollision->Center = {0.0f, 0.0f, 0.0f};
-		BallCollisionVisualizer->SetPosition(Ball->GetTransform());
+		BallCollisionVisualizer->SetTransform(Ball->GetTransform());
 		BallDirection.x = 1.0f;
 		BallDirection.y = 0.5f;
 		BallDirection.z = 0.0f;
@@ -40,9 +40,9 @@ void PongGame::Update(float DeltaTime)
 	if (BallCollision->Center.x > 1.0f)
 	{
 		BallSpeed = 0.3f;
-		Ball->SetPosition({0.0f,0.0f,0.0f, 0.0f});
+		Ball->SetTransform({0.0f,0.0f,0.0f});
 		BallCollision->Center = {0.0f, 0.0f, 0.0f};
-		BallCollisionVisualizer->SetPosition(Ball->GetTransform());
+		BallCollisionVisualizer->SetTransform(Ball->GetTransform());
 		BallDirection.x = -1.0f;
 		BallDirection.y = 0.5f;
 		BallDirection.z = 0.0f;
@@ -56,28 +56,28 @@ void PongGame::Update(float DeltaTime)
 	{
 		if (LeftPlayer->GetTransform().y < 1.0f - 0.2)
 		{
-			LeftPlayer->AddTransform({0.0f, RacketSpeed * DeltaTime, 0.0f, 0.0f});
+			LeftPlayer->AddTransform({0.0f, RacketSpeed * DeltaTime, 0.0f});
 			LeftPlayerRacketCollision->Center =
 				{
 					LeftPlayerRacketCollision->Center.x,
 					LeftPlayerRacketCollision->Center.y + RacketSpeed * DeltaTime,
 					0.0f
 				};
-			LeftPlayerRacketCollisionVisualizer->AddTransform({ 0.0f, RacketSpeed * DeltaTime, 0.0f, 0.0f });
+			LeftPlayerRacketCollisionVisualizer->AddTransform({ 0.0f, RacketSpeed * DeltaTime, 0.0f });
 		}
 	}
 	if (Input->IsKeyDown(Keys::S)) 
 	{
 		if (LeftPlayer->GetTransform().y > -1.0f + 0.2)
 		{
-			LeftPlayer->AddTransform({0.0f, - RacketSpeed * DeltaTime, 0.0f, 0.0f});
+			LeftPlayer->AddTransform({0.0f, - RacketSpeed * DeltaTime, 0.0f});
 			LeftPlayerRacketCollision->Center =
 				{
 				LeftPlayerRacketCollision->Center.x,
 				LeftPlayerRacketCollision->Center.y - RacketSpeed * DeltaTime,
 				0.0f
 				};
-			LeftPlayerRacketCollisionVisualizer->AddTransform({ 0.0f, - RacketSpeed * DeltaTime, 0.0f, 0.0f });
+			LeftPlayerRacketCollisionVisualizer->AddTransform({ 0.0f, - RacketSpeed * DeltaTime, 0.0f });
 		}
 	}
 	
@@ -87,28 +87,28 @@ void PongGame::Update(float DeltaTime)
 	{
 		if (RightPlayer->GetTransform().y < 1.0f - 0.2)
 		{
-			RightPlayer->AddTransform({ 0.0f, RacketSpeed * DeltaTime, 0.0f, 0.0f });
+			RightPlayer->AddTransform({ 0.0f, RacketSpeed * DeltaTime, 0.0f });
 			RightPlayerRacketCollision->Center =
 			{
 				RightPlayerRacketCollision->Center.x,
 				RightPlayerRacketCollision->Center.y + RacketSpeed * DeltaTime,
 				0.0f
 			};
-			RightPlayerRacketCollisionVisualizer->AddTransform({ 0.0f, RacketSpeed * DeltaTime, 0.0f, 0.0f });
+			RightPlayerRacketCollisionVisualizer->AddTransform({ 0.0f, RacketSpeed * DeltaTime, 0.0f });
 		}
 	}
 	if (Input->IsKeyDown(Keys::Down))  
 	{
 		if (RightPlayer->GetTransform().y > -1.0f + 0.2)
 		{
-			RightPlayer->AddTransform({0.0f, -RacketSpeed * DeltaTime, 0.0f, 0.0f});
+			RightPlayer->AddTransform({0.0f, -RacketSpeed * DeltaTime, 0.0f });
 			RightPlayerRacketCollision->Center =
 				{
 				RightPlayerRacketCollision->Center.x,
 				RightPlayerRacketCollision->Center.y - RacketSpeed * DeltaTime,
 				0.0f
 				};
-			RightPlayerRacketCollisionVisualizer->AddTransform({ 0.0f, -RacketSpeed * DeltaTime, 0.0f, 0.0f });
+			RightPlayerRacketCollisionVisualizer->AddTransform({ 0.0f, -RacketSpeed * DeltaTime, 0.0f });
 		}
 	}
 	
@@ -116,14 +116,14 @@ void PongGame::Update(float DeltaTime)
 
 	Ball->AddTransform(BallDirection * BallSpeed * DeltaTime);
 	BallCollision->Center = { BallCollision->Center.x + BallDirection.x * BallSpeed * DeltaTime, BallCollision->Center.y + BallDirection.y * BallSpeed * DeltaTime,  0.0f };
-	BallCollisionVisualizer->SetPosition({BallCollision->Center.x, BallCollision->Center.y, BallCollision->Center.z, 0.0f});
+	BallCollisionVisualizer->SetTransform({BallCollision->Center.x, BallCollision->Center.y, BallCollision->Center.z });
 	
 	float distance1;
 	if (RightPlayerRacketCollision->Intersects({ BallCollision->Center.x, BallCollision->Center.y, BallCollision->Center.z }, BallDirection, distance1))
 	{
 		if (BallCollision->Center.x + BallDirection.x * BallSpeed * DeltaTime > RightPlayerRacketCollision->Center.x - RightPlayerRacketCollision->Extents.x - 0.01f)
 		{
-			Ball->SetPosition({BallCollision->Center.x + BallDirection.x * distance1, BallCollision->Center.y + BallDirection.y * distance1, 0.0f, 0.0f });
+			Ball->SetTransform({BallCollision->Center.x + BallDirection.x * distance1, BallCollision->Center.y + BallDirection.y * distance1, 0.0f});
 			// REFLECT
 			DirectX::SimpleMath::Vector3 vector0 = {
 				BallCollision->Center.x - (RightPlayerRacketCollision->Center.x + RightPlayerRacketCollision->Extents.x * 2),
@@ -151,7 +151,7 @@ void PongGame::Update(float DeltaTime)
 		{
 			if (BallCollision->Center.x + BallDirection.x * BallSpeed * DeltaTime < LeftPlayerRacketCollision->Center.x + LeftPlayerRacketCollision->Extents.x + 0.01f)
 			{
-				Ball->SetPosition({BallCollision->Center.x + BallDirection.x * distance2, BallCollision->Center.y + BallDirection.y * distance2, 0.0f, 0.0f });
+				Ball->SetTransform({BallCollision->Center.x + BallDirection.x * distance2, BallCollision->Center.y + BallDirection.y * distance2, 0.0f });
 				// REFLECT
 				DirectX::SimpleMath::Vector3 vector0 = {
 					BallCollision->Center.x - (LeftPlayerRacketCollision->Center.x - LeftPlayerRacketCollision->Extents.x * 2),
@@ -179,10 +179,10 @@ void PongGame::Update(float DeltaTime)
 			{
 				if (BallCollision->Center.y + BallDirection.y * BallSpeed * DeltaTime > TopWall->Center.y - TopWall->Extents.y - 0.01f)
 				{
-					Ball->SetPosition({ BallCollision->Center.x + BallDirection.x * distance3, BallCollision->Center.y + BallDirection.y * distance3, 0.0f, 0.0f });
+					Ball->SetTransform({ BallCollision->Center.x + BallDirection.x * distance3, BallCollision->Center.y + BallDirection.y * distance3, 0.0f });
 					// REFLECT
 					DirectX::SimpleMath::Vector3 vector = DirectX::SimpleMath::Vector3::Reflect({ BallDirection.x, BallDirection.y, BallDirection.z }, { 0.0f, -1.0f, 0.0f });
-					BallDirection = { vector.x, vector.y, vector.z };
+					BallDirection = vector;
 				}
 				else
 				{
@@ -197,11 +197,11 @@ void PongGame::Update(float DeltaTime)
 				{
 					if (BallCollision->Center.y + BallDirection.y * BallSpeed * DeltaTime < BottomWall->Center.y + BottomWall->Extents.y + 0.01f)
 					{
-						Ball->SetPosition({ BallCollision->Center.x + BallDirection.x * distance4, BallCollision->Center.y + BallDirection.y * distance4, 0.0f, 0.0f });
+						Ball->SetTransform({ BallCollision->Center.x + BallDirection.x * distance4, BallCollision->Center.y + BallDirection.y * distance4, 0.0f });
 						BallCollision->Center = { BallCollision->Center.x + BallDirection.x * distance4, BallCollision->Center.y + BallDirection.y * distance4, 0.0f };
 						// REFLECT
 						DirectX::SimpleMath::Vector3 vector = DirectX::SimpleMath::Vector3::Reflect({ BallDirection.x, BallDirection.y, BallDirection.z }, { 0.0f, 1.0f, 0.0f });
-						BallDirection = { vector.x, vector.y, vector.z };
+						BallDirection = vector;
 					}
 				}
 				else
@@ -247,7 +247,7 @@ void PongGame::Construct()
 	LeftPlayerRacketMesh->SetIndices({ 0, 1, 2, 3, 0 });
 	LeftPlayerRacketMesh->SetTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	
-	LeftPlayer->AddTransform({-0.9f, 0.0f, 0.0f, 0.0f});
+	LeftPlayer->AddTransform({-0.9f, 0.0f, 0.0f });
 	LeftPlayer->AddComponent(LeftPlayerRacketMesh);
 	
 	LeftPlayerRacketCollision = new DirectX::BoundingBox();
@@ -287,7 +287,7 @@ void PongGame::Construct()
 	RightPlayerRacketMesh->SetIndices({ 0, 1, 2, 3, 0 });
 	RightPlayerRacketMesh->SetTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	
-	RightPlayer->AddTransform({0.9f, 0.0f, 0.0f, 0.0f});
+	RightPlayer->AddTransform({0.9f, 0.0f, 0.0f });
 	RightPlayer->AddComponent(RightPlayerRacketMesh);
 	
 	RightPlayerRacketCollision = new DirectX::BoundingBox();
@@ -350,7 +350,7 @@ void PongGame::Construct()
 	BallCollision->Center = {0.0f, 0.0f, 0.0f};
 	
 	BallCollisionVisualizer = new FGameObject();
-	BallCollisionVisualizer->AddTransform({ BallCollision->Center.x, BallCollision->Center.y, BallCollision->Center.z, 0.0f});
+	BallCollisionVisualizer->AddTransform({ BallCollision->Center.x, BallCollision->Center.y, BallCollision->Center.z });
 	
 	const auto BallCollisionVisualizerMesh = new FRenderComponent();
 	
