@@ -15,7 +15,7 @@ void FCamera::Update(float DeltaTime)
     //std::cout << "Tar x: " << Target.x << " Pos y: " << Target.y << " Tar z: " << Target.z << std::endl;
     //std::cout << "Up x: " << UpVector.x << " Up y: " << UpVector.y << " Up z: " << UpVector.z << std::endl;
     //
-    ViewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(Position, { 0.5f, -0.3f, 1.0f }, UpVector);
+    ViewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(Position, Target, UpVector);
 
     if (IsPerspective)
     {
@@ -29,8 +29,8 @@ void FCamera::Update(float DeltaTime)
     else
     {
         ProjectionMatrix = DirectX::SimpleMath::Matrix::CreateOrthographic(
-            static_cast<float>(FGame::Instance()->GetDisplay().GetScreenWidth()),
-            static_cast<float>(FGame::FGame::Instance()->GetDisplay().GetScreenHeight()),
+            static_cast<float>(FGame::Instance()->GetDisplay().GetScreenWidth()) / 475,
+            static_cast<float>(FGame::FGame::Instance()->GetDisplay().GetScreenHeight()) / 475,
             0.1,
             1000);
     }
@@ -39,4 +39,9 @@ void FCamera::Update(float DeltaTime)
 DirectX::SimpleMath::Matrix FCamera::GetViewProjectionMatrix(DirectX::SimpleMath::Matrix WorldView) const
 {
     return WorldView * ViewMatrix * ProjectionMatrix;
+}
+
+void FCamera::TogglePerspective()
+{
+    IsPerspective = !IsPerspective;
 }

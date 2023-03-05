@@ -76,12 +76,14 @@ DirectX::SimpleMath::Vector3 FGameObject::GetRotationEuler() const
 void FGameObject::SetRotationQuat(DirectX::SimpleMath::Quaternion NewRotation)
 {
     Rotation = NewRotation;
+    Rotation.Normalize();
     UpdateWorldMatrix();
 }
 
 void FGameObject::SetRotationEuler(DirectX::SimpleMath::Vector3 NewRotation)
 {
     Rotation = DirectX::SimpleMath::Quaternion(NewRotation);
+    Rotation.Normalize();
     UpdateWorldMatrix();
 }
 

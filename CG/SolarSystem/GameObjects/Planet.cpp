@@ -22,9 +22,9 @@ void Planet::Update(float DeltaTime)
 
     SetRotationQuat(Rotator);
 
-    //std::cout << "x: " << GetRotationEuler().x <<
-    //             " y: " << GetRotationEuler().y <<
-    //             " z: " << GetRotationEuler().z << std::endl;
+    std::cout << "x: " << GetRotationEuler().x <<
+                 " y: " << GetRotationEuler().y <<
+                 " z: " << GetRotationEuler().z << std::endl;
 
     FGameObject::Update(DeltaTime);
 }
@@ -52,18 +52,35 @@ void Planet::Construct()
          auto phi = i * phiStep;
          for (int j = 0; j <= HorizontalSectors; j++)
          {
-             if (((j / 20 == g)) && (g < 4))
-             {
-                 color = colorBase[g++];
-             }
-             
              auto theta = j * thetaStep;
              Vertexes.push_back(DirectX::XMFLOAT4(Radius * sin(phi) * cos(theta),
                  Radius * cos(phi),
                  Radius * sin(phi) * sin(theta),
                     1.0f));
 
-                 Vertexes.push_back(color);
+             if (j > HorizontalSectors / 2)
+             {
+                 if (i > VerticalSectors / 2)
+                 {
+                     Vertexes.push_back({ 1.0f, 0.5f, 0.0f, 1.0f });
+                 }
+                 else
+                 {
+                     Vertexes.push_back({ 0.0f, 0.5f, 0.0f, 1.0f });
+                 }
+             }
+             else
+             {
+                 if (i > VerticalSectors / 2)
+                 {
+                     Vertexes.push_back({ 1.0f, 1.0f, 0.0f, 1.0f });
+                 }
+                 else
+                 {
+                     Vertexes.push_back({ 0.0f, 0.5f, 1.0f, 1.0f });
+                 }
+             }
+
          }
         g = 0;
     }

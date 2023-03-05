@@ -50,9 +50,10 @@ protected:
 	int ScreenWidth;
 	int ScreenHeight;
 
+	FCamera* Camera;
+
 private:
 
-	FCamera* Camera;
 	FDisplayWin32* Display;
 	
 	Microsoft::WRL::ComPtr<ID3D11Device> Device = nullptr;

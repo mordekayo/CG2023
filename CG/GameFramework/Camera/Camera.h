@@ -10,6 +10,9 @@ public:
     void Update(float DeltaTime);
 
     DirectX::SimpleMath::Matrix GetViewProjectionMatrix(DirectX::SimpleMath::Matrix WorldView) const;
+
+    void TogglePerspective();
+
 private:
 
     bool IsPerspective = true;
