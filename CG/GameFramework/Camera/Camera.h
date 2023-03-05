@@ -22,7 +22,7 @@ private:
     DirectX::SimpleMath::Matrix ViewMatrix;
     DirectX::SimpleMath::Matrix ProjectionMatrix;
     
-    DirectX::SimpleMath::Vector3 Position = {0.0f, 0.2f, -0.5f};
+    DirectX::SimpleMath::Vector3 Position = {0.0f, 0.0f, -0.5f};
     DirectX::SimpleMath::Vector3 UpVector = {0.0f, 1.0f, 0.0f};
     DirectX::SimpleMath::Vector3 Target = {0.0f, 0.0f, 0.0f};
     
