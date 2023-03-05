@@ -17,6 +17,7 @@ public:
 	
 	FGame(const FGame&) = delete;
 	void operator = (const FGame&) = delete;
+	virtual ~FGame() = default;
 
 	static FGame* Instance();
 
@@ -27,6 +28,7 @@ public:
 	[[nodiscard]] Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext() const;
 
 	void AddGameObject(FGameObject* ObjectToAdd);
+	void AddGameObjects(std::vector<FGameObject*> ObjectsToAdd);
 	void DeleteGameObject(FGameObject* ObjectToDelete);
 	
 	LRESULT MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
@@ -37,7 +39,8 @@ protected:
 	FGame();
 
 	virtual void Update(float DeltaTime);
-	
+
+	virtual void Construct();
 	InputDevice* Input;
 
 	LPCWSTR ApplicationName;
@@ -61,7 +64,7 @@ private:
 	void CreateResources();
 	
 	void InitGameObjects() const;
-	void UpdateGameObjects() const;
+	void UpdateGameObjects(float DeltaTime) const;
 	void DrawGameObjects() const;
 
 	void BeginFrame();

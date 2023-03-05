@@ -11,7 +11,7 @@ void FGameObject::Init() const
     }
 }
 
-void FGameObject::Update() const
+void FGameObject::Update(float DeltaTime)
 {
     for(FObjectComponent* Component : Components)
     {
@@ -30,9 +30,14 @@ void FGameObject::Draw() const
     }
 }
 
-DirectX::SimpleMath::Vector4 FGameObject::GetTransform() const
+DirectX::SimpleMath::Vector3 FGameObject::GetTransform() const
 {
-    return Position;
+    return Translation;
+}
+
+DirectX::SimpleMath::Matrix FGameObject::GetWorldView() const
+{
+    return WorldView;
 }
 
 void FGameObject::AddComponent(FObjectComponent* ComponentToAdd)
@@ -46,12 +51,46 @@ void FGameObject::DeleteComponent(FObjectComponent* ComponentToDelete)
     Components.erase(ComponentToDelete);
 }
 
-void FGameObject::AddTransform(DirectX::SimpleMath::Vector4 Transform)
+void FGameObject::AddTransform(DirectX::SimpleMath::Vector3 Transform)
 {
-    Position += Transform;
+    Translation += Transform;
+    UpdateWorldMatrix();
 }
 
-void FGameObject::SetPosition(DirectX::SimpleMath::Vector4 NewPosition)
+void FGameObject::SetTransform(DirectX::SimpleMath::Vector3 NewPosition)
 {
-    Position = NewPosition;
+    Translation = NewPosition;
+    UpdateWorldMatrix();
+}
+
+DirectX::SimpleMath::Quaternion FGameObject::GetRotationQuat() const
+{
+    return Rotation;
+}
+
+DirectX::SimpleMath::Vector3 FGameObject::GetRotationEuler() const
+{
+    return Rotation.ToEuler();
+}
+
+void FGameObject::SetRotationQuat(DirectX::SimpleMath::Quaternion NewRotation)
+{
+    Rotation = NewRotation;
+    UpdateWorldMatrix();
+}
+
+void FGameObject::SetRotationEuler(DirectX::SimpleMath::Vector3 NewRotation)
+{
+    Rotation = DirectX::SimpleMath::Quaternion(NewRotation);
+    UpdateWorldMatrix();
+}
+
+void FGameObject::UpdateWorldMatrix()
+{
+    WorldView = DirectX::SimpleMath::Matrix::CreateFromQuaternion(Rotation) * DirectX::SimpleMath::Matrix::CreateTranslation(Translation);
+}
+
+void FGameObject::Construct()
+{
+    
 }

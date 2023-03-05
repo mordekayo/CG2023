@@ -10,15 +10,16 @@ class PongGame : public FGame
 public:
 
 	static PongGame* Instance();
-
-	void Construct();
-	virtual void Run() override;
+	
+	void Run() override;
 	
 protected:
 
 	PongGame();
 
 	void Update(float DeltaTime) override;
+
+	void Construct() override;
 	
 private:
 	

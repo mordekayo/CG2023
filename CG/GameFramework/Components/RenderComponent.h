@@ -17,14 +17,14 @@ public:
     void Update() override;
     virtual void Draw();
 
-    void SetPoints(std::vector<DirectX::XMFLOAT4> &&NewPoints);
-    void SetIndicies(std::vector<int> &&NewIndicies);
+    void SetPoints(std::vector<DirectX::SimpleMath::Vector4>&& NewPoints);
+    void SetIndices(std::vector<int> &&NewIndices);
     void SetTopology(D3D11_PRIMITIVE_TOPOLOGY NewTopology);
 
 private:
     
-    std::vector<DirectX::XMFLOAT4> LocalPoints;
-    std::vector<int> Indicies;
+    std::vector<DirectX::SimpleMath::Vector4> LocalPoints;
+    std::vector<int> Indices;
     D3D11_PRIMITIVE_TOPOLOGY Topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     
     UINT Strides[1];

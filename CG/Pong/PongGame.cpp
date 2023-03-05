@@ -244,7 +244,7 @@ void PongGame::Construct()
 		DirectX::XMFLOAT4(-0.05f,  -0.2f, 0.0f, 1.0f),  DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)
 	});
 	
-	LeftPlayerRacketMesh->SetIndicies({ 0, 1, 2, 3, 0 });
+	LeftPlayerRacketMesh->SetIndices({ 0, 1, 2, 3, 0 });
 	LeftPlayerRacketMesh->SetTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	
 	LeftPlayer->AddTransform({-0.9f, 0.0f, 0.0f, 0.0f});
@@ -269,7 +269,7 @@ void PongGame::Construct()
 			DirectX::XMFLOAT4(- LeftPlayerRacketCollision->Extents.x,  - LeftPlayerRacketCollision->Extents.y, 0.0f, 1.0f),
 			DirectX::XMFLOAT4(1.0f, 0.7f, 0.0f, 1.0f),
 		});
-	LeftPlayerRacketCollisionVisualizerMesh->SetIndicies({ 0, 1, 2, 3, 0 });
+	LeftPlayerRacketCollisionVisualizerMesh->SetIndices({ 0, 1, 2, 3, 0 });
 	LeftPlayerRacketCollisionVisualizerMesh->SetTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	
 	LeftPlayerRacketCollisionVisualizer->AddComponent(LeftPlayerRacketCollisionVisualizerMesh);
@@ -284,7 +284,7 @@ void PongGame::Construct()
 		DirectX::XMFLOAT4(0.05f, -0.2f, 0.0f, 1.0f),  DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
 		DirectX::XMFLOAT4(-0.05f,  -0.2f, 0.0f, 1.0f),  DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)
 	});
-	RightPlayerRacketMesh->SetIndicies({ 0, 1, 2, 3, 0 });
+	RightPlayerRacketMesh->SetIndices({ 0, 1, 2, 3, 0 });
 	RightPlayerRacketMesh->SetTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	
 	RightPlayer->AddTransform({0.9f, 0.0f, 0.0f, 0.0f});
@@ -309,7 +309,7 @@ void PongGame::Construct()
 			DirectX::XMFLOAT4(- RightPlayerRacketCollision->Extents.x,  - RightPlayerRacketCollision->Extents.y, 0.0f, 1.0f),
 			DirectX::XMFLOAT4(1.0f, 0.7f, 0.0f, 1.0f),
 		});
-	RightPlayerRacketCollisionVisualizerMesh->SetIndicies({ 0, 1, 2, 3, 0 });
+	RightPlayerRacketCollisionVisualizerMesh->SetIndices({ 0, 1, 2, 3, 0 });
 	RightPlayerRacketCollisionVisualizerMesh->SetTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	
 	RightPlayerRacketCollisionVisualizer->AddComponent(RightPlayerRacketCollisionVisualizerMesh);
@@ -317,7 +317,7 @@ void PongGame::Construct()
 	// Ball
 	
 	const auto BallMesh = new FRenderComponent();
-	std::vector<DirectX::XMFLOAT4> BallPoints;
+	std::vector<DirectX::SimpleMath::Vector4> BallPoints;
 	std::vector<int> BallIndicies;
 	int BallSides = 32;
 	float BallRadius = 0.03f;
@@ -340,7 +340,7 @@ void PongGame::Construct()
 	}
 	
 	BallMesh->SetPoints(std::move(BallPoints));
-	BallMesh->SetIndicies(std::move(BallIndicies));
+	BallMesh->SetIndices(std::move(BallIndicies));
 	BallMesh->SetTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	
 	Ball->AddComponent(BallMesh);
@@ -354,7 +354,7 @@ void PongGame::Construct()
 	
 	const auto BallCollisionVisualizerMesh = new FRenderComponent();
 	
-	std::vector<DirectX::XMFLOAT4> BallCollisionVisualizerPoints;
+	std::vector<DirectX::SimpleMath::Vector4> BallCollisionVisualizerPoints;
 	std::vector<int> BallCollisionVisualizerIndicies;
 	
 	for (int i = 0; i < BallSides * 2; ++i)
@@ -371,7 +371,7 @@ void PongGame::Construct()
 	}
 	
 	BallCollisionVisualizerMesh->SetPoints(std::move(BallCollisionVisualizerPoints));
-	BallCollisionVisualizerMesh->SetIndicies(std::move(BallCollisionVisualizerIndicies));
+	BallCollisionVisualizerMesh->SetIndices(std::move(BallCollisionVisualizerIndicies));
 	BallCollisionVisualizerMesh->SetTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	
 	BallCollisionVisualizer->AddComponent(BallCollisionVisualizerMesh);
@@ -389,7 +389,7 @@ void PongGame::Construct()
  		DirectX::XMFLOAT4(TopWall->Center.x - TopWall->Extents.x,   TopWall->Center.y - TopWall->Extents.y,  0.0f,  1.0f),  DirectX::XMFLOAT4(1.0f, 0.7f, 0.0f, 1.0f),
  		DirectX::XMFLOAT4(TopWall->Center.x + TopWall->Extents.x,   TopWall->Center.y - TopWall->Extents.y,  0.0f,  1.0f),  DirectX::XMFLOAT4(1.0f, 0.7f, 0.0f, 1.0f)
  	});
- 	RCTopWall->SetIndicies({ 0, 1, 1, 3, 3, 2, 2, 0, 0, 3, 1, 2 });
+ 	RCTopWall->SetIndices({ 0, 1, 1, 3, 3, 2, 2, 0, 0, 3, 1, 2 });
  	RCTopWall->SetTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	// BOTTOM WALL
@@ -405,7 +405,7 @@ void PongGame::Construct()
  		DirectX::XMFLOAT4(BottomWall->Center.x - BottomWall->Extents.x,   BottomWall->Center.y - BottomWall->Extents.y,  0.0f,  1.0f),  DirectX::XMFLOAT4(1.0f, 0.7f, 0.0f, 1.0f),
  		DirectX::XMFLOAT4(BottomWall->Center.x + BottomWall->Extents.x,   BottomWall->Center.y - BottomWall->Extents.y,  0.0f,  1.0f),  DirectX::XMFLOAT4(1.0f, 0.7f, 0.0f, 1.0f)
  	});
- 	RCBottomWall->SetIndicies({ 0, 1, 1, 3, 3, 2, 2, 0, 0, 3, 1, 2 });
+ 	RCBottomWall->SetIndices({ 0, 1, 1, 3, 3, 2, 2, 0, 0, 3, 1, 2 });
 	RCBottomWall->SetTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 	
 	AddGameObject(LeftPlayer);

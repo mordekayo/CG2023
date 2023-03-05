@@ -42,7 +42,7 @@ namespace DirectX
         struct Matrix;
         struct Quaternion;
         struct Plane;
-
+        
         //------------------------------------------------------------------------------
         // 2D rectangle
         struct Rectangle

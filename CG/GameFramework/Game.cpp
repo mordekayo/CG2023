@@ -71,11 +71,11 @@ void FGame::InitGameObjects() const
 	}
 }
 
-void FGame::UpdateGameObjects() const
+void FGame::UpdateGameObjects(float DeltaTime) const
 {
 	for (FGameObject* Object : GameObjects)
 	{
-		Object->Update();
+		Object->Update(DeltaTime);
 	}
 }
 
@@ -143,18 +143,28 @@ void FGame::Update(float DeltaTime)
 
 	FGame::Instance()->GetContext()->RSSetViewports(1, &Viewport);
 
-	UpdateGameObjects();
+	UpdateGameObjects(DeltaTime);
 	
 	BeginFrame();
 	DrawGameObjects();
 	EndFrame();
 }
 
+void FGame::Construct()
+{
+	for(const auto GameObject : GameObjects)
+	{
+		GameObject->Construct();
+	}
+}
+
 void FGame::Run()
 {
 	CreateResources();
 	
+	Construct();
 	InitGameObjects();
+	
 	
 	PrevTime = std::chrono::steady_clock::now();
 	float totalTime = 0;
@@ -204,6 +214,11 @@ Microsoft::WRL::ComPtr<ID3D11DeviceContext> FGame::GetContext() const
 void FGame::AddGameObject(FGameObject* ObjectToAdd)
 {
 	GameObjects.insert(ObjectToAdd);
+}
+
+void FGame::AddGameObjects(std::vector<FGameObject*> ObjectsToAdd)
+{
+	GameObjects.insert(ObjectsToAdd.cbegin(), ObjectsToAdd.cend());
 }
 
 void FGame::DeleteGameObject(FGameObject* ObjectToDelete)

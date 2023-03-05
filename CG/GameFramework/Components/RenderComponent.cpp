@@ -128,10 +128,10 @@ void FRenderComponent::Init()
 	IndexBufDesc.CPUAccessFlags = 0;
 	IndexBufDesc.MiscFlags = 0;
 	IndexBufDesc.StructureByteStride = 0;
-	IndexBufDesc.ByteWidth = sizeof(int) * static_cast<UINT>(std::size(Indicies));
+	IndexBufDesc.ByteWidth = sizeof(int) * static_cast<UINT>(std::size(Indices));
 
 	D3D11_SUBRESOURCE_DATA IndexData = {};
-	IndexData.pSysMem = Indicies.data();
+	IndexData.pSysMem = Indices.data();
 	IndexData.SysMemPitch = 0;
 	IndexData.SysMemSlicePitch = 0;
 	
@@ -151,7 +151,7 @@ void FRenderComponent::Update()
 {
 	FObjectComponent::Update();
 	
-	const DirectX::XMFLOAT4 OwnerTransform = Owner->GetTransform();
+	const DirectX::XMMATRIX OwnerWorldMatrix = Owner->GetWorldView();
 	
 	const DirectX::XMMATRIX ScaledMatrix = DirectX::XMMatrixScaling(
 			static_cast<float>(FGame::Instance()->GetDisplay().GetScreenHeight())/
@@ -159,9 +159,7 @@ void FRenderComponent::Update()
 			1.0f,
 			1.0f);
 
-	const DirectX::XMMATRIX TranslatedMatrix = DirectX::XMMatrixTranslation(OwnerTransform.x, OwnerTransform.y, OwnerTransform.z);
-
-	const DirectX::XMMATRIX Transform = DirectX::XMMatrixTranspose(DirectX::XMMatrixMultiply(ScaledMatrix, TranslatedMatrix));
+	const DirectX::XMMATRIX Transform = DirectX::XMMatrixMultiply(OwnerWorldMatrix, ScaledMatrix);
 
 	FGame::Instance()->GetContext()->UpdateSubresource(ConstantBuffer, 0, nullptr, &Transform, 0, 0);
 }
@@ -177,17 +175,17 @@ void FRenderComponent::Draw()
 	
     FGame::Instance()->GetContext()->VSSetConstantBuffers(0, 1, &ConstantBuffer);
 	
-    FGame::Instance()->GetContext()->DrawIndexed(Indicies.size(), 0, 0);
+    FGame::Instance()->GetContext()->DrawIndexed(Indices.size(), 0, 0);
 }
 
-void FRenderComponent::SetPoints(std::vector<DirectX::XMFLOAT4>&& NewPoints)
+void FRenderComponent::SetPoints(std::vector<DirectX::SimpleMath::Vector4>&& NewPoints)
 {
 	LocalPoints = std::move(NewPoints);
 }
 
-void FRenderComponent::SetIndicies(std::vector<int>&& NewIndicies)
+void FRenderComponent::SetIndices(std::vector<int>&& NewIndices)
 {
-	Indicies = std::move(NewIndicies);
+	Indices = std::move(NewIndices);
 }
 
 void FRenderComponent::SetTopology(D3D11_PRIMITIVE_TOPOLOGY NewTopology)
