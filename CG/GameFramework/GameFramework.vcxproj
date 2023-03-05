@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="Components\CollisionComponents\BoxCollisionComponent.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -319,6 +320,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Components\CollisionComponents\BoxCollisionComponent.h" />
     <ClInclude Include="Components\CollisionComponents\CollisionComponent.h" />
     <ClInclude Include="Components\CollisionComponents\SphereCollisionComponent.h" />

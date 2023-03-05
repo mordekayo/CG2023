@@ -6,6 +6,7 @@
 #include "../Utils/SimpleMath.h"
 #include "../DisplayWin32.h"
 #include "../Game.h"
+#include "../Camera/Camera.h"
 #include "../GameObjects/GameObject.h"
 
 FRenderComponent::~FRenderComponent()
@@ -151,7 +152,7 @@ void FRenderComponent::Update()
 {
 	FObjectComponent::Update();
 	
-	const DirectX::XMMATRIX OwnerWorldMatrix = Owner->GetWorldView();
+	const DirectX::XMMATRIX OwnerWorldViewProjectionMatrix = FGame::Instance()->GetCamera()->GetViewProjectionMatrix(Owner->GetWorldView());
 	
 	const DirectX::XMMATRIX ScaledMatrix = DirectX::XMMatrixScaling(
 			static_cast<float>(FGame::Instance()->GetDisplay().GetScreenHeight())/
@@ -159,7 +160,7 @@ void FRenderComponent::Update()
 			1.0f,
 			1.0f);
 
-	const DirectX::XMMATRIX Transform = DirectX::XMMatrixMultiply(OwnerWorldMatrix, ScaledMatrix);
+	const DirectX::XMMATRIX Transform = DirectX::XMMatrixTranspose(DirectX::XMMatrixMultiply(ScaledMatrix, OwnerWorldViewProjectionMatrix));
 
 	FGame::Instance()->GetContext()->UpdateSubresource(ConstantBuffer, 0, nullptr, &Transform, 0, 0);
 }

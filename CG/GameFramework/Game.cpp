@@ -6,6 +6,8 @@
 #include "Sources.h"
 #include <chrono>
 
+#include "Camera/Camera.h"
+
 FGame::FGame()
 {
 	ApplicationName = L"My FGame engine";
@@ -17,7 +19,8 @@ void FGame::CreateResources()
 {
 	Display = new FDisplayWin32(ApplicationName, ScreenWidth, ScreenHeight, WndProc);
 	Input = new InputDevice(this);
-	
+	Camera = new FCamera();
+
 	constexpr D3D_FEATURE_LEVEL FeatureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 
 	DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
@@ -148,6 +151,8 @@ void FGame::Update(float DeltaTime)
 	BeginFrame();
 	DrawGameObjects();
 	EndFrame();
+
+	Camera->Update(DeltaTime);
 }
 
 void FGame::Construct()
@@ -209,6 +214,11 @@ Microsoft::WRL::ComPtr<ID3D11Device> FGame::GetDevice() const
 Microsoft::WRL::ComPtr<ID3D11DeviceContext> FGame::GetContext() const
 {
 	return Context;
+}
+
+FCamera* FGame::GetCamera()
+{
+	return Camera;
 }
 
 void FGame::AddGameObject(FGameObject* ObjectToAdd)

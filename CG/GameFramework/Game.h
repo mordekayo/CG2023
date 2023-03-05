@@ -7,6 +7,7 @@
 #include <d3d11.h>
 #include <set>
 
+class FCamera;
 class FDisplayWin32;
 class FGameObject;
 class InputDevice;
@@ -26,12 +27,14 @@ public:
 	FDisplayWin32& GetDisplay();
 	[[nodiscard]] Microsoft::WRL::ComPtr<ID3D11Device> GetDevice() const;
 	[[nodiscard]] Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext() const;
+	FCamera* GetCamera();
 
 	void AddGameObject(FGameObject* ObjectToAdd);
 	void AddGameObjects(std::vector<FGameObject*> ObjectsToAdd);
 	void DeleteGameObject(FGameObject* ObjectToDelete);
 	
 	LRESULT MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
+	
 protected:
 
 	inline static FGame* GameInstance = nullptr;
@@ -48,7 +51,8 @@ protected:
 	int ScreenHeight;
 
 private:
-	
+
+	FCamera* Camera;
 	FDisplayWin32* Display;
 	
 	Microsoft::WRL::ComPtr<ID3D11Device> Device = nullptr;

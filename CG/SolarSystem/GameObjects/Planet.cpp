@@ -22,9 +22,9 @@ void Planet::Update(float DeltaTime)
 
     SetRotationQuat(Rotator);
 
-    std::cout << "x: " << GetRotationEuler().x <<
-                 " y: " << GetRotationEuler().y <<
-                 " z: " << GetRotationEuler().z << std::endl;
+    //std::cout << "x: " << GetRotationEuler().x <<
+    //             " y: " << GetRotationEuler().y <<
+    //             " z: " << GetRotationEuler().z << std::endl;
 
     FGameObject::Update(DeltaTime);
 }
