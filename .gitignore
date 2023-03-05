@@ -1,8 +1,13 @@
-CG/GameFramework/Debug/*
 CG/Debug/*
 CG/.vs/*
 CG/x64/*
-CG/GameFramework/x64/*
 CG/.idea/*
+CG/GameFramework/Debug/*
+CG/GameFramework/Release/*
+CG/GameFramework/x64/*
 CG/Pong/Debug/*
+CG/Pong/Release/*
 CG/Pong/x64/*
+CG/SolarSystem/Debug/*
+CG/SolarSystem/Release/*
+CG/SolarSystem/x64/*
