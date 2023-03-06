@@ -15,6 +15,7 @@ public:
     void TogglePerspective();
 
     void SetParent(FGameObject* NewParent);
+    void SetTarget(DirectX::SimpleMath::Vector3 NewTarget);
 
 private:
 

@@ -5,6 +5,7 @@
 #include "../GameFramework/Camera/TargetCameraController.h"
 #include "GameObjects/Planet.h"
 #include "../GameFramework/Utils/InputDevice.h"
+#include "Camera/Camera.h"
 
 SolarSystemGame* SolarSystemGame::Instance()
 {
@@ -19,7 +20,7 @@ void SolarSystemGame::Construct()
 {
     PlanetParameters* SunParameters = new PlanetParameters();
     SunParameters->Name = "Sun";
-    SunParameters->Radius = 0.1f;
+    SunParameters->Radius = 0.2f;
     SunParameters->RotationAxis = DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f);
     SunParameters->SelfRotationSpeed = 1.0f;
     SunParameters->ParentPlanet = nullptr;
@@ -43,16 +44,40 @@ void SolarSystemGame::Construct()
     MoonParameters->Radius = 0.05f;
     MoonParameters->RotationAxis = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
     MoonParameters->SelfRotationSpeed = 3.0f;
-    MoonParameters->OrbitalAxis = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
+    MoonParameters->OrbitalAxis = DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f);
     MoonParameters->OrbitalRotationSpeed = 10.0f;
     MoonParameters->ParentPlanet = Earth;
     
     Moon = new Planet(MoonParameters);
-    Moon->SetTransform({0.2f, 0.0f, 0.0f});
+    Moon->SetTransform({0.0f, 0.2f, 0.0f});
+
+    PlanetParameters* VenusParameters = new PlanetParameters();
+    VenusParameters->Name = "Venus";
+    VenusParameters->Radius = 0.1f;
+    VenusParameters->RotationAxis = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f);
+    VenusParameters->SelfRotationSpeed = 1.0f;
+    VenusParameters->OrbitalAxis = DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f);
+    VenusParameters->OrbitalRotationSpeed = 0.5f;
+    VenusParameters->ParentPlanet = Sun;
+    Venus = new Planet(VenusParameters);
+    Venus->SetTransform({ 0.0f, 0.5f, 0.0f });
+
+    PlanetParameters* Venus2Parameters = new PlanetParameters();
+    Venus2Parameters->Name = "Venus2";
+    Venus2Parameters->Radius = 0.03f;
+    Venus2Parameters->RotationAxis = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
+    Venus2Parameters->SelfRotationSpeed = 1.0f;
+    Venus2Parameters->OrbitalAxis = DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f);
+    Venus2Parameters->OrbitalRotationSpeed = 0.0f;
+    Venus2Parameters->ParentPlanet = Venus;
+    Venus2 = new Planet(Venus2Parameters);
+    Venus2->SetTransform({ 0.0f, 0.0f, 0.2f });
     
     AddGameObject(Sun);
     AddGameObject(Earth);
     AddGameObject(Moon);
+    AddGameObject(Venus);
+    AddGameObject(Venus2);
     
     FGame::Construct();
 }
@@ -80,4 +105,22 @@ void SolarSystemGame::Update(float DeltaTime)
         bIsFPS = false;
         GetTargetCameraController()->SetTarget(Moon);
     }
+    if (Input->IsKeyDown(Keys::D4))
+    {
+        bIsFPS = false;
+        GetTargetCameraController()->SetTarget(Venus);
+    }
+    if (Input->IsKeyDown(Keys::D5))
+    {
+        bIsFPS = false;
+        GetTargetCameraController()->SetTarget(Venus2);
+    }
+
+    std::cout << "X: " << GetCamera()->GetTransform().x
+        << " Y: " << GetCamera()->GetTransform().y
+        << " Z: " << GetCamera()->GetTransform().z << std::endl << std::endl;
+
+    std::cout << "Yaw: " << GetCamera()->GetRotationEuler().x
+        << " Pitch: " << GetCamera()->GetRotationEuler().y
+        << " Roll: " << GetCamera()->GetRotationEuler().z << std::endl << std::endl;
 }

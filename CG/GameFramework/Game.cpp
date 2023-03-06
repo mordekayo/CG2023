@@ -159,8 +159,6 @@ void FGame::Update(float DeltaTime)
 	BeginFrame();
 	DrawGameObjects();
 	EndFrame();
-
-	Camera->Update(DeltaTime);
 	
 	if (bIsFPS)
 	{

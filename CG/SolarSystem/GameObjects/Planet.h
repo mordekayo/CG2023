@@ -1,6 +1,6 @@
 #pragma once
 #include "../../GameFramework/GameObjects/GameObject.h"
-
+#include <string>
 class Planet;
 
 struct PlanetParameters
@@ -35,8 +35,8 @@ private:
 
     DirectX::SimpleMath::Matrix OrbitalTranslation = DirectX::SimpleMath::Matrix::Identity;
     
-    int HorizontalSectors = 64.0f;
-    int VerticalSectors = 64.0f;
+    int HorizontalSectors = 16.0f;
+    int VerticalSectors = 16.0f;
 
     std::string Name;
     float Radius;

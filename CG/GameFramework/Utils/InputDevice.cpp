@@ -10,7 +10,7 @@ InputDevice::InputDevice(FGame* inGame) : game(inGame)
 {
 	keys = new std::unordered_set<Keys>();
 	
-	RAWINPUTDEVICE Rid[2];
+	RAWINPUTDEVICE Rid[2]; 
 
 	Rid[0].usUsagePage = 0x01;
 	Rid[0].usUsage = 0x02;

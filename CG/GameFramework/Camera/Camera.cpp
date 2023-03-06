@@ -6,15 +6,12 @@
 FCamera::FCamera()
 {
     SetTransform({0.0f, 0.0f, -1.0f});
+    SetRotationQuat(DirectX::SimpleMath::Quaternion::Identity);
 }
 
 void FCamera::Update(float DeltaTime)
 {
-    if (Parent)
-    {
-        ViewMatrix = GetWorldView()* Parent->GetWorldView();
-    }
-    ViewMatrix = GetWorldView();
+    ViewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(GetTransform(), Target, UpVector);
 
     if (IsPerspective)
     {
@@ -48,4 +45,9 @@ void FCamera::TogglePerspective()
 void FCamera::SetParent(FGameObject* NewParent)
 {
     Parent = NewParent;
+}
+
+void FCamera::SetTarget(DirectX::SimpleMath::Vector3 NewTarget)
+{
+    Target = NewTarget;
 }

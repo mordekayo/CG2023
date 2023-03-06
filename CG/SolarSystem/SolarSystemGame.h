@@ -20,6 +20,8 @@ private:
     Planet* Sun;
     Planet* Earth;
     Planet* Moon;
+    Planet* Venus;
+    Planet* Venus2;
     
     std::map<std::string, Planet*> Planets;
 };

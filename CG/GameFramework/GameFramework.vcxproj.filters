@@ -57,7 +57,7 @@
     <ClCompile Include="Components\CollisionComponents\SphereCollisionComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TargetCameraController.cpp">
+    <ClCompile Include="Camera\TargetCameraController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -112,7 +112,7 @@
     <ClInclude Include="Components\CollisionComponents\SphereCollisionComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TargetCameraController.h">
+    <ClInclude Include="Camera\TargetCameraController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

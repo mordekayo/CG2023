@@ -8,8 +8,6 @@
 
 FTargetCameraController::FTargetCameraController()
 {
-    FGame::Instance()->GetInputDevice()->MouseMove.AddRaw(this, &FTargetCameraController::MouseEventHandler, 10);
-
     Input = FGame::Instance()->GetInputDevice();
 }
 
@@ -87,21 +85,11 @@ void FTargetCameraController::Update(float DeltaTime)
     {
         Camera->AddTransform(-CameraUp * DeltaTime);
     }
-}
 
-void FTargetCameraController::MouseEventHandler(const InputDevice::MouseMoveEventArgs& mouseData, int payload)
-{
-    CameraYaw += -mouseData.Offset.x * CameraRotationSpeed;
-    CameraPitch += mouseData.Offset.y * CameraRotationSpeed;
+    DirectX::SimpleMath::Vector3 NewCameraTarget = Target->GetTransform();
+    Camera->SetTarget(NewCameraTarget);
 
-    if (CameraPitch > DirectX::XM_PIDIV2 - CameraRotationSpeed)
-    {
-        CameraPitch = DirectX::XM_PIDIV2 - CameraRotationSpeed;
-    }
-    if (CameraPitch < -DirectX::XM_PIDIV2 + CameraRotationSpeed)
-    {
-        CameraPitch = -DirectX::XM_PIDIV2 + CameraRotationSpeed;
-    }
+    Camera->Update(DeltaTime);
 }
 
 void FTargetCameraController::SetCamera(FCamera* NewCamera)

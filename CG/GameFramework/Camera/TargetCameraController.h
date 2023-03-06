@@ -12,7 +12,6 @@ public:
     FTargetCameraController();
 
     void Update(float DeltaTime);
-    virtual void MouseEventHandler(const InputDevice::MouseMoveEventArgs& mouseData, int payload);
 
     void SetCamera(FCamera* NewCamera);
 

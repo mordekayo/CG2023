@@ -79,28 +79,11 @@ void Planet::Construct()
                  Radius * sin(phi) * sin(theta),
                     1.0f));
 
-             if (j > HorizontalSectors / 2)
-             {
-                 if (i > VerticalSectors / 2)
-                 {
-                     Vertexes.push_back({ 1.0f, 0.5f, 0.0f, 1.0f });
-                 }
-                 else
-                 {
-                     Vertexes.push_back({ 0.0f, 0.5f, 0.0f, 1.0f });
-                 }
-             }
-             else
-             {
-                 if (i > VerticalSectors / 2)
-                 {
-                     Vertexes.push_back({ 1.0f, 1.0f, 0.0f, 1.0f });
-                 }
-                 else
-                 {
-                     Vertexes.push_back({ 0.0f, 0.5f, 1.0f, 1.0f });
-                 }
-             }
+             float x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+             float y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+             float z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+             Vertexes.push_back({ x, y, z, 1.0f });
          }
     }
     Vertexes.push_back(DirectX::XMFLOAT4(0, -Radius, 0, 1));
@@ -142,18 +125,18 @@ void Planet::Construct()
     FRenderComponent* SphereMesh = new FRenderComponent();
     SphereMesh->SetPoints(std::move(Vertexes));
     SphereMesh->SetIndices(std::move(Indices));
-    SphereMesh->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    SphereMesh->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
     AddComponent(SphereMesh);
 }
 
 void Planet::Init()
 {
-    if (OrbitalAxis.Dot(GetLocalTransform()) != 0) 
-    {
-        DirectX::SimpleMath::Vector3 Normal = OrbitalAxis.Cross(GetLocalTransform());
-        OrbitalAxis = Normal.Cross(GetLocalTransform());
-    }
+    //if (OrbitalAxis.Dot(GetLocalTransform()) != 0) 
+    //{
+    //    DirectX::SimpleMath::Vector3 Normal = OrbitalAxis.Cross(GetLocalTransform());
+    //    OrbitalAxis = Normal.Cross(GetLocalTransform());
+    //}
 
     OrbitalAxis.Normalize();
     RotationAxis.Normalize();
