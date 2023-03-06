@@ -3,7 +3,7 @@
 #include "../Components/ObjectComponent.h"
 #include "../Components/RenderComponent.h"
 
-void FGameObject::Init() const
+void FGameObject::Init()
 {
     for(FObjectComponent* Component : Components)
     {

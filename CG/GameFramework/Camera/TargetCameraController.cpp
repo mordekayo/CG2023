@@ -1,18 +1,19 @@
-#include "FPSCameraController.h"
+#include "TargetCameraController.h"
 
 #include <DirectXMath.h>
 
 #include "Camera.h"
 #include "../../GameFramework/Game.h"
+#include "../GameObjects/GameObject.h"
 
-FFPSCameraController::FFPSCameraController()
+FTargetCameraController::FTargetCameraController()
 {
-    FGame::Instance()->GetInputDevice()->MouseMove.AddRaw(this, &FFPSCameraController::MouseEventHandler, 10);
+    FGame::Instance()->GetInputDevice()->MouseMove.AddRaw(this, &FTargetCameraController::MouseEventHandler, 10);
 
     Input = FGame::Instance()->GetInputDevice();
 }
 
-void FFPSCameraController::Update(float DeltaTime)
+void FTargetCameraController::Update(float DeltaTime)
 {
     if(Camera == nullptr)
     {
@@ -32,7 +33,7 @@ void FFPSCameraController::Update(float DeltaTime)
         WasProjectionKeyDown = false;
     }
 
-    const DirectX::SimpleMath::Matrix RotationMatrix = DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(CameraYaw, CameraPitch, 0);
+    const DirectX::SimpleMath::Matrix RotationMatrix = DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(0, 0, 0);
 
     const DirectX::SimpleMath::Vector3 CameraForward = DirectX::SimpleMath::Vector3::Transform({0.0f, 0.0f, 1.0f}, RotationMatrix);
     const DirectX::SimpleMath::Vector3 CameraRight = DirectX::SimpleMath::Vector3::Transform({1.0f , 0.0f, 0.0f}, RotationMatrix);
@@ -56,16 +57,39 @@ void FFPSCameraController::Update(float DeltaTime)
     }
     if (Input->IsKeyDown(Keys::E))
     {
-        Camera->AddTransform(-CameraUp * DeltaTime);
+        Camera->AddTransform(CameraUp * DeltaTime);
     }
     if (Input->IsKeyDown(Keys::Q))
     {
+        Camera->AddTransform(-CameraUp * DeltaTime);
+    }
+        if (Input->IsKeyDown(Keys::A))
+    {
+        Camera->AddTransform(CameraRight * DeltaTime);
+    }
+    if (Input->IsKeyDown(Keys::D)) 
+    {
+        Camera->AddTransform(-CameraRight * DeltaTime);
+    }
+    if (Input->IsKeyDown(Keys::W))
+    {
+        Camera->AddTransform(CameraForward * DeltaTime);
+    }
+    if (Input->IsKeyDown(Keys::S))
+    {
+        Camera->AddTransform(-CameraForward * DeltaTime);
+    }
+    if (Input->IsKeyDown(Keys::E))
+    {
         Camera->AddTransform(CameraUp * DeltaTime);
     }
-    
+    if (Input->IsKeyDown(Keys::Q))
+    {
+        Camera->AddTransform(-CameraUp * DeltaTime);
+    }
 }
 
-void FFPSCameraController::MouseEventHandler(const InputDevice::MouseMoveEventArgs& mouseData, int payload)
+void FTargetCameraController::MouseEventHandler(const InputDevice::MouseMoveEventArgs& mouseData, int payload)
 {
     CameraYaw += -mouseData.Offset.x * CameraRotationSpeed;
     CameraPitch += mouseData.Offset.y * CameraRotationSpeed;
@@ -80,7 +104,12 @@ void FFPSCameraController::MouseEventHandler(const InputDevice::MouseMoveEventAr
     }
 }
 
-void FFPSCameraController::SetCamera(FCamera* NewCamera)
+void FTargetCameraController::SetCamera(FCamera* NewCamera)
 {
     Camera = NewCamera;
+}
+
+void FTargetCameraController::SetTarget(FGameObject* Object)
+{
+    Target = Object;
 }

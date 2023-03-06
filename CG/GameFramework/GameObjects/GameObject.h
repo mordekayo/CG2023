@@ -11,12 +11,12 @@ class FGameObject
 
 	FGameObject() = default;
 	
-	void Init() const;
+	virtual void Init();
 	virtual void Construct();
 	virtual void Update(float DeltaTime);
 	void Draw() const;
 
-	DirectX::SimpleMath::Vector3 GetTransform() const;
+	virtual DirectX::SimpleMath::Vector3 GetTransform() const;
 
 	DirectX::SimpleMath::Matrix GetWorldView() const;
 	

@@ -8,6 +8,7 @@
 
 #include "Camera/Camera.h"
 #include "Camera/FPSCameraController.h"
+#include "Camera/TargetCameraController.h"
 
 FGame::FGame()
 {
@@ -21,8 +22,12 @@ void FGame::CreateResources()
 	Display = new FDisplayWin32(ApplicationName, ScreenWidth, ScreenHeight, WndProc);
 	Input = new InputDevice(this);
 	Camera = new FCamera();
+
 	FPSCameraController = new FFPSCameraController();
 	FPSCameraController->SetCamera(Camera);
+	
+	TargetCameraController = new FTargetCameraController();
+	TargetCameraController->SetCamera(Camera);
 
 	constexpr D3D_FEATURE_LEVEL FeatureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 
@@ -156,7 +161,15 @@ void FGame::Update(float DeltaTime)
 	EndFrame();
 
 	Camera->Update(DeltaTime);
-	FPSCameraController->Update(DeltaTime);
+	
+	if (bIsFPS)
+	{
+		FPSCameraController->Update(DeltaTime);
+	}
+	else
+	{
+		TargetCameraController->Update(DeltaTime);
+	}
 }
 
 void FGame::Construct()
@@ -315,4 +328,9 @@ LRESULT FGame::MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lp
 		return DefWindowProc(hwnd, umessage, wparam, lparam);
 	}
 	}
+}
+
+FTargetCameraController* FGame::GetTargetCameraController()
+{
+	return TargetCameraController;
 }

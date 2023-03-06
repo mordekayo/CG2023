@@ -17,6 +17,9 @@ protected:
     void Update(float DeltaTime) override;
 
 private:
+    Planet* Sun;
+    Planet* Earth;
+    Planet* Moon;
     
     std::map<std::string, Planet*> Planets;
 };

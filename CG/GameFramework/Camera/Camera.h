@@ -1,8 +1,9 @@
 #pragma once
 
+#include "../GameObjects/GameObject.h"
 #include "../Utils/SimpleMath.h"
 
-class FCamera
+class FCamera : public FGameObject
 {
 public:
     FCamera();
@@ -13,14 +14,11 @@ public:
 
     void TogglePerspective();
 
-    void AddTransform(DirectX::SimpleMath::Vector3 NewTransform);
-    void SetTransform(DirectX::SimpleMath::Vector3 NewTransform);
-    DirectX::SimpleMath::Vector3 GetTransform();
-
-    void SetTarget(DirectX::SimpleMath::Vector3 NewTarget);
+    void SetParent(FGameObject* NewParent);
 
 private:
 
+    FGameObject* Parent = nullptr;
     bool IsPerspective = true;
     
     float FieldOfView = 90.0f;

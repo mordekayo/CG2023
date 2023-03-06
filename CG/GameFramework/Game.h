@@ -7,6 +7,7 @@
 #include <d3d11.h>
 #include <set>
 
+class FTargetCameraController;
 class FFPSCameraController;
 class FCamera;
 class FDisplayWin32;
@@ -36,7 +37,10 @@ public:
 	void DeleteGameObject(FGameObject* ObjectToDelete);
 	
 	LRESULT MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
-	
+
+	bool bIsFPS = true;
+
+	FTargetCameraController* GetTargetCameraController();
 protected:
 
 	inline static FGame* GameInstance = nullptr;
@@ -54,6 +58,7 @@ protected:
 
 	FCamera* Camera;
 	FFPSCameraController* FPSCameraController;
+	FTargetCameraController* TargetCameraController;
 
 private:
 

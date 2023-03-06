@@ -2,20 +2,19 @@
 
 #include "../DisplayWin32.h"
 #include "../Game.h"
-#include <iostream>
 
 FCamera::FCamera()
 {
-
+    SetTransform({0.0f, 0.0f, -1.0f});
 }
 
 void FCamera::Update(float DeltaTime)
 {
-    std::cout << "Pos x: " << Transform.x << " Pos y: " << Transform.y << " Pos z: " << Transform.z << std::endl;
-    std::cout << "Tar x: " << Target.x << " Pos y: " << Target.y << " Tar z: " << Target.z << std::endl;
-    std::cout << "Up x: " << UpVector.x << " Up y: " << UpVector.y << " Up z: " << UpVector.z << std::endl;
-    
-    ViewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(Transform, Target, UpVector);
+    if (Parent)
+    {
+        ViewMatrix = GetWorldView()* Parent->GetWorldView();
+    }
+    ViewMatrix = GetWorldView();
 
     if (IsPerspective)
     {
@@ -46,22 +45,7 @@ void FCamera::TogglePerspective()
     IsPerspective = !IsPerspective;
 }
 
-void FCamera::AddTransform(DirectX::SimpleMath::Vector3 NewTransform)
+void FCamera::SetParent(FGameObject* NewParent)
 {
-    Transform += NewTransform;
-}
-
-void FCamera::SetTransform(DirectX::SimpleMath::Vector3 NewTransform)
-{
-    Transform = NewTransform;
-}
-
-DirectX::SimpleMath::Vector3 FCamera::GetTransform()
-{
-    return Transform;
-}
-
-void FCamera::SetTarget(DirectX::SimpleMath::Vector3 NewTarget)
-{
-    Target = NewTarget;
+    Parent = NewParent;
 }
