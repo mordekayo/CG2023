@@ -1,8 +1,8 @@
 #include "InputDevice.h"
 #include <iostream>
 
-#include "../DisplayWin32.h"
-#include "../Game.h"
+#include "DisplayWin32.h"
+#include "Game.h"
 
 using namespace DirectX::SimpleMath;
 

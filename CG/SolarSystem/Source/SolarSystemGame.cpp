@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-#include "../GameFramework/Camera/TargetCameraController.h"
+#include "Camera/TargetCameraController.h"
 #include "GameObjects/Planet.h"
-#include "../GameFramework/Utils/InputDevice.h"
+#include "Utils/InputDevice.h"
 #include "Camera/Camera.h"
 
 SolarSystemGame* SolarSystemGame::Instance()
@@ -115,12 +115,4 @@ void SolarSystemGame::Update(float DeltaTime)
         bIsFPS = false;
         GetTargetCameraController()->SetTarget(Venus2);
     }
-
-    std::cout << "X: " << GetCamera()->GetTransform().x
-        << " Y: " << GetCamera()->GetTransform().y
-        << " Z: " << GetCamera()->GetTransform().z << std::endl << std::endl;
-
-    std::cout << "Yaw: " << GetCamera()->GetRotationEuler().x
-        << " Pitch: " << GetCamera()->GetRotationEuler().y
-        << " Roll: " << GetCamera()->GetRotationEuler().z << std::endl << std::endl;
 }

@@ -1,12 +1,14 @@
 #include "PongGame.h"
-#include <DirectXMath.h>
-#include "../GameFramework/Components/RenderComponent.h"
-#include "../GameFramework/GameObjects/GameObject.h"
-#include "../GameFramework/Utils/InputDevice.h"
+#include "Game.h"
+#include "Components/RenderComponent.h"
+#include "GameObjects/GameObject.h"
+#include "Utils/InputDevice.h"
+
 #include <cmath>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
+#include <DirectXMath.h>
 
 PongGame::PongGame()
 {

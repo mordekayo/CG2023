@@ -18,101 +18,101 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Utils\Delegates.cpp">
+    <ClCompile Include="Source\Utils\Delegates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\InputDevice.cpp">
+    <ClCompile Include="Source\Utils\InputDevice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\SimpleMath.cpp">
+    <ClCompile Include="Source\Utils\SimpleMath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Components\ObjectComponent.cpp">
+    <ClCompile Include="Source\Components\ObjectComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Components\RenderComponent.cpp">
+    <ClCompile Include="Source\Components\RenderComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DisplayWin32.cpp">
+    <ClCompile Include="Source\DisplayWin32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Game.cpp">
+    <ClCompile Include="Source\Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\GameObject.cpp">
+    <ClCompile Include="Source\GameObjects\GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Camera\Camera.cpp">
+    <ClCompile Include="Source\Camera\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Camera\FPSCameraController.cpp">
+    <ClCompile Include="Source\Camera\FPSCameraController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Components\CollisionComponents\BoxCollisionComponent.cpp">
+    <ClCompile Include="Source\Components\CollisionComponents\BoxCollisionComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Components\CollisionComponents\CollisionComponent.cpp">
+    <ClCompile Include="Source\Components\CollisionComponents\CollisionComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Components\CollisionComponents\SphereCollisionComponent.cpp">
+    <ClCompile Include="Source\Components\CollisionComponents\SphereCollisionComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Camera\TargetCameraController.cpp">
+    <ClCompile Include="Source\Camera\TargetCameraController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\MyVeryFirstShader.hlsl">
+    <None Include="Source\Shaders\MyVeryFirstShader.hlsl">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Utils\Delegates.h">
+    <ClInclude Include="Source\Utils\Delegates.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\InputDevice.h">
+    <ClInclude Include="Source\Utils\InputDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\Keys.h">
+    <ClInclude Include="Source\Utils\Keys.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\SimpleMath.h">
+    <ClInclude Include="Source\Utils\SimpleMath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\ObjectComponent.h">
+    <ClInclude Include="Source\Components\ObjectComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\RenderComponent.h">
+    <ClInclude Include="Source\Components\RenderComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DisplayWin32.h">
+    <ClInclude Include="Source\DisplayWin32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Game.h">
+    <ClInclude Include="Source\Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjects\GameObject.h">
+    <ClInclude Include="Source\GameObjects\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sources.h">
+    <ClInclude Include="Source\Sources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Camera\Camera.h">
+    <ClInclude Include="Source\Camera\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Camera\FPSCameraController.h">
+    <ClInclude Include="Source\Camera\FPSCameraController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\CollisionComponents\BoxCollisionComponent.h">
+    <ClInclude Include="Source\Components\CollisionComponents\BoxCollisionComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\CollisionComponents\CollisionComponent.h">
+    <ClInclude Include="Source\Components\CollisionComponents\CollisionComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Components\CollisionComponents\SphereCollisionComponent.h">
+    <ClInclude Include="Source\Components\CollisionComponents\SphereCollisionComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Camera\TargetCameraController.h">
+    <ClInclude Include="Source\Camera\TargetCameraController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

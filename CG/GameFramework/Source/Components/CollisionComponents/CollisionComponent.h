@@ -1,7 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include "DirectXCollision.h"
-#include "../ObjectComponent.h"
+#include "Components\ObjectComponent.h"
 
 class FCollisionComponent : public FObjectComponent
 {

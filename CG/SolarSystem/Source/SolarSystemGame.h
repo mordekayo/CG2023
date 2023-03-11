@@ -1,7 +1,7 @@
 #pragma once
 #include <map>
 
-#include "../GameFramework/Game.h"
+#include "Game.h"
 
 class Planet;
 

@@ -3,8 +3,8 @@
 #include <DirectXMath.h>
 
 #include "Camera.h"
-#include "../../GameFramework/Game.h"
-#include "../GameObjects/GameObject.h"
+#include "Game.h"
+#include "GameObjects/GameObject.h"
 
 FTargetCameraController::FTargetCameraController()
 {

@@ -5,8 +5,8 @@
 #include <iostream>
 #include <math.h>
 
-#include "../../GameFramework/Game.h"
-#include "../../GameFramework/Components/RenderComponent.h"
+#include "Game.h"
+#include "Components/RenderComponent.h"
 
 Planet::Planet(PlanetParameters* InitialParameters)
 {

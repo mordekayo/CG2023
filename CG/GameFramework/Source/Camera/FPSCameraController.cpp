@@ -3,7 +3,8 @@
 #include <DirectXMath.h>
 
 #include "Camera.h"
-#include "../../GameFramework/Game.h"
+
+#include "Game.h"
 
 FFPSCameraController::FFPSCameraController()
 {

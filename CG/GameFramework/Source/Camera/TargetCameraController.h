@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../GameFramework/Utils/InputDevice.h"
+#include "Utils/InputDevice.h"
 
 class FGameObject;
 class FCamera;

@@ -1,7 +1,7 @@
 #include "Camera.h"
 
-#include "../DisplayWin32.h"
-#include "../Game.h"
+#include "DisplayWin32.h"
+#include "Game.h"
 
 FCamera::FCamera()
 {

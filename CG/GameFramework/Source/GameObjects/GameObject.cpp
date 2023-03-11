@@ -1,7 +1,7 @@
 #include "GameObject.h"
 
-#include "../Components/ObjectComponent.h"
-#include "../Components/RenderComponent.h"
+#include "Components/ObjectComponent.h"
+#include "Components/RenderComponent.h"
 
 void FGameObject::Init()
 {

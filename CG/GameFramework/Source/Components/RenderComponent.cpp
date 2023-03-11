@@ -3,11 +3,11 @@
 #include <iostream>
 #include <d3dcommon.h>
 #include <d3dcompiler.h>
-#include "../Utils/SimpleMath.h"
-#include "../DisplayWin32.h"
-#include "../Game.h"
-#include "../Camera/Camera.h"
-#include "../GameObjects/GameObject.h"
+#include "Utils/SimpleMath.h"
+#include "DisplayWin32.h"
+#include "Game.h"
+#include "Camera/Camera.h"
+#include "GameObjects/GameObject.h"
 
 FRenderComponent::~FRenderComponent()
 {
@@ -21,8 +21,7 @@ void FRenderComponent::Init()
 		Microsoft::WRL::ComPtr<ID3DBlob> VertexShaderByteCode;
 	ID3DBlob* ErrorCode = nullptr;
 	
-	//"././GameFramework/Shaders/MyVeryFirstShader.hlsl"
-	HRESULT Result = D3DCompileFromFile(L"../GameFramework/Shaders/MyVeryFirstShader.hlsl",
+	HRESULT Result = D3DCompileFromFile(L"../GameFramework/Source/Shaders/MyVeryFirstShader.hlsl",
 		nullptr /*macros*/,
 		nullptr /*include*/,
 		"VSMain",
@@ -54,7 +53,7 @@ void FRenderComponent::Init()
 
 	Microsoft::WRL::ComPtr<ID3DBlob> PixelShaderByteCode;
 	
-	Result = D3DCompileFromFile(L"../GameFramework/Shaders/MyVeryFirstShader.hlsl",
+	Result = D3DCompileFromFile(L"../GameFramework/Source/Shaders/MyVeryFirstShader.hlsl",
 		nullptr /*macros*/,
 		nullptr /*include*/,
 		"PSMain",

@@ -1,5 +1,5 @@
 #pragma once
-#include "../../GameFramework/GameObjects/GameObject.h"
+#include "GameObjects/GameObject.h"
 #include <string>
 class Planet;
 

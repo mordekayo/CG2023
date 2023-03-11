@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../GameObjects/GameObject.h"
-#include "../Utils/SimpleMath.h"
+#include "GameObjects/GameObject.h"
+#include "Utils/SimpleMath.h"
 
 class FCamera : public FGameObject
 {

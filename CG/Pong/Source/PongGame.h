@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../GameFramework/Game.h"
-#include "../GameFramework/Utils/SimpleMath.h"
+#include "Game.h"
+#include "Utils/SimpleMath.h"
 #include "DirectXCollision.h"
 
 class PongGame : public FGame

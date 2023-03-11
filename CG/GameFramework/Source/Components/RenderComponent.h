@@ -1,9 +1,9 @@
 #pragma once
 #include "ObjectComponent.h"
+#include "Utils/SimpleMath.h"
 #include <d3d11.h>
 #include <windows.h>
 #include <wrl.h>
-#include "../Utils/SimpleMath.h"
 #include <vector>
 
 class FGameObject;
