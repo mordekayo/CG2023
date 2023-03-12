@@ -14,5 +14,5 @@ public:
 
 protected:
 
-    FGameObject* Owner;
+    FGameObject* Owner = nullptr;
 };

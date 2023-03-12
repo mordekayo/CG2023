@@ -10,6 +10,7 @@
 #include "Camera/FPSCameraController.h"
 #include "Camera/TargetCameraController.h"
 
+
 FGame::FGame()
 {
 	ApplicationName = L"My FGame engine";
@@ -68,10 +69,10 @@ void FGame::CreateResources()
 	CD3D11_RASTERIZER_DESC RastDesc = {};
 	RastDesc.CullMode = D3D11_CULL_NONE;
 	RastDesc.FillMode = D3D11_FILL_SOLID;
-	
-	Device->CreateRasterizerState(&RastDesc, RasterizerState.GetAddressOf());
 
-	Context->RSSetState(RasterizerState.Get());
+	FGame::Instance()->GetDevice()->CreateRasterizerState(&RastDesc, RasterizerState.GetAddressOf());
+
+	FGame::Instance()->GetContext()->RSSetState(RasterizerState.Get());
 }
 
 void FGame::InitGameObjects() const

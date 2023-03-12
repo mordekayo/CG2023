@@ -27,7 +27,7 @@ void FCamera::Update(float DeltaTime)
         ProjectionMatrix = DirectX::SimpleMath::Matrix::CreateOrthographic(
             static_cast<float>(FGame::Instance()->GetDisplay().GetScreenWidth()) / 475,
             static_cast<float>(FGame::FGame::Instance()->GetDisplay().GetScreenHeight()) / 475,
-            0.1,
+            0.1f,
             1000);
     }
 }

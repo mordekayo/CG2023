@@ -1,5 +1,7 @@
 CG/.idea/*
 CG/bin/*
 CG/.vs/*
-CG/GameFramework/x64/*
 *.lnk
+CG/GameFramework/x64/*
+CG/GameFramework/Misc/*
+CG/KatamariDamacy/Intermediate/*

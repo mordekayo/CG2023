@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Game.h"
+#include "GameObjects/PlayerBall.h"
 
 class KatamariGame : public FGame
 {
@@ -15,5 +16,6 @@ protected:
 
 private:
 
+    PlayerBall* Player;
 };
 
