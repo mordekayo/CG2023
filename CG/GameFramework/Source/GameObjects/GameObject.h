@@ -6,7 +6,8 @@ class FObjectComponent;
 
 class FGameObject
 {
-	public:
+public:
+
 	virtual ~FGameObject() = default;
 
 	FGameObject() = default;
@@ -16,32 +17,36 @@ class FGameObject
 	virtual void Update(float DeltaTime);
 	void Draw() const;
 
-	virtual DirectX::SimpleMath::Vector3 GetTransform() const;
-
-	DirectX::SimpleMath::Matrix GetWorldView() const;
+	virtual DirectX::SimpleMath::Vector3 GetLocalTranslation() const;
+	virtual DirectX::SimpleMath::Vector3 GetWorldTranslation() const;
 	
 	void AddComponent(FObjectComponent* ComponentToAdd);
 	void DeleteComponent(FObjectComponent* ComponentToDelete);
 
-	void AddTransform(DirectX::SimpleMath::Vector3 Transform);
-	void SetTransform(DirectX::SimpleMath::Vector3 NewPosition);
+	void AddTranslation(DirectX::SimpleMath::Vector3 Translation);
+	void SetTranslation(DirectX::SimpleMath::Vector3 NewTranslation);
 
-	DirectX::SimpleMath::Quaternion GetRotationQuat() const;
-	DirectX::SimpleMath::Vector3 GetRotationEuler() const;
-
-	void SetRotationQuat(DirectX::SimpleMath::Quaternion NewRotation);
-	void SetRotationEuler(DirectX::SimpleMath::Vector3 NewRotation);
+	DirectX::SimpleMath::Quaternion GetLocalRotationQuat() const;
+	DirectX::SimpleMath::Vector3 GetLocalRotationEuler() const;
 	
+	DirectX::SimpleMath::Quaternion GetWorldRotationQuat() const;
+	DirectX::SimpleMath::Vector3 GetWorldRotationEuler() const;
+
+	void SetLocalRotationQuat(DirectX::SimpleMath::Quaternion NewRotation);
+	void SetLocalRotationEuler(DirectX::SimpleMath::Vector3 NewRotation);
+
+	virtual void SetParent(FGameObject* NewParent);
+
+	DirectX::SimpleMath::Matrix GetWorldTransform() const;
+	virtual DirectX::SimpleMath::Matrix GetLocalTransform() const;
 protected:
 
-	void UpdateWorldMatrix();
-	
-	DirectX::SimpleMath::Matrix WorldView;
+	FGameObject* ParentObject = nullptr;
 	
 	DirectX::SimpleMath::Vector3 Translation = {0.0f, 0.0f, 0.0f};
 	DirectX::SimpleMath::Quaternion Rotation = DirectX::SimpleMath::Quaternion::Identity;
-	std::set<FObjectComponent*> Components; 
-
+	
+	std::set<FObjectComponent*> Components = {};
 	
 };
 

@@ -41,30 +41,30 @@ void FFPSCameraController::Update(float DeltaTime)
 
     if (Input->IsKeyDown(Keys::A))
     {
-        Camera->AddTransform(CameraRight * DeltaTime);
+        Camera->AddTranslation(CameraRight * DeltaTime);
     }
     if (Input->IsKeyDown(Keys::D)) 
     {
-        Camera->AddTransform(-CameraRight * DeltaTime);
+        Camera->AddTranslation(-CameraRight * DeltaTime);
     }
     if (Input->IsKeyDown(Keys::W))
     {
-        Camera->AddTransform(CameraForward * DeltaTime);
+        Camera->AddTranslation(CameraForward * DeltaTime);
     }
     if (Input->IsKeyDown(Keys::S))
     {
-        Camera->AddTransform(-CameraForward * DeltaTime);
+        Camera->AddTranslation(-CameraForward * DeltaTime);
     }
     if (Input->IsKeyDown(Keys::E))
     {
-        Camera->AddTransform(CameraUp * DeltaTime);
+        Camera->AddTranslation(CameraUp * DeltaTime);
     }
     if (Input->IsKeyDown(Keys::Q))
     {
-        Camera->AddTransform(-CameraUp * DeltaTime);
+        Camera->AddTranslation(-CameraUp * DeltaTime);
     }
 
-    DirectX::SimpleMath::Vector3 NewCameraTarget = Camera->GetTransform() + DirectX::SimpleMath::Vector3::Transform({ 0.0f, 0.0f, 1.0f }, RotationMatrix);
+    DirectX::SimpleMath::Vector3 NewCameraTarget = Camera->GetLocalTranslation() + DirectX::SimpleMath::Vector3::Transform({ 0.0f, 0.0f, 1.0f }, RotationMatrix);
     Camera->SetTarget(NewCameraTarget);
 
     Camera->Update(DeltaTime);

@@ -1,5 +1,7 @@
 #include "KatamariGame.h"
 
+#include "Components/RenderComponent.h"
+
 KatamariGame* KatamariGame::Instance()
 {
     if (!GameInstance)

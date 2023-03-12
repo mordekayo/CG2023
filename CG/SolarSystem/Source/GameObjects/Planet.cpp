@@ -23,30 +23,30 @@ void Planet::Update(float DeltaTime)
 {
     FGameObject::Update(DeltaTime);
     
-    DirectX::SimpleMath::Quaternion Rotator = GetRotationQuat();
+    DirectX::SimpleMath::Quaternion Rotator = GetLocalRotationQuat();
     
     Rotator *= DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(RotationAxis, SelfRotationSpeed * DeltaTime);
-    SetRotationQuat(Rotator);
+    SetLocalRotationQuat(Rotator);
 
     if(ParentPlanet != nullptr && !XMVector3Equal(OrbitalAxis, DirectX::XMVectorZero()))
     {
         OrbitalRotation *= DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(OrbitalAxis, OrbitalRotationSpeed * DeltaTime);
         OrbitalRotation.Normalize();
 
-        OrbitalTranslation = DirectX::SimpleMath::Matrix::CreateFromQuaternion(OrbitalRotation) * DirectX::SimpleMath::Matrix::CreateTranslation(ParentPlanet->GetTransform());
+        OrbitalTranslation = DirectX::SimpleMath::Matrix::CreateFromQuaternion(OrbitalRotation) * DirectX::SimpleMath::Matrix::CreateTranslation(ParentPlanet->GetLocalTranslation());
     }
     
     UpdateWorldMatrix();
 }
 
-DirectX::SimpleMath::Vector3 Planet::GetTransform() const
+DirectX::SimpleMath::Vector3 Planet::GetLocalTranslation() const
 {
     return DirectX::SimpleMath::Vector3::Transform(GetLocalTransform(), OrbitalTranslation);
 }
 
 DirectX::SimpleMath::Vector3 Planet::GetLocalTransform() const
 {
-    return FGameObject::GetTransform();
+    return FGameObject::GetLocalTranslation();
 }
 
 void Planet::UpdateWorldMatrix()

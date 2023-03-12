@@ -5,13 +5,13 @@
 
 FCamera::FCamera()
 {
-    SetTransform({0.0f, 0.0f, -1.0f});
-    SetRotationQuat(DirectX::SimpleMath::Quaternion::Identity);
+    SetTranslation({0.0f, 0.0f, -1.0f});
+    SetLocalRotationQuat(DirectX::SimpleMath::Quaternion::Identity);
 }
 
 void FCamera::Update(float DeltaTime)
 {
-    ViewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(GetTransform(), Target, UpVector);
+    ViewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(GetLocalTranslation(), Target, UpVector);
 
     if (IsPerspective)
     {

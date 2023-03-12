@@ -25,7 +25,7 @@ void SolarSystemGame::Construct()
     SunParameters->SelfRotationSpeed = 1.0f;
     SunParameters->ParentPlanet = nullptr;
     Sun = new Planet(SunParameters);
-    Sun->SetTransform({0.0f, 0.0f, 0.0f});
+    Sun->SetTranslation({0.0f, 0.0f, 0.0f});
     
     PlanetParameters* EarthParameters = new PlanetParameters();
     EarthParameters->Name = "Earth";
@@ -37,7 +37,7 @@ void SolarSystemGame::Construct()
     EarthParameters->ParentPlanet = Sun;
     
     Earth = new Planet(EarthParameters);
-    Earth->SetTransform({0.7f, 0.0f, 0.0f});
+    Earth->SetTranslation({0.7f, 0.0f, 0.0f});
 
     PlanetParameters* MoonParameters = new PlanetParameters();
     MoonParameters->Name = "Moon";
@@ -49,7 +49,7 @@ void SolarSystemGame::Construct()
     MoonParameters->ParentPlanet = Earth;
     
     Moon = new Planet(MoonParameters);
-    Moon->SetTransform({0.0f, 0.2f, 0.0f});
+    Moon->SetTranslation({0.0f, 0.2f, 0.0f});
 
     PlanetParameters* VenusParameters = new PlanetParameters();
     VenusParameters->Name = "Venus";
@@ -60,7 +60,7 @@ void SolarSystemGame::Construct()
     VenusParameters->OrbitalRotationSpeed = 0.5f;
     VenusParameters->ParentPlanet = Sun;
     Venus = new Planet(VenusParameters);
-    Venus->SetTransform({ 0.0f, 0.5f, 0.0f });
+    Venus->SetTranslation({ 0.0f, 0.5f, 0.0f });
 
     PlanetParameters* Venus2Parameters = new PlanetParameters();
     Venus2Parameters->Name = "Venus2";
@@ -71,7 +71,7 @@ void SolarSystemGame::Construct()
     Venus2Parameters->OrbitalRotationSpeed = 0.0f;
     Venus2Parameters->ParentPlanet = Venus;
     Venus2 = new Planet(Venus2Parameters);
-    Venus2->SetTransform({ 0.0f, 0.0f, 0.2f });
+    Venus2->SetTranslation({ 0.0f, 0.0f, 0.2f });
     
     AddGameObject(Sun);
     AddGameObject(Earth);

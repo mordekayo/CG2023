@@ -24,7 +24,7 @@ public:
     void Init() override;
     void Update(float DeltaTime) override;
 
-    DirectX::SimpleMath::Vector3 GetTransform() const override;
+    DirectX::SimpleMath::Vector3 GetLocalTranslation() const override;
 
     DirectX::SimpleMath::Vector3 GetLocalTransform() const;
 protected:

@@ -216,7 +216,7 @@ void FRenderComponent::Update()
 {
 	FObjectComponent::Update();
 	
-	const DirectX::XMMATRIX OwnerWorldViewProjectionMatrix = FGame::Instance()->GetCamera()->GetViewProjectionMatrix(Owner->GetWorldView());
+	const DirectX::XMMATRIX OwnerWorldViewProjectionMatrix = FGame::Instance()->GetCamera()->GetViewProjectionMatrix(Owner->GetWorldTransform());
 	
 	const DirectX::XMMATRIX ScaledMatrix = DirectX::XMMatrixScaling(
 			static_cast<float>(FGame::Instance()->GetDisplay().GetScreenHeight())/
