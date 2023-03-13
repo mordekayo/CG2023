@@ -44,76 +44,7 @@ DirectX::SimpleMath::Vector3 Planet::GetLocalTranslation2() const
 
 void Planet::Construct()
 {
-    std::vector<DirectX::SimpleMath::Vector4> Vertexes;
-    std::vector<int> Indices;
-    
-    Vertexes.push_back(DirectX::XMFLOAT4(0, Radius, 0, 1));
-    Vertexes.push_back(DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
-    auto PI = 3.141592653589793238462643;
-    auto phiStep = PI / VerticalSectors;
-    auto thetaStep = 2.0f * PI / HorizontalSectors;
-    
-    for (int i = 1; i <= VerticalSectors - 1; i++)
-    {
-        
-         auto phi = i * phiStep;
-         for (int j = 0; j <= HorizontalSectors; j++)
-         {
-             auto theta = j * thetaStep;
-             Vertexes.push_back(DirectX::XMFLOAT4(Radius * sin(phi) * cos(theta),
-                 Radius * cos(phi),
-                 Radius * sin(phi) * sin(theta),
-                    1.0f));
 
-             float x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-             float y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-             float z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-
-             Vertexes.push_back({ x, y, z, 1.0f });
-         }
-    }
-    Vertexes.push_back(DirectX::XMFLOAT4(0, -Radius, 0, 1));
-    Vertexes.push_back(DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
-
-    for (int i = 1; i <= HorizontalSectors; i++)
-    {
-        Indices.push_back(0);
-        Indices.push_back(i + 1);
-        Indices.push_back(i);
-    }
-    
-    auto baseIndex = 1;
-    auto ringVertexCount = HorizontalSectors + 1;
-
-    for (int i = 0; i < VerticalSectors - 2; i++)
-    {
-        for (int j = 0; j < HorizontalSectors; j++)
-        {
-            Indices.push_back(baseIndex + i * ringVertexCount + j);
-            Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
-            Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
-
-            Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
-            Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
-            Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
-        }
-    }
-
-    auto southPoleIndex = Indices.size() - 1;
-    baseIndex = southPoleIndex - ringVertexCount;
-    for (int i = 0; i < HorizontalSectors; i++) 
-    {
-        Indices.push_back(southPoleIndex);
-        Indices.push_back(baseIndex + i);
-        Indices.push_back(baseIndex + i + 1);
-    }
-
-    FRenderComponent* SphereMesh = new FRenderComponent();
-    SphereMesh->SetPoints(std::move(Vertexes));
-    SphereMesh->SetIndices(std::move(Indices));
-    SphereMesh->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-
-    AddComponent(SphereMesh);
 }
 
 void Planet::Init()

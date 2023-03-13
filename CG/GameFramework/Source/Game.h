@@ -70,9 +70,6 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> BackTex = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> RenderTargetView = nullptr;
-
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> RasterizerState;
-	D3D11_VIEWPORT Viewport;
 	
 	void CreateResources();
 	

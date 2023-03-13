@@ -64,14 +64,6 @@ void FGame::CreateResources()
 	
 	SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackTex);	// __uuidof(ID3D11Texture2D)
 	Device->CreateRenderTargetView(BackTex.Get(), nullptr, &RenderTargetView);
-
-	CD3D11_RASTERIZER_DESC RastDesc = {};
-	RastDesc.CullMode = D3D11_CULL_NONE;
-	RastDesc.FillMode = D3D11_FILL_SOLID;
-
-	FGame::Instance()->GetDevice()->CreateRasterizerState(&RastDesc, RasterizerState.GetAddressOf());
-
-	FGame::Instance()->GetContext()->RSSetState(RasterizerState.Get());
 }
 
 void FGame::InitGameObjects() const
@@ -140,19 +132,6 @@ void FGame::Update(float DeltaTime)
 
 		frameCount = 0;
 	}
-
-	GetContext()->ClearState();
-
-	GetContext()->RSSetState(RasterizerState.Get());
-
-	Viewport.Width = static_cast<float>(FGame::Instance()->GetDisplay().GetScreenWidth());
-	Viewport.Height = static_cast<float>(FGame::Instance()->GetDisplay().GetScreenHeight());
-	Viewport.MinDepth = 0;
-	Viewport.MaxDepth = 1.0f;
-	Viewport.TopLeftX = 0;
-	Viewport.TopLeftY = 0;
-
-	FGame::Instance()->GetContext()->RSSetViewports(1, &Viewport);
 
 	UpdateGameObjects(DeltaTime);
 	

@@ -6,6 +6,7 @@
 #include "GameObjects/Planet.h"
 #include "Utils/InputDevice.h"
 #include "Camera/Camera.h"
+#include <Components/RenderComponent.h>
 
 SolarSystemGame* SolarSystemGame::Instance()
 {
@@ -18,7 +19,7 @@ SolarSystemGame* SolarSystemGame::Instance()
 
 void SolarSystemGame::Construct()
 {
-    PlanetParameters* SunParameters = new PlanetParameters();
+   /* PlanetParameters* SunParameters = new PlanetParameters();
     SunParameters->Name = "Sun";
     SunParameters->Radius = 0.2f;
     SunParameters->RotationAxis = DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f);
@@ -77,8 +78,23 @@ void SolarSystemGame::Construct()
     AddGameObject(Earth);
     AddGameObject(Moon);
     AddGameObject(Venus);
-    AddGameObject(Venus2);
+    AddGameObject(Venus2);*/
+
+    FGameObject* TexturedCube = new FGameObject();
+
     
+    FRenderComponent* Render = new FRenderComponent(
+    "C:\\ITMO\\Computer Graphics 2023\\CG2023\\CG\\GameFramework\\Source\\Shaders\\MyTexturedShader.hlsl",
+    "C:\\ITMO\\Computer Graphics 2023\\CG2023\\CG\\GameFramework\\Source\\Textures\\Gachi.png");
+    
+    //FRenderComponent* Render =
+    //new FRenderComponent("C:\\ITMO\\Computer Graphics 2023\\CG2023\\CG\\GameFramework\\Source\\Shaders\\MyTexturedShader.hlsl");
+    Render->AddCube(1);
+
+    TexturedCube->AddComponent(Render);
+
+    AddGameObject(TexturedCube);
+
     FGame::Construct();
 }
 

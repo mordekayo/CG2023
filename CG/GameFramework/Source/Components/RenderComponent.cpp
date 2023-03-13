@@ -9,6 +9,21 @@
 #include "Camera/Camera.h"
 #include "GameObjects/GameObject.h"
 
+#include <WICTextureLoader.h>
+
+FRenderComponent::FRenderComponent(std::string ShaderFileName)
+{
+	bUseTexture = false;
+	this->ShaderFileName = ShaderFileName;
+}
+
+FRenderComponent::FRenderComponent(std::string ShaderFileName, std::string TextureFileName)
+{
+	bUseTexture = true;
+	this->TextureFileName = TextureFileName;
+	this->ShaderFileName = ShaderFileName;
+}
+
 FRenderComponent::~FRenderComponent()
 {
     
@@ -18,10 +33,12 @@ void FRenderComponent::Init()
 {
 	FObjectComponent::Init();
 
-		Microsoft::WRL::ComPtr<ID3DBlob> VertexShaderByteCode;
+	Microsoft::WRL::ComPtr<ID3DBlob> VertexShaderByteCode;
 	ID3DBlob* ErrorCode = nullptr;
 	
-	HRESULT Result = D3DCompileFromFile(L"../GameFramework/Source/Shaders/MyVeryFirstShader.hlsl",
+	std::wstring FileName(ShaderFileName.begin(), ShaderFileName.end());
+
+	HRESULT Result = D3DCompileFromFile(FileName.c_str(),
 		nullptr /*macros*/,
 		nullptr /*include*/,
 		"VSMain",
@@ -43,7 +60,7 @@ void FRenderComponent::Init()
 		// If there was  nothing in the error message then it simply could not find the shader file itself.
 		else
 		{
-			MessageBox(FGame::Instance()->GetDisplay().GetHWnd(), L"MyVeryFirstShader.hlsl", L"Missing Shader File", MB_OK);
+			MessageBox(FGame::Instance()->GetDisplay().GetHWnd(), FileName.c_str(), FileName.c_str(), MB_OK);
 		}
 
 		return;
@@ -53,7 +70,7 @@ void FRenderComponent::Init()
 
 	Microsoft::WRL::ComPtr<ID3DBlob> PixelShaderByteCode;
 	
-	Result = D3DCompileFromFile(L"../GameFramework/Source/Shaders/MyVeryFirstShader.hlsl",
+	Result = D3DCompileFromFile(FileName.c_str(),
 		nullptr /*macros*/,
 		nullptr /*include*/,
 		"PSMain",
@@ -73,36 +90,64 @@ void FRenderComponent::Init()
 		PixelShaderByteCode->GetBufferSize(),
 		nullptr, PixelShader.GetAddressOf());
 
-    constexpr D3D11_INPUT_ELEMENT_DESC InputElements[] =
+	if(bUseTexture) 
 	{
-		D3D11_INPUT_ELEMENT_DESC
-		{
-			"POSITION",
-			0,
-			DXGI_FORMAT_R32G32B32A32_FLOAT,
-			0,
-			0,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		},
-		D3D11_INPUT_ELEMENT_DESC
-		{
-			"COLOR",
-			0,
-			DXGI_FORMAT_R32G32B32A32_FLOAT,
-			0,
-			D3D11_APPEND_ALIGNED_ELEMENT,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		}
-	};
-	
-	FGame::Instance()->GetDevice()->CreateInputLayout(
-		InputElements,
-		2,
-		VertexShaderByteCode->GetBufferPointer(),
-		VertexShaderByteCode->GetBufferSize(),
-		InputLayout.GetAddressOf());
+		D3D11_INPUT_ELEMENT_DESC InputElements[] = {
+		 D3D11_INPUT_ELEMENT_DESC {
+		  "POSITION",
+		  0,
+		  DXGI_FORMAT_R32G32B32A32_FLOAT,
+		  0,
+		  0,
+		  D3D11_INPUT_PER_VERTEX_DATA,
+		  0
+		 },
+		 D3D11_INPUT_ELEMENT_DESC {
+		  "TEXCOORD", //
+		  0,
+		  DXGI_FORMAT_R32G32B32A32_FLOAT,
+		  0,
+		  D3D11_APPEND_ALIGNED_ELEMENT,
+		  D3D11_INPUT_PER_VERTEX_DATA,
+		  0
+		 }
+		};
+		FGame::Instance()->GetDevice()->CreateInputLayout(
+			InputElements,
+			2,
+			VertexShaderByteCode->GetBufferPointer(),
+			VertexShaderByteCode->GetBufferSize(),
+			InputLayout.GetAddressOf());
+	}
+	else
+	{
+		D3D11_INPUT_ELEMENT_DESC InputElements[] = {
+		 D3D11_INPUT_ELEMENT_DESC {
+		  "POSITION",
+		  0,
+		  DXGI_FORMAT_R32G32B32A32_FLOAT,
+		  0,
+		  0,
+		  D3D11_INPUT_PER_VERTEX_DATA,
+		  0
+		 },
+		 D3D11_INPUT_ELEMENT_DESC {
+		  "COLOR",
+		  0,
+		  DXGI_FORMAT_R32G32B32A32_FLOAT,
+		  0,
+		  D3D11_APPEND_ALIGNED_ELEMENT,
+		  D3D11_INPUT_PER_VERTEX_DATA,
+		  0
+		 }
+		};
+		FGame::Instance()->GetDevice()->CreateInputLayout(
+			InputElements,
+			2,
+			VertexShaderByteCode->GetBufferPointer(),
+			VertexShaderByteCode->GetBufferSize(),
+			InputLayout.GetAddressOf());
+	}
 	
 	Strides[0] = 32;
 	Offsets[0] = 0;
@@ -113,10 +158,10 @@ void FRenderComponent::Init()
 	VertexBufDesc.CPUAccessFlags = 0;
 	VertexBufDesc.MiscFlags = 0;
 	VertexBufDesc.StructureByteStride = 0;
-	VertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * static_cast<UINT>(std::size(LocalPoints));
+	VertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * static_cast<UINT>(std::size(Points));
 
 	D3D11_SUBRESOURCE_DATA VertexData = {};
-	VertexData.pSysMem = LocalPoints.data();
+	VertexData.pSysMem = Points.data();
 	VertexData.SysMemPitch = 0;
 	VertexData.SysMemSlicePitch = 0;
 	
@@ -145,6 +190,35 @@ void FRenderComponent::Init()
 	ConstBufDesc.StructureByteStride = 0;
 	ConstBufDesc.ByteWidth = sizeof(DirectX::XMMATRIX);
 	FGame::Instance()->GetDevice()->CreateBuffer(&ConstBufDesc, nullptr, &ConstantBuffer);
+
+	if (bUseTexture)
+	{
+		std::wstring textureName(TextureFileName.begin(), TextureFileName.end());
+
+		auto res = DirectX::CreateWICTextureFromFile(
+			FGame::Instance()->GetDevice().Get(),
+			FGame::Instance()->GetContext().Get(),
+			textureName.c_str(),
+			Texture.GetAddressOf(),
+			TextureView.GetAddressOf()
+		);
+
+		D3D11_SAMPLER_DESC samplerStateDesc = {};
+		samplerStateDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerStateDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerStateDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerStateDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+
+		FGame::Instance()->GetDevice()->CreateSamplerState(&samplerStateDesc, SamplerState.GetAddressOf());
+	}
+
+	CD3D11_RASTERIZER_DESC RastDesc = {};
+	RastDesc.CullMode = D3D11_CULL_NONE;
+	RastDesc.FillMode = D3D11_FILL_WIREFRAME;
+
+	FGame::Instance()->GetDevice()->CreateRasterizerState(&RastDesc, RasterizerState.GetAddressOf());
+
+	FGame::Instance()->GetContext()->RSSetState(RasterizerState.Get());
 }
 
 void FRenderComponent::Update()
@@ -166,6 +240,22 @@ void FRenderComponent::Update()
 
 void FRenderComponent::Draw()
 {
+	FGame::Instance()->GetContext()->ClearState();
+	FGame::Instance()->GetContext()->RSSetState(RasterizerState.Get());
+	FGame::Instance()->GetContext()->RSSetViewports(1, &Viewport);
+
+	Viewport.Width = static_cast<float>(FGame::Instance()->GetDisplay().GetScreenWidth());
+	Viewport.Height = static_cast<float>(FGame::Instance()->GetDisplay().GetScreenHeight());
+	Viewport.MinDepth = 0;
+	Viewport.MaxDepth = 1.0f;
+	Viewport.TopLeftX = 0;
+	Viewport.TopLeftY = 0;
+
+	if (bUseTexture)
+	{
+		FGame::Instance()->GetContext()->PSSetShaderResources(0, 1, TextureView.GetAddressOf());
+		FGame::Instance()->GetContext()->PSSetSamplers(0, 1, SamplerState.GetAddressOf());
+	}
     FGame::Instance()->GetContext()->IASetInputLayout(InputLayout.Get());
     FGame::Instance()->GetContext()->IASetPrimitiveTopology(Topology);
     FGame::Instance()->GetContext()->IASetIndexBuffer(IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
@@ -178,17 +268,73 @@ void FRenderComponent::Draw()
     FGame::Instance()->GetContext()->DrawIndexed(Indices.size(), 0, 0);
 }
 
-void FRenderComponent::SetPoints(std::vector<DirectX::SimpleMath::Vector4>&& NewPoints)
-{
-	LocalPoints = std::move(NewPoints);
-}
-
-void FRenderComponent::SetIndices(std::vector<int>&& NewIndices)
-{
-	Indices = std::move(NewIndices);
-}
-
 void FRenderComponent::SetTopology(D3D11_PRIMITIVE_TOPOLOGY NewTopology)
 {
 	Topology = NewTopology;
+}
+
+void FRenderComponent::AddCube(float radius)
+{
+	Points = 
+	{ 
+		DirectX::SimpleMath::Vector4(radius,   radius, 0.0f, 1.0f), DirectX::SimpleMath::Vector4(radius, radius, 0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(-radius, -radius, 0.0f, 1.0f), DirectX::SimpleMath::Vector4(0.0f,   0.0f,  0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(radius, -radius, 0.0f, 1.0f), DirectX::SimpleMath::Vector4(radius,  0.0f,  0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(-radius,   radius, 0.0f, 1.0f), DirectX::SimpleMath::Vector4(0.0f,  radius, 0.0f, 0.0f)
+	};
+	Indices = { 0, 1, 2, 1, 0, 3 };
+}
+
+void FRenderComponent::AddMesh(float Scale, std::string PathToFile)
+{
+	Assimp::Importer importer;
+	const aiScene* pScene = importer.ReadFile(PathToFile, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
+
+	if (!pScene) 
+	{
+		return; 
+	}
+
+	ProcessNode(pScene->mRootNode, pScene, Scale);
+}
+
+void FRenderComponent::ProcessNode(aiNode* Node, const aiScene* Scene, float Scale)
+{
+	for (UINT i = 0; i < Node->mNumMeshes; i++)
+	{
+		aiMesh* mesh = Scene->mMeshes[Node->mMeshes[i]];
+		ProcessMesh(mesh, Scene, Scale);
+	}
+
+	for (UINT i = 0; i < Node->mNumChildren; i++)
+	{
+		ProcessNode(Node->mChildren[i], Scene, Scale);
+	}
+}
+
+void FRenderComponent::ProcessMesh(aiMesh* Mesh, const aiScene* Scene, float Scale)
+{
+	for (UINT i = 0; i < Mesh->mNumVertices; i++)
+	{
+		DirectX::SimpleMath::Vector4 textureCoordinate = {};
+
+		if (Mesh->mTextureCoords[0])
+		{
+			textureCoordinate.x = (float)Mesh->mTextureCoords[0][i].x;
+			textureCoordinate.y = (float)Mesh->mTextureCoords[0][i].y;
+		}
+
+		Points.push_back({ Mesh->mVertices[i].x * Scale, Mesh->mVertices[i].y * Scale, Mesh->mVertices[i].z * Scale, 1.0f });
+		Points.push_back(textureCoordinate);
+	}
+
+	for (UINT i = 0; i < Mesh->mNumFaces; i++)
+	{
+		aiFace face = Mesh->mFaces[i];
+
+		for (UINT j = 0; j < face.mNumIndices; j++)
+		{
+			Indices.push_back(face.mIndices[j]);
+		}
+	}
 }

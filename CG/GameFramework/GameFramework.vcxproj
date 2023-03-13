@@ -410,6 +410,14 @@
     <ClInclude Include="Source\Utils\Keys.h" />
     <ClInclude Include="Source\Utils\SimpleMath.h" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\Shaders\MyTexturedShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -465,28 +473,28 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)bin\Intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)bin\Intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)bin\Intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)bin\Intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
@@ -497,7 +505,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Misc\ASSIMP\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Misc\ASSIMP\include;$(ProjectDIr)Misc\DirectXTK/Includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -517,7 +525,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Misc\ASSIMP\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Misc\ASSIMP\include;$(ProjectDIr)Misc\DirectXTK/Includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -538,15 +546,15 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Misc\ASSIMP\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Misc\ASSIMP\include;$(ProjectDIr)Misc\DirectXTK/Includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\ITMO\Computer Graphics 2023\CG2023\CG\GameFramework\Misc\ASSIMP\lib\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DirectXTK.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\GameFramework\Misc\DirectXTK\Libs\$(PlatformName)\$(Configuration);C:\ITMO\Computer Graphics 2023\CG2023\CG\GameFramework\Misc\ASSIMP\lib\Debug</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -559,7 +567,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Misc\ASSIMP\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Misc\ASSIMP\include;$(ProjectDIr)Misc\DirectXTK/Includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
