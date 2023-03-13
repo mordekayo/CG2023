@@ -4,4 +4,7 @@ CG/.vs/*
 *.lnk
 CG/GameFramework/x64/*
 CG/GameFramework/Misc/*
+CG/GameFramework/Intermediate/*
 CG/KatamariDamacy/Intermediate/*
+CG/SolarSystem/Intermediate/*
+
