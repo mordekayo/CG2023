@@ -8,6 +8,7 @@
 #include "Game.h"
 #include "Camera/Camera.h"
 #include "GameObjects/GameObject.h"
+#include "Render/RenderSystem.h"
 
 FRenderComponent::~FRenderComponent()
 {
@@ -63,12 +64,12 @@ void FRenderComponent::Init()
 		&PixelShaderByteCode,
 		&ErrorCode);
 
-	FGame::Instance()->GetDevice()->CreateVertexShader(
+	FGame::GetRenderSystem()->GetDevice()->CreateVertexShader(
 		VertexShaderByteCode->GetBufferPointer(),
 		VertexShaderByteCode->GetBufferSize(),
 		nullptr, VertexShader.GetAddressOf());
 
-	FGame::Instance()->GetDevice()->CreatePixelShader(
+	FGame::GetRenderSystem()->GetDevice()->CreatePixelShader(
 		PixelShaderByteCode->GetBufferPointer(),
 		PixelShaderByteCode->GetBufferSize(),
 		nullptr, PixelShader.GetAddressOf());
@@ -97,7 +98,7 @@ void FRenderComponent::Init()
 		}
 	};
 	
-	FGame::Instance()->GetDevice()->CreateInputLayout(
+	FGame::GetRenderSystem()->GetDevice()->CreateInputLayout(
 		InputElements,
 		2,
 		VertexShaderByteCode->GetBufferPointer(),
@@ -120,7 +121,7 @@ void FRenderComponent::Init()
 	VertexData.SysMemPitch = 0;
 	VertexData.SysMemSlicePitch = 0;
 	
-	FGame::Instance()->GetDevice()->CreateBuffer(&VertexBufDesc, &VertexData, VertexBuffer.GetAddressOf());
+	FGame::GetRenderSystem()->GetDevice()->CreateBuffer(&VertexBufDesc, &VertexData, VertexBuffer.GetAddressOf());
 
 	D3D11_BUFFER_DESC IndexBufDesc = {};
 	IndexBufDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -135,7 +136,7 @@ void FRenderComponent::Init()
 	IndexData.SysMemPitch = 0;
 	IndexData.SysMemSlicePitch = 0;
 	
-	FGame::Instance()->GetDevice()->CreateBuffer(&IndexBufDesc, &IndexData, IndexBuffer.GetAddressOf());
+	FGame::GetRenderSystem()->GetDevice()->CreateBuffer(&IndexBufDesc, &IndexData, IndexBuffer.GetAddressOf());
 	
 	D3D11_BUFFER_DESC ConstBufDesc = {};
 	ConstBufDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -144,7 +145,7 @@ void FRenderComponent::Init()
 	ConstBufDesc.MiscFlags = 0;
 	ConstBufDesc.StructureByteStride = 0;
 	ConstBufDesc.ByteWidth = sizeof(DirectX::XMMATRIX);
-	FGame::Instance()->GetDevice()->CreateBuffer(&ConstBufDesc, nullptr, &ConstantBuffer);
+	FGame::GetRenderSystem()->GetDevice()->CreateBuffer(&ConstBufDesc, nullptr, &ConstantBuffer);
 }
 
 void FRenderComponent::Update()
@@ -161,21 +162,21 @@ void FRenderComponent::Update()
 
 	const DirectX::XMMATRIX Transform = DirectX::XMMatrixTranspose(DirectX::XMMatrixMultiply(ScaledMatrix, OwnerWorldViewProjectionMatrix));
 
-	FGame::Instance()->GetContext()->UpdateSubresource(ConstantBuffer, 0, nullptr, &Transform, 0, 0);
+	FGame::GetRenderSystem()->GetContext()->UpdateSubresource(ConstantBuffer, 0, nullptr, &Transform, 0, 0);
 }
 
 void FRenderComponent::Draw()
 {
-    FGame::Instance()->GetContext()->IASetInputLayout(InputLayout.Get());
-    FGame::Instance()->GetContext()->IASetPrimitiveTopology(Topology);
-    FGame::Instance()->GetContext()->IASetIndexBuffer(IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-    FGame::Instance()->GetContext()->IASetVertexBuffers(0, 1, VertexBuffer.GetAddressOf(), Strides, Offsets);
-    FGame::Instance()->GetContext()->VSSetShader(VertexShader.Get(), nullptr, 0);
-    FGame::Instance()->GetContext()->PSSetShader(PixelShader.Get(), nullptr, 0);
+    FGame::GetRenderSystem()->GetContext()->IASetInputLayout(InputLayout.Get());
+    FGame::GetRenderSystem()->GetContext()->IASetPrimitiveTopology(Topology);
+    FGame::GetRenderSystem()->GetContext()->IASetIndexBuffer(IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+    FGame::GetRenderSystem()->GetContext()->IASetVertexBuffers(0, 1, VertexBuffer.GetAddressOf(), Strides, Offsets);
+    FGame::GetRenderSystem()->GetContext()->VSSetShader(VertexShader.Get(), nullptr, 0);
+    FGame::GetRenderSystem()->GetContext()->PSSetShader(PixelShader.Get(), nullptr, 0);
 	
-    FGame::Instance()->GetContext()->VSSetConstantBuffers(0, 1, &ConstantBuffer);
+    FGame::GetRenderSystem()->GetContext()->VSSetConstantBuffers(0, 1, &ConstantBuffer);
 	
-    FGame::Instance()->GetContext()->DrawIndexed(Indices.size(), 0, 0);
+    FGame::GetRenderSystem()->GetContext()->DrawIndexed(Indices.size(), 0, 0);
 }
 
 void FRenderComponent::SetPoints(std::vector<DirectX::SimpleMath::Vector4>&& NewPoints)

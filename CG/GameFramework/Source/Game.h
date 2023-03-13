@@ -7,6 +7,7 @@
 #include <d3d11.h>
 #include <set>
 
+class FRenderSystem;
 class FTargetCameraController;
 class FFPSCameraController;
 class FCamera;
@@ -23,13 +24,12 @@ public:
 	virtual ~FGame() = default;
 
 	static FGame* Instance();
+	static FRenderSystem* GetRenderSystem();
 
 	virtual void Run();
 
 	FDisplayWin32& GetDisplay();
 	InputDevice* GetInputDevice() const;
-	[[nodiscard]] Microsoft::WRL::ComPtr<ID3D11Device> GetDevice() const;
-	[[nodiscard]] Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext() const;
 	FCamera* GetCamera() const;
 
 	void AddGameObject(FGameObject* ObjectToAdd);
@@ -62,27 +62,14 @@ protected:
 
 private:
 
+	FRenderSystem* RenderSystem;
 	FDisplayWin32* Display;
-	
-	Microsoft::WRL::ComPtr<ID3D11Device> Device = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> Context = nullptr;
-	Microsoft::WRL::ComPtr<IDXGISwapChain> SwapChain = nullptr;
-
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> BackTex = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> RenderTargetView = nullptr;
-
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> RasterizerState;
-	D3D11_VIEWPORT Viewport;
 	
 	void CreateResources();
 	
 	void InitGameObjects() const;
 	void UpdateGameObjects(float DeltaTime) const;
 	void DrawGameObjects() const;
-
-	void BeginFrame();
-	void RenderFrame();
-	void EndFrame();
 	
 	std::set<FGameObject*> GameObjects;
 	

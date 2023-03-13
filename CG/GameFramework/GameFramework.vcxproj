@@ -385,6 +385,7 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Source\Render\RenderSystem.cpp" />
     <ClCompile Include="Source\Utils\Delegates.cpp" />
     <ClCompile Include="Source\Utils\InputDevice.cpp" />
     <ClCompile Include="Source\Utils\SimpleMath.cpp" />
@@ -404,6 +405,7 @@
     <ClInclude Include="Source\DisplayWin32.h" />
     <ClInclude Include="Source\Game.h" />
     <ClInclude Include="Source\GameObjects\GameObject.h" />
+    <ClInclude Include="Source\Render\RenderSystem.h" />
     <ClInclude Include="Source\Sources.h" />
     <ClInclude Include="Source\Utils\Delegates.h" />
     <ClInclude Include="Source\Utils\InputDevice.h" />
