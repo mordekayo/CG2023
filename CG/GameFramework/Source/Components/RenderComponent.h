@@ -5,9 +5,6 @@
 #include <windows.h>
 #include <wrl.h>
 #include <vector>
-#include <string>
-
-
 
 class FGameObject;
 
@@ -15,11 +12,6 @@ class FRenderComponent : public FObjectComponent
 {
 public:
 
-    FRenderComponent();
-    FRenderComponent(std::string shaderFileName);
-    FRenderComponent(std::string shaderFileName, std::string textureFileName);
-
-    bool bUseTexture = false;
     virtual ~FRenderComponent();
     void Init() override;
     void Update() override;
@@ -29,10 +21,6 @@ public:
     void SetIndices(std::vector<int> &&NewIndices);
     void SetTopology(D3D11_PRIMITIVE_TOPOLOGY NewTopology);
 
-    std::string textureFileName; //
-    Microsoft::WRL::ComPtr<ID3D11Resource> texture; //
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView; //
-    Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState; //
 private:
     
     std::vector<DirectX::SimpleMath::Vector4> LocalPoints;

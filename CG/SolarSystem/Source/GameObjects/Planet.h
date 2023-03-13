@@ -24,9 +24,8 @@ public:
     void Init() override;
     void Update(float DeltaTime) override;
 
-    DirectX::SimpleMath::Vector3 GetLocalTranslation() const override;
+    DirectX::SimpleMath::Vector3 GetLocalTranslation2() const;
 
-    DirectX::SimpleMath::Vector3 GetLocalTransform() const;
 protected:
 
     void UpdateWorldMatrix();

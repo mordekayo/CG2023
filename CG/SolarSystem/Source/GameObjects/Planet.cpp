@@ -35,25 +35,11 @@ void Planet::Update(float DeltaTime)
 
         OrbitalTranslation = DirectX::SimpleMath::Matrix::CreateFromQuaternion(OrbitalRotation) * DirectX::SimpleMath::Matrix::CreateTranslation(ParentPlanet->GetLocalTranslation());
     }
-    
-    UpdateWorldMatrix();
 }
 
-DirectX::SimpleMath::Vector3 Planet::GetLocalTranslation() const
+DirectX::SimpleMath::Vector3 Planet::GetLocalTranslation2() const
 {
-    return DirectX::SimpleMath::Vector3::Transform(GetLocalTransform(), OrbitalTranslation);
-}
-
-DirectX::SimpleMath::Vector3 Planet::GetLocalTransform() const
-{
-    return FGameObject::GetLocalTranslation();
-}
-
-void Planet::UpdateWorldMatrix()
-{
-    FGameObject::UpdateWorldMatrix();
-    
-    WorldView *= OrbitalTranslation;
+    return DirectX::SimpleMath::Vector3::Transform(GetLocalTranslation(), OrbitalTranslation);
 }
 
 void Planet::Construct()
@@ -132,12 +118,6 @@ void Planet::Construct()
 
 void Planet::Init()
 {
-    //if (OrbitalAxis.Dot(GetLocalTransform()) != 0) 
-    //{
-    //    DirectX::SimpleMath::Vector3 Normal = OrbitalAxis.Cross(GetLocalTransform());
-    //    OrbitalAxis = Normal.Cross(GetLocalTransform());
-    //}
-
     OrbitalAxis.Normalize();
     RotationAxis.Normalize();
 

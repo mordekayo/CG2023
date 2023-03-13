@@ -9,19 +9,6 @@
 #include "Camera/Camera.h"
 #include "GameObjects/GameObject.h"
 
-
-FRenderComponent::FRenderComponent(std::string shaderFileName)
-{
-	bUseTexture = false;
-}
-
-FRenderComponent::FRenderComponent(std::string shaderFileName, std::string textureFileName)
-{
-	bUseTexture = true;
-
-	this->textureFileName = textureFileName;
-}
-
 FRenderComponent::~FRenderComponent()
 {
     
@@ -86,88 +73,36 @@ void FRenderComponent::Init()
 		PixelShaderByteCode->GetBufferSize(),
 		nullptr, PixelShader.GetAddressOf());
 
-	//if (bUseTexture) //
-	//{
-	//	D3D11_INPUT_ELEMENT_DESC inputElements[] = {
-	//	 D3D11_INPUT_ELEMENT_DESC {
-	//	  "POSITION",
-	//	  0,
-	//	  DXGI_FORMAT_R32G32B32A32_FLOAT,
-	//	  0,
-	//	  0,
-	//	  D3D11_INPUT_PER_VERTEX_DATA,
-	//	  0
-	//	 },
-	//	 D3D11_INPUT_ELEMENT_DESC {
-	//	  "TEXCOORD", //
-	//	  0,
-	//	  DXGI_FORMAT_R32G32B32A32_FLOAT,
-	//	  0,
-	//	  D3D11_APPEND_ALIGNED_ELEMENT,
-	//	  D3D11_INPUT_PER_VERTEX_DATA,
-	//	  0
-	//	 }
-	//	};
-	//	FGame::Instance()->GetDevice()->CreateInputLayout(
-	//		inputElements,
-	//		2,
-	//		vertexShaderByteCode->GetBufferPointer(),
-	//		vertexShaderByteCode->GetBufferSize(),
-	//		inputLayout.GetAddressOf()
-	//	);
-	//}
-	//else
-	//{
-	//	D3D11_INPUT_ELEMENT_DESC inputElements[] = {
-	//	 D3D11_INPUT_ELEMENT_DESC {
-	//	  "POSITION",
-	//	  0,
-	//	  DXGI_FORMAT_R32G32B32A32_FLOAT,
-	//	  0,
-	//	  0,
-	//	  D3D11_INPUT_PER_VERTEX_DATA,
-	//	  0
-	//	 },
-	//	 D3D11_INPUT_ELEMENT_DESC {
-	//	  "COLOR",
-	//	  0,
-	//	  DXGI_FORMAT_R32G32B32A32_FLOAT,
-	//	  0,
-	//	  D3D11_APPEND_ALIGNED_ELEMENT,
-	//	  D3D11_INPUT_PER_VERTEX_DATA,
-	//	  0
-	//	 }
-	//	};
-	//	FGame::Instance()->GetRenderSystem()->device->CreateInputLayout(
-	//		inputElements,
-	//		2,
-	//		vertexShaderByteCode->GetBufferPointer(),
-	//		vertexShaderByteCode->GetBufferSize(),
-	//		inputLayout.GetAddressOf()
-	//	);
-	//}
-
-
-	//if (isTexture) //
-	//{
-	//	std::wstring textureName(textureFileName.begin(), textureFileName.end());
-
-	//	res = DirectX::CreateWICTextureFromFile(
-	//		Game::GetInstance()->GetRenderSystem()->device.Get(),
-	//		Game::GetInstance()->GetRenderSystem()->context.Get(),
-	//		textureName.c_str(),
-	//		texture.GetAddressOf(),
-	//		textureView.GetAddressOf()
-	//	);
-
-	//	D3D11_SAMPLER_DESC samplerStateDesc = {};
-	//	samplerStateDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	//	samplerStateDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	//	samplerStateDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	//	samplerStateDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-
-	//	res = Game::GetInstance()->GetRenderSystem()->device->CreateSamplerState(&samplerStateDesc, samplerState.GetAddressOf());
-	//}
+    constexpr D3D11_INPUT_ELEMENT_DESC InputElements[] =
+	{
+		D3D11_INPUT_ELEMENT_DESC
+		{
+			"POSITION",
+			0,
+			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			0,
+			0,
+			D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+		D3D11_INPUT_ELEMENT_DESC
+		{
+			"COLOR",
+			0,
+			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			0,
+			D3D11_APPEND_ALIGNED_ELEMENT,
+			D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		}
+	};
+	
+	FGame::Instance()->GetDevice()->CreateInputLayout(
+		InputElements,
+		2,
+		VertexShaderByteCode->GetBufferPointer(),
+		VertexShaderByteCode->GetBufferSize(),
+		InputLayout.GetAddressOf());
 	
 	Strides[0] = 32;
 	Offsets[0] = 0;
@@ -240,7 +175,7 @@ void FRenderComponent::Draw()
 	
     FGame::Instance()->GetContext()->VSSetConstantBuffers(0, 1, &ConstantBuffer);
 	
-    FGame::Instance()->GetContext()->DrawIndexed(static_cast<UINT>(Indices.size()), 0, 0);
+    FGame::Instance()->GetContext()->DrawIndexed(Indices.size(), 0, 0);
 }
 
 void FRenderComponent::SetPoints(std::vector<DirectX::SimpleMath::Vector4>&& NewPoints)

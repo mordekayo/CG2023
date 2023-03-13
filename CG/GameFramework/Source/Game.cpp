@@ -10,17 +10,11 @@
 #include "Camera/FPSCameraController.h"
 #include "Camera/TargetCameraController.h"
 
-#include <assimp/Importer.hpp> 
-#include <assimp/scene.h> 
-#include <assimp/postprocess.h>
-
 FGame::FGame()
 {
 	ApplicationName = L"My FGame engine";
 	ScreenWidth = 800;
 	ScreenHeight = 800;
-
-	Assimp::Importer importer;
 }
 
 void FGame::CreateResources()
