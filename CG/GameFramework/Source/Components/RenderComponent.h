@@ -2,6 +2,7 @@
 #include "ObjectComponent.h"
 #include "Utils/SimpleMath.h"
 #include <d3d11.h>
+#include <string>
 #include <windows.h>
 #include <wrl.h>
 #include <vector>
@@ -12,6 +13,8 @@ class FRenderComponent : public FObjectComponent
 {
 public:
 
+    FRenderComponent(std::wstring PathToShader);
+    
     virtual ~FRenderComponent();
     void Init() override;
     void Update() override;
@@ -22,6 +25,8 @@ public:
     void SetTopology(D3D11_PRIMITIVE_TOPOLOGY NewTopology);
 
 private:
+
+    std::wstring ShaderFileName;
     
     std::vector<DirectX::SimpleMath::Vector4> LocalPoints;
     std::vector<int> Indices;

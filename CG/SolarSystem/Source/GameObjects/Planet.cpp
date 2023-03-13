@@ -108,7 +108,7 @@ void Planet::Construct()
         Indices.push_back(baseIndex + i + 1);
     }
 
-    FRenderComponent* SphereMesh = new FRenderComponent();
+    FRenderComponent* SphereMesh = new FRenderComponent(L"../GameFramework/Source/Shaders/MyVeryFirstShader.hlsl");
     SphereMesh->SetPoints(std::move(Vertexes));
     SphereMesh->SetIndices(std::move(Indices));
     SphereMesh->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);

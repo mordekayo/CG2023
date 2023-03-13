@@ -10,6 +10,12 @@
 #include "GameObjects/GameObject.h"
 #include "Render/RenderSystem.h"
 
+
+FRenderComponent::FRenderComponent(std::wstring PathToShader)
+{
+	ShaderFileName = PathToShader;
+}
+
 FRenderComponent::~FRenderComponent()
 {
     
@@ -22,7 +28,7 @@ void FRenderComponent::Init()
 		Microsoft::WRL::ComPtr<ID3DBlob> VertexShaderByteCode;
 	ID3DBlob* ErrorCode = nullptr;
 	
-	HRESULT Result = D3DCompileFromFile(L"../GameFramework/Source/Shaders/MyVeryFirstShader.hlsl",
+	HRESULT Result = D3DCompileFromFile(ShaderFileName.c_str(),
 		nullptr /*macros*/,
 		nullptr /*include*/,
 		"VSMain",
@@ -54,7 +60,7 @@ void FRenderComponent::Init()
 
 	Microsoft::WRL::ComPtr<ID3DBlob> PixelShaderByteCode;
 	
-	Result = D3DCompileFromFile(L"../GameFramework/Source/Shaders/MyVeryFirstShader.hlsl",
+	Result = D3DCompileFromFile(ShaderFileName.c_str(),
 		nullptr /*macros*/,
 		nullptr /*include*/,
 		"PSMain",
