@@ -22,6 +22,8 @@ private:
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> Context = nullptr;
     Microsoft::WRL::ComPtr<ID3D11Texture2D> BackTex = nullptr;
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> RenderTargetView = nullptr;
-    Microsoft::WRL::ComPtr<ID3D11RasterizerState> RasterizerState;
     D3D11_VIEWPORT Viewport;
+
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> DepthBuffer;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> DepthView;
 };

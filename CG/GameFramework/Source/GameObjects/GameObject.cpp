@@ -99,6 +99,12 @@ DirectX::SimpleMath::Vector3 FGameObject::GetWorldRotationEuler() const
     return GetWorldRotationQuat().ToEuler();
 }
 
+void FGameObject::AddRotationQuat(DirectX::SimpleMath::Quaternion AdditionalRotation)
+{
+    Rotation *= AdditionalRotation;
+    Rotation.Normalize();
+}
+
 void FGameObject::SetLocalRotationQuat(DirectX::SimpleMath::Quaternion NewRotation)
 {
     Rotation = NewRotation;
@@ -109,6 +115,26 @@ void FGameObject::SetLocalRotationEuler(DirectX::SimpleMath::Vector3 NewRotation
 {
     Rotation = DirectX::SimpleMath::Quaternion(NewRotation);
     Rotation.Normalize();
+}
+
+DirectX::SimpleMath::Vector3 FGameObject::GetForwardVector() const
+{
+    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Backward, GetLocalTransform());
+}
+
+DirectX::SimpleMath::Vector3 FGameObject::GetRightVector() const
+{
+    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Left, GetLocalTransform());
+}
+
+DirectX::SimpleMath::Vector3 FGameObject::GetLeftVector() const
+{
+    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Right, GetLocalTransform());
+}
+
+DirectX::SimpleMath::Vector3 FGameObject::GetBackwardVector() const
+{
+    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Forward, GetLocalTransform());
 }
 
 void FGameObject::Construct()

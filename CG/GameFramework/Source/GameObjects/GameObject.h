@@ -32,8 +32,15 @@ public:
 	DirectX::SimpleMath::Quaternion GetWorldRotationQuat() const;
 	DirectX::SimpleMath::Vector3 GetWorldRotationEuler() const;
 
+	void AddRotationQuat(DirectX::SimpleMath::Quaternion AdditionalRotation);
+	
 	void SetLocalRotationQuat(DirectX::SimpleMath::Quaternion NewRotation);
 	void SetLocalRotationEuler(DirectX::SimpleMath::Vector3 NewRotation);
+
+	DirectX::SimpleMath::Vector3 GetForwardVector() const;
+	DirectX::SimpleMath::Vector3 GetRightVector() const;
+	DirectX::SimpleMath::Vector3 GetLeftVector() const;
+	DirectX::SimpleMath::Vector3 GetBackwardVector() const;
 
 	virtual void SetParent(FGameObject* NewParent);
 

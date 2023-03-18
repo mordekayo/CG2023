@@ -3,6 +3,9 @@
 #include "Game.h"
 #include "GameObjects/PlayerBall.h"
 
+class FPlayerController;
+class FFPSCameraController;
+
 class KatamariGame : public FGame
 {
 public:
@@ -16,6 +19,10 @@ protected:
 
 private:
 
-    PlayerBall* Player;
+    bool bFreeCamera = false;
+    FFPSCameraController* FreeCameraController = nullptr;
+
+    FPlayerController* PlayerController = nullptr;
+    PlayerBall* Player = nullptr;
 };
 

@@ -7,8 +7,6 @@
 #include <chrono>
 
 #include "Camera/Camera.h"
-#include "Camera/FPSCameraController.h"
-#include "Camera/TargetCameraController.h"
 #include "Render/RenderSystem.h"
 
 FGame::FGame()
@@ -23,13 +21,7 @@ void FGame::CreateResources()
 	Display = new FDisplayWin32(ApplicationName, ScreenWidth, ScreenHeight, WndProc);
 	Input = new InputDevice(this);
 	Camera = new FCamera();
-
-	FPSCameraController = new FFPSCameraController();
-	FPSCameraController->SetCamera(Camera);
 	
-	TargetCameraController = new FTargetCameraController();
-	TargetCameraController->SetCamera(Camera);
-
 	RenderSystem = new FRenderSystem();
 
 	RenderSystem->Init();
@@ -93,15 +85,6 @@ void FGame::Update(float DeltaTime)
 	RenderSystem->BeginFrame();
 	DrawGameObjects();
 	RenderSystem->EndFrame();
-	
-	if (bIsFPS)
-	{
-		FPSCameraController->Update(DeltaTime);
-	}
-	else
-	{
-		TargetCameraController->Update(DeltaTime);
-	}
 }
 
 void FGame::Construct()

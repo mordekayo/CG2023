@@ -20,7 +20,9 @@ public:
     bool WasProjectionKeyDown = false;
 
 private:
-    float CameraRotationSpeed = 0.005f;
+
+    float CameraTranslationSpeed = 0.5;
+    float CameraRotationSpeed = 0.0025f;
     FCamera* Camera = nullptr;
     InputDevice* Input;
 };

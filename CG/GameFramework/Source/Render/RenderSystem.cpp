@@ -43,14 +43,21 @@ void FRenderSystem::Init()
 	
     SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackTex);	// __uuidof(ID3D11Texture2D)
     Device->CreateRenderTargetView(BackTex.Get(), nullptr, &RenderTargetView);
+    
+    D3D11_TEXTURE2D_DESC DepthTexDesc = {};
+    DepthTexDesc.ArraySize = 1;
+    DepthTexDesc.MipLevels = 1;
+    DepthTexDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    DepthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    DepthTexDesc.CPUAccessFlags = 0;
+    DepthTexDesc.MiscFlags = 0;
+    DepthTexDesc.Usage = D3D11_USAGE_DEFAULT;
+    DepthTexDesc.Width = FGame::Instance()->GetDisplay().GetScreenWidth();
+    DepthTexDesc.Height = FGame::Instance()->GetDisplay().GetScreenHeight();
+    DepthTexDesc.SampleDesc = { 1, 0 };
 
-    CD3D11_RASTERIZER_DESC RastDesc = {};
-    RastDesc.CullMode = D3D11_CULL_NONE;
-    RastDesc.FillMode = D3D11_FILL_SOLID;
-
-    Device->CreateRasterizerState(&RastDesc, RasterizerState.GetAddressOf());
-
-    Context->RSSetState(RasterizerState.Get());
+    Device->CreateTexture2D(&DepthTexDesc, nullptr, &DepthBuffer);
+    Device->CreateDepthStencilView(DepthBuffer.Get(), nullptr, &DepthView);
 }
 
 Microsoft::WRL::ComPtr<ID3D11Device> FRenderSystem::GetDevice() const
@@ -65,10 +72,6 @@ Microsoft::WRL::ComPtr<ID3D11DeviceContext> FRenderSystem::GetContext() const
 
 void FRenderSystem::BeginFrame()
 {
-    Context->ClearState();
-
-    Context->RSSetState(RasterizerState.Get());
-
     Viewport.Width = static_cast<float>(FGame::Instance()->GetDisplay().GetScreenWidth());
     Viewport.Height = static_cast<float>(FGame::Instance()->GetDisplay().GetScreenHeight());
     Viewport.MinDepth = 0;
@@ -76,11 +79,13 @@ void FRenderSystem::BeginFrame()
     Viewport.TopLeftX = 0;
     Viewport.TopLeftY = 0;
 
+    Context->ClearState();
+    Context->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), DepthView.Get());
     Context->RSSetViewports(1, &Viewport);
     
-    Context->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), nullptr);
-    const float Color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    const float Color[] = { 0.53f, 0.8f, 0.92f, 1.0f };
     Context->ClearRenderTargetView(RenderTargetView.Get(), Color);
+    Context->ClearDepthStencilView(DepthView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void FRenderSystem::EndFrame()

@@ -175,10 +175,12 @@
     <ClCompile Include="Source\GameObjects\PlayerBall.cpp" />
     <ClCompile Include="Source\KatamariGame.cpp" />
     <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\PlayerController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\GameObjects\PlayerBall.h" />
     <ClInclude Include="Source\KatamariGame.h" />
+    <ClInclude Include="Source\PlayerController.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
