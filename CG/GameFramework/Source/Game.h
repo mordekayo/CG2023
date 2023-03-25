@@ -30,7 +30,9 @@ public:
 
 	FDisplayWin32& GetDisplay();
 	InputDevice* GetInputDevice() const;
-	FCamera* GetCamera() const;
+
+	void SetCurrentCamera(FCamera* NewCamera);
+	FCamera* GetCurrentCamera() const;
 
 	void AddGameObject(FGameObject* ObjectToAdd);
 	void AddGameObjects(std::vector<FGameObject*> ObjectsToAdd);
@@ -56,7 +58,7 @@ protected:
 	int ScreenWidth;
 	int ScreenHeight;
 
-	FCamera* Camera;
+	FCamera* CurrentCamera;
 	FFPSCameraController* FPSCameraController;
 	FTargetCameraController* TargetCameraController;
 

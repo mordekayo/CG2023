@@ -5,8 +5,6 @@
 #include "Utils/InputDevice.h"
 #include "Sources.h"
 #include <chrono>
-
-#include "Camera/Camera.h"
 #include "Render/RenderSystem.h"
 
 FGame::FGame()
@@ -20,7 +18,6 @@ void FGame::CreateResources()
 {
 	Display = new FDisplayWin32(ApplicationName, ScreenWidth, ScreenHeight, WndProc);
 	Input = new InputDevice(this);
-	Camera = new FCamera();
 	
 	RenderSystem = new FRenderSystem();
 
@@ -143,9 +140,14 @@ InputDevice* FGame::GetInputDevice() const
 	return Input;
 }
 
-FCamera* FGame::GetCamera() const
+void FGame::SetCurrentCamera(FCamera* NewCamera)
 {
-	return Camera;
+	CurrentCamera = NewCamera;
+}
+
+FCamera* FGame::GetCurrentCamera() const
+{
+	return CurrentCamera;
 }
 
 void FGame::AddGameObject(FGameObject* ObjectToAdd)
@@ -233,9 +235,4 @@ LRESULT FGame::MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lp
 		return DefWindowProc(hwnd, umessage, wparam, lparam);
 	}
 	}
-}
-
-FTargetCameraController* FGame::GetTargetCameraController()
-{
-	return TargetCameraController;
 }

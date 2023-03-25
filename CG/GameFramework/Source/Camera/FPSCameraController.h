@@ -14,7 +14,7 @@ public:
     virtual void MouseEventHandler(const InputDevice::MouseMoveEventArgs& mouseData, int payload);
 
     void SetCamera(FCamera* NewCamera);
-    
+    FCamera* GetCamera() const;
     float CameraYaw = 0;
     float CameraPitch = 0;
     bool WasProjectionKeyDown = false;

@@ -193,19 +193,25 @@ void FRenderComponent::Init()
 			TextureView.GetAddressOf()
 		);
 
-		D3D11_SAMPLER_DESC samplerStateDesc = {};
-		samplerStateDesc.Filter   = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		samplerStateDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerStateDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerStateDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		D3D11_SAMPLER_DESC SamplerDesc = {};
+		SamplerDesc.Filter   = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		SamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		// SamplerDesc.BorderColor[0] = 1.0f;
+		// SamplerDesc.BorderColor[1] = 0.0f;
+		// SamplerDesc.BorderColor[2] = 0.0f;
+		// SamplerDesc.BorderColor[3] = 1.0f;
+		SamplerDesc.MaxLOD = INT_MAX;
 
-		FGame::Instance()->GetRenderSystem()->GetDevice()->CreateSamplerState(&samplerStateDesc, SamplerState.GetAddressOf());
+		FGame::Instance()->GetRenderSystem()->GetDevice()->CreateSamplerState(&SamplerDesc, SamplerState.GetAddressOf());
 	}
 
 	CD3D11_RASTERIZER_DESC RastDesc = {};
 	RastDesc.CullMode = D3D11_CULL_BACK;
 	RastDesc.FillMode = D3D11_FILL_SOLID;
-	RastDesc.FrontCounterClockwise = false;
+	RastDesc.FrontCounterClockwise = true;
 
 	FGame::GetRenderSystem()->GetDevice()->CreateRasterizerState(&RastDesc, RasterizerState.GetAddressOf());
 }
@@ -214,7 +220,7 @@ void FRenderComponent::Update()
 {
 	FObjectComponent::Update();
 	
-	const DirectX::XMMATRIX OwnerWorldViewProjectionMatrix = FGame::Instance()->GetCamera()->GetViewProjectionMatrix(Owner->GetWorldTransform());
+	const DirectX::XMMATRIX OwnerWorldViewProjectionMatrix = FGame::Instance()->GetCurrentCamera()->GetViewProjectionMatrix(Owner->GetWorldTransform());
 	
 	const DirectX::XMMATRIX ScaledMatrix = DirectX::XMMatrixScaling(
 			static_cast<float>(FGame::Instance()->GetDisplay().GetScreenHeight())/
@@ -448,11 +454,11 @@ void FRenderComponent::SetMeshPlane(float Size)
 	Points =
 	{
 		DirectX::SimpleMath::Vector4(   Size, 0.0f, Size, 1.0f), DirectX::SimpleMath::Vector4(Size * 2, 0.0f, Size * 2, 0.0f),
-		DirectX::SimpleMath::Vector4( -Size, 0.0f, -Size, 1.0f), DirectX::SimpleMath::Vector4( 0.0f,   0.0f,  0.0f, 0.0f),
-		DirectX::SimpleMath::Vector4(   Size, 0.0f, -Size, 1.0f), DirectX::SimpleMath::Vector4(Size * 2,  0.0f,  0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4( Size, 0.0f, -Size, 1.0f), DirectX::SimpleMath::Vector4( 0.0f,   0.0f,  0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(   -Size, 0.0f, -Size, 1.0f), DirectX::SimpleMath::Vector4(Size * 2,  0.0f,  0.0f, 0.0f),
 		DirectX::SimpleMath::Vector4( -Size, 0.0f, Size, 1.0f), DirectX::SimpleMath::Vector4( 0.0f, 0.0f, Size * 2, 0.0f)
 	};
-	Indices = { 0, 1, 2, 1, 0, 3 };
+	Indices = { 0, 1, 2, 2, 3, 0 };
 }
 
 void FRenderComponent::AddMesh(float scaleRate, std::string MeshPath)

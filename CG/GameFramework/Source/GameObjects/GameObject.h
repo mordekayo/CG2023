@@ -16,7 +16,7 @@ public:
 	virtual void Construct();
 	virtual void Update(float DeltaTime);
 	void Draw() const;
-
+	
 	virtual DirectX::SimpleMath::Vector3 GetLocalTranslation() const;
 	virtual DirectX::SimpleMath::Vector3 GetWorldTranslation() const;
 	
@@ -28,9 +28,6 @@ public:
 
 	DirectX::SimpleMath::Quaternion GetLocalRotationQuat() const;
 	DirectX::SimpleMath::Vector3 GetLocalRotationEuler() const;
-	
-	DirectX::SimpleMath::Quaternion GetWorldRotationQuat() const;
-	DirectX::SimpleMath::Vector3 GetWorldRotationEuler() const;
 
 	void AddRotationQuat(DirectX::SimpleMath::Quaternion AdditionalRotation);
 	

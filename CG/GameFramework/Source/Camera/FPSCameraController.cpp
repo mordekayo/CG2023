@@ -89,3 +89,8 @@ void FFPSCameraController::SetCamera(FCamera* NewCamera)
 {
     Camera = NewCamera;
 }
+
+FCamera* FFPSCameraController::GetCamera() const
+{
+    return Camera;
+}

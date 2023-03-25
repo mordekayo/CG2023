@@ -13,13 +13,11 @@ public:
     DirectX::SimpleMath::Matrix GetViewProjectionMatrix(DirectX::SimpleMath::Matrix WorldView) const;
 
     void TogglePerspective();
-
-    void SetParent(FGameObject* NewParent);
+    
     void SetTarget(DirectX::SimpleMath::Vector3 NewTarget);
 
 private:
-
-    FGameObject* Parent = nullptr;
+    
     bool IsPerspective = true;
     
     float FieldOfView = 90.0f;

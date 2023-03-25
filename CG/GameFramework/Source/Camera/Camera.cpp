@@ -11,7 +11,7 @@ FCamera::FCamera()
 
 void FCamera::Update(float DeltaTime)
 {
-    ViewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(GetLocalTranslation(), Target, UpVector);
+    ViewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(GetWorldTranslation(), Target, UpVector);
 
     if (IsPerspective)
     {
@@ -40,11 +40,6 @@ DirectX::SimpleMath::Matrix FCamera::GetViewProjectionMatrix(DirectX::SimpleMath
 void FCamera::TogglePerspective()
 {
     IsPerspective = !IsPerspective;
-}
-
-void FCamera::SetParent(FGameObject* NewParent)
-{
-    Parent = NewParent;
 }
 
 void FCamera::SetTarget(DirectX::SimpleMath::Vector3 NewTarget)

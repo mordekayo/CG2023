@@ -37,16 +37,7 @@ DirectX::SimpleMath::Vector3 FGameObject::GetLocalTranslation() const
 
 DirectX::SimpleMath::Vector3 FGameObject::GetWorldTranslation() const
 {
-    DirectX::SimpleMath::Vector3 Result = DirectX::SimpleMath::Vector3::Zero;
-    const FGameObject* Object = this;
-    do
-    {
-        Result += Object->GetLocalTranslation();
-        Object = Object->ParentObject; 
-    }
-    while(Object != nullptr);
-    
-    return Result;
+    return GetWorldTransform().Translation();
 }
 
 void FGameObject::AddComponent(FObjectComponent* ComponentToAdd)
@@ -80,25 +71,6 @@ DirectX::SimpleMath::Vector3 FGameObject::GetLocalRotationEuler() const
     return Rotation.ToEuler();
 }
 
-DirectX::SimpleMath::Quaternion FGameObject::GetWorldRotationQuat() const
-{
-    DirectX::SimpleMath::Quaternion Result = DirectX::SimpleMath::Quaternion::Identity;
-    const FGameObject* Object = this;
-    do
-    {
-        Result += Object->GetLocalRotationQuat();
-        Object = Object->ParentObject;
-    }
-    while(Object != nullptr);
-    
-    return Result;
-}
-
-DirectX::SimpleMath::Vector3 FGameObject::GetWorldRotationEuler() const
-{
-    return GetWorldRotationQuat().ToEuler();
-}
-
 void FGameObject::AddRotationQuat(DirectX::SimpleMath::Quaternion AdditionalRotation)
 {
     Rotation *= AdditionalRotation;
@@ -119,22 +91,22 @@ void FGameObject::SetLocalRotationEuler(DirectX::SimpleMath::Vector3 NewRotation
 
 DirectX::SimpleMath::Vector3 FGameObject::GetForwardVector() const
 {
-    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Backward, GetLocalTransform());
+    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Backward, GetWorldTransform());
 }
 
 DirectX::SimpleMath::Vector3 FGameObject::GetRightVector() const
 {
-    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Left, GetLocalTransform());
+    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Left, GetWorldTransform());
 }
 
 DirectX::SimpleMath::Vector3 FGameObject::GetLeftVector() const
 {
-    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Right, GetLocalTransform());
+    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Right, GetWorldTransform());
 }
 
 DirectX::SimpleMath::Vector3 FGameObject::GetBackwardVector() const
 {
-    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Forward, GetLocalTransform());
+    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Forward, GetWorldTransform());
 }
 
 void FGameObject::Construct()
