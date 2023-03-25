@@ -4,6 +4,6 @@
 
 class PlayerBall : public FGameObject
 {
-	
+	virtual void Construct() override;
 };
 

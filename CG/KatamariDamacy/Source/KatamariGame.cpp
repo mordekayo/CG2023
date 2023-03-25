@@ -96,6 +96,11 @@ void KatamariGame::Update(float DeltaTime)
     //     SetCurrentCamera(FreeCameraController->GetCamera());
     //     FreeCameraController->Update(DeltaTime);
     // }
+
+    std::cout << PlayerController->GetLeftVector().x << " " << PlayerController->GetLeftVector().y << " " << PlayerController->GetLeftVector().z << std::endl << std::endl;
+
+    //std::cout << PlayerController->GetWorldTranslation().x << " " << PlayerController->GetWorldTranslation().y << " " << PlayerController->GetWorldTranslation().z << std::endl << std::endl;
     
+    std::cout << Player->GetLeftVector().x << " " << Player->GetLeftVector().y << " " << Player->GetLeftVector().z << std::endl << std::endl;
     FGame::Update(DeltaTime);
 }

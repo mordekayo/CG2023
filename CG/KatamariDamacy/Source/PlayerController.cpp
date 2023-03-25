@@ -14,6 +14,8 @@ FPlayerController::FPlayerController()
 void FPlayerController::Init()
 {
     FGameObject::Init();
+
+    
 }
 
 void FPlayerController::Update(float DeltaTime)
@@ -24,26 +26,30 @@ void FPlayerController::Update(float DeltaTime)
     }
     
     const DirectX::SimpleMath::Matrix RotationMatrix = DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(CameraYaw, CameraPitch, 0);
-    
-    if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::A))
-    {
-        //Player->AddRotationQuat(DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(GetForwardVector(), - MovementSpeed * RotationByMovement * DeltaTime));
-        AddTranslation(MovementSpeed * DeltaTime * GetLeftVector());
-    }
-    if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::D))
-    {
-        //Player->AddRotationQuat(DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(GetForwardVector(), + MovementSpeed * RotationByMovement * DeltaTime));
-        AddTranslation(MovementSpeed * DeltaTime * GetRightVector());
-    }
+
     if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::W))
     {
-        //Player->AddRotationQuat(DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(GetRightVector(), - MovementSpeed * RotationByMovement * DeltaTime));
+        Player->AddRotationQuat(DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(GetLeftVector(), MovementSpeed * RotationByMovement * DeltaTime));
         AddTranslation(MovementSpeed * DeltaTime * GetForwardVector());
+        Player->AddTranslation(MovementSpeed * DeltaTime * GetForwardVector());
+    }
+    if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::A))
+    {
+        Player->AddRotationQuat(DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(GetForwardVector(), - MovementSpeed * RotationByMovement * DeltaTime));
+        AddTranslation(MovementSpeed * DeltaTime * GetLeftVector());
+        Player->AddTranslation(MovementSpeed * DeltaTime * GetLeftVector());
     }
     if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::S))
     {
-        //Player->AddRotationQuat(DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(GetRightVector(), + MovementSpeed * RotationByMovement * DeltaTime));
+        Player->AddRotationQuat(DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(GetLeftVector(), -MovementSpeed * RotationByMovement * DeltaTime));
         AddTranslation(MovementSpeed * DeltaTime * GetBackwardVector());
+        Player->AddTranslation(MovementSpeed * DeltaTime * GetBackwardVector());
+    }
+    if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::D))
+    {
+        Player->AddRotationQuat(DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(GetForwardVector(), + MovementSpeed * RotationByMovement * DeltaTime));
+        AddTranslation(MovementSpeed * DeltaTime * GetRightVector());
+        Player->AddTranslation(MovementSpeed * DeltaTime * GetRightVector());
     }
     
     SetLocalRotationQuat(DirectX::SimpleMath::Quaternion::CreateFromRotationMatrix(RotationMatrix));
@@ -59,7 +65,6 @@ void FPlayerController::Update(float DeltaTime)
 void FPlayerController::Possess(FGameObject* NewPlayer)
 {
     Player = NewPlayer;
-    Player->SetParent(this);
 }
 
 void FPlayerController::SetCamera(FCamera* NewCamera)
@@ -77,15 +82,5 @@ FCamera* FPlayerController::GetCamera() const
 void FPlayerController::MouseEventHandler(const InputDevice::MouseMoveEventArgs& mouseData, int payload)
 {
     CameraYaw += -mouseData.Offset.x * CameraRotationSpeed;
-    // CameraPitch += mouseData.Offset.y * CameraRotationSpeed;
-    //
-    // if (CameraPitch > DirectX::XM_PIDIV2 - CameraRotationSpeed)
-    // {
-    //     CameraPitch = DirectX::XM_PIDIV2 - CameraRotationSpeed;
-    // }
-    // if (CameraPitch < -DirectX::XM_PIDIV2 + CameraRotationSpeed)
-    // {
-    //     CameraPitch = -DirectX::XM_PIDIV2 + CameraRotationSpeed;
-    // }
 }
 
