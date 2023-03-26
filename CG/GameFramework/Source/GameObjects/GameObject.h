@@ -2,6 +2,7 @@
 #include "Utils/SimpleMath.h"
 #include <set>
 
+class FSphereCollisionComponent;
 class FObjectComponent;
 
 class FGameObject
@@ -23,6 +24,8 @@ public:
 	void AddComponent(FObjectComponent* ComponentToAdd);
 	void DeleteComponent(FObjectComponent* ComponentToDelete);
 
+	void SetTransform(DirectX::SimpleMath::Matrix NewTransform);
+	
 	void AddTranslation(DirectX::SimpleMath::Vector3 Translation);
 	void SetTranslation(DirectX::SimpleMath::Vector3 NewTranslation);
 
@@ -43,6 +46,8 @@ public:
 
 	DirectX::SimpleMath::Matrix GetWorldTransform() const;
 	virtual DirectX::SimpleMath::Matrix GetLocalTransform() const;
+
+	FSphereCollisionComponent* GetCollisionComponent() const;
 protected:
 
 	FGameObject* ParentObject = nullptr;

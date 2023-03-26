@@ -1,6 +1,7 @@
 #include "GameObject.h"
 
 #include "Components/ObjectComponent.h"
+#include "Components/CollisionComponents/SphereCollisionComponent.h"
 #include "Components/RenderComponent.h"
 
 void FGameObject::Init()
@@ -49,6 +50,12 @@ void FGameObject::AddComponent(FObjectComponent* ComponentToAdd)
 void FGameObject::DeleteComponent(FObjectComponent* ComponentToDelete)
 {
     Components.erase(ComponentToDelete);
+}
+
+void FGameObject::SetTransform(DirectX::SimpleMath::Matrix NewTransform)
+{
+    DirectX::SimpleMath::Vector3 Scale;
+    NewTransform.Decompose(Scale, Rotation, Translation);
 }
 
 void FGameObject::AddTranslation(DirectX::SimpleMath::Vector3 AdditionTranslation)
@@ -136,4 +143,17 @@ DirectX::SimpleMath::Matrix FGameObject::GetWorldTransform() const
 DirectX::SimpleMath::Matrix FGameObject::GetLocalTransform() const
 {
     return DirectX::SimpleMath::Matrix::CreateFromQuaternion(Rotation) * DirectX::SimpleMath::Matrix::CreateTranslation(Translation);
+}
+
+FSphereCollisionComponent* FGameObject::GetCollisionComponent() const
+{
+    for(FObjectComponent* Component : Components)
+    {
+        FSphereCollisionComponent* SphereCollision = static_cast<FSphereCollisionComponent*>(Component);
+        if(SphereCollision != nullptr)
+        {
+            return SphereCollision;
+        }
+    }
+    return nullptr;
 }

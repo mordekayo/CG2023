@@ -1,8 +1,7 @@
 #pragma once
-#include <DirectXMath.h>
-#include "DirectXCollision.h"
 #include "Components\ObjectComponent.h"
-#include "Utils/SimpleMath.h"
+
+class FSphereCollisionComponent;
 
 class FCollisionComponent : public FObjectComponent
 {
@@ -10,5 +9,5 @@ public:
     
     FCollisionComponent();
     
-    virtual bool IsIntersectsWithSphere(DirectX::BoundingSphere* SphereToCheck) = 0;
+    virtual bool IsIntersectsWithSphere(FSphereCollisionComponent* SphereToCheck) = 0;
 };

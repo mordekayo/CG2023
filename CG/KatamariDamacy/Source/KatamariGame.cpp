@@ -5,10 +5,8 @@
 
 #include "PlayerController.h"
 #include "Camera/Camera.h"
-#include "Camera/FPSCameraController.h"
 #include "Components/RenderComponent.h"
 #include "Components/CollisionComponents/SphereCollisionComponent.h"
-#include "Utils/DebugObject.h"
 
 KatamariGame* KatamariGame::Instance()
 {
@@ -36,17 +34,30 @@ void KatamariGame::Construct()
     Terrain->AddComponent(TerrainMesh);
     
     Player = new PlayerBall();
+
+    FRenderComponent* SphereMesh =
+    new FRenderComponent(L"../GameFramework/Source/Shaders/MyTexturedShader.hlsl"
+                        ,L"../GameFramework/Source/Textures/core_01.png");    
+    SphereMesh->AddMesh(3.0f, "../GameFramework/Source/Models/core_01.obj");
+    SphereMesh->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     
-    Player->SetTranslation({0.0f,0.1f,0.0f});
+    Player->AddComponent(SphereMesh);
+    SphereMesh->Init();
+
+    FSphereCollisionComponent* BallCollision = new FSphereCollisionComponent(0.09f);
+    Player->AddComponent(BallCollision);
+    BallCollision->Init();
+    
+    Player->SetTranslation({0.0f,0.1f,-1.0f});
     
     PlayerController = new FPlayerController();
+    PlayerController->SetTranslation({0.0f,0.0f,-1.0f});
     PlayerController->Possess(Player);
     
     FCamera* PlayerCamera = new FCamera();
     PlayerController->SetCamera(PlayerCamera);
     SetCurrentCamera(PlayerController->GetCamera());
-
-    std::vector<FGameObject*> Objects;
+    
     for(int i = 0; i < 10; i++)
     {
         FGameObject* NewObject = new FGameObject();
@@ -77,4 +88,20 @@ void KatamariGame::Construct()
 void KatamariGame::Update(float DeltaTime)
 {
     FGame::Update(DeltaTime);
+    
+    for(std::vector<FGameObject*>::iterator GameObjectIt = Objects.begin(); GameObjectIt != Objects.end(); )
+    {
+        const bool bHasIntersection = (*GameObjectIt)->GetCollisionComponent()->IsIntersectsWithSphere(Player->GetCollisionComponent());
+        if(bHasIntersection)
+        {
+            (*GameObjectIt)->SetTransform((*GameObjectIt)->GetWorldTransform() * Player->GetWorldTransform().Invert());
+            (*GameObjectIt)->SetParent(Player);
+            GameObjectIt = Objects.erase(GameObjectIt);
+        }
+        else
+        {
+            ++GameObjectIt;
+        }
+    }
+
 }

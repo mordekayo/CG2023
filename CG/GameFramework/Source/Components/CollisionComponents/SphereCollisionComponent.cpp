@@ -8,10 +8,13 @@ FSphereCollisionComponent::FSphereCollisionComponent(float Radius)
 {
     BoundingSphere = new DirectX::BoundingSphere();
     BoundingSphere->Radius = Radius;
-    
-    CollisionVisualization = new FRenderComponent(L"../GameFramework/Source/Shaders/MyVeryFirstShader.hlsl");
-    CollisionVisualization->AddSphere(Radius, 64.0f, 64.0f, {0.97f, 0.84f, 0.1f, 1.0f});
-    CollisionVisualization->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+    if(bShowDebug)
+    {
+        CollisionVisualization = new FRenderComponent(L"../GameFramework/Source/Shaders/MyVeryFirstShader.hlsl");
+        CollisionVisualization->AddSphere(Radius, 64.0f, 64.0f, {0.97f, 0.84f, 0.1f, 1.0f});
+        CollisionVisualization->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST); 
+    }
 }
 
 void FSphereCollisionComponent::Update()
@@ -19,14 +22,20 @@ void FSphereCollisionComponent::Update()
     FCollisionComponent::Update();
 
     BoundingSphere->Center = Owner->GetWorldTranslation() + GetLocalTransform().Translation();
-    CollisionVisualization->SetComponentTranslation(GetLocalTransform().Translation());
+    if(bShowDebug)
+    {
+        CollisionVisualization->SetComponentTranslation(GetLocalTransform().Translation());
+    }
 }
 
 void FSphereCollisionComponent::Init()
 {
     FCollisionComponent::Init();
-    
-    Owner->AddComponent(CollisionVisualization);
+
+    if(bShowDebug)
+    {
+        Owner->AddComponent(CollisionVisualization);
+    }
 }
 
 DirectX::BoundingSphere* FSphereCollisionComponent::GetCollision()
@@ -39,8 +48,8 @@ void FSphereCollisionComponent::SetRadius(float NewRadius)
     BoundingSphere->Radius = NewRadius;
 }
 
-bool FSphereCollisionComponent::IsIntersectsWithSphere(DirectX::BoundingSphere* SphereToCheck)
+bool FSphereCollisionComponent::IsIntersectsWithSphere(FSphereCollisionComponent* SphereToCheck)
 {
-    return BoundingSphere->Intersects(*SphereToCheck);
+    return BoundingSphere->Intersects(*SphereToCheck->BoundingSphere);
 }
 

@@ -24,5 +24,6 @@ private:
 
     FPlayerController* PlayerController = nullptr;
     PlayerBall* Player = nullptr;
+    std::vector<FGameObject*> Objects;
 };
 

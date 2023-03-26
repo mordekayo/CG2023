@@ -1,5 +1,6 @@
 #pragma once
 #include "CollisionComponent.h"
+#include "Utils/SimpleMath.h"
 
 class FRenderComponent;
 
@@ -14,12 +15,13 @@ public:
     
     DirectX::BoundingSphere* GetCollision();
     
-    bool IsIntersectsWithSphere(DirectX::BoundingSphere* SphereToCheck) override;
+    bool IsIntersectsWithSphere(FSphereCollisionComponent* SphereToCheck) override;
     
     void SetRadius(float NewRadius);
-
+    
 private:
 
+    bool bShowDebug = false;
     FRenderComponent* CollisionVisualization = nullptr;
     
     DirectX::BoundingSphere* BoundingSphere = nullptr;
