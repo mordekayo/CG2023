@@ -219,8 +219,9 @@ void FRenderComponent::Init()
 void FRenderComponent::Update()
 {
 	FObjectComponent::Update();
-	
-	const DirectX::XMMATRIX OwnerWorldViewProjectionMatrix = FGame::Instance()->GetCurrentCamera()->GetViewProjectionMatrix(Owner->GetWorldTransform());
+
+	const DirectX::XMMATRIX ComponentTransform = Owner->GetWorldTransform() * GetLocalTransform();
+	const DirectX::XMMATRIX OwnerWorldViewProjectionMatrix = FGame::Instance()->GetCurrentCamera()->GetViewProjectionMatrix(ComponentTransform);
 	
 	const DirectX::XMMATRIX ScaledMatrix = DirectX::XMMatrixScaling(
 			static_cast<float>(FGame::Instance()->GetDisplay().GetScreenHeight())/
@@ -280,28 +281,28 @@ void FRenderComponent::AddCube(float radius)
 	};
 	Indices = { 0, 1, 2, 1, 0, 3 };
 }
-void FRenderComponent::AddSphere(float radius, int sliceCount, int stackCount, DirectX::XMFLOAT4 color)
+void FRenderComponent::AddSphere(float Radius, int SliceCount, int StackCount, const DirectX::SimpleMath::Color& Color)
 {
 	if (bUseTexture)
 	{
-		Points.push_back({ 0.0f, radius, 0.0f, 1.0f });
+		Points.push_back({ 0.0f, Radius, 0.0f, 1.0f });
 		Points.push_back({ 0.0f, 0.0f, 0.0f, 0.0f, });
 
-		const float phiStep = DirectX::XM_PI / static_cast<float>(stackCount);
-		const float thetaStep = DirectX::XM_2PI / static_cast<float>(sliceCount);
+		const float phiStep = DirectX::XM_PI / static_cast<float>(StackCount);
+		const float thetaStep = DirectX::XM_2PI / static_cast<float>(SliceCount);
 
-		for (int i = 1; i <= stackCount - 1; i++) {
+		for (int i = 1; i <= StackCount - 1; i++) {
 			const float phi = static_cast<float>(i) * phiStep;
 
-			for (int j = 0; j <= sliceCount; j++) {
+			for (int j = 0; j <= SliceCount; j++) {
 				const float theta = static_cast<float>(j) * thetaStep;
 
 				DirectX::SimpleMath::Vector4 tempPoint = {};
 				DirectX::SimpleMath::Vector4 tempTexCoords = {};
 
-				tempPoint.x = radius * sinf(phi) * cosf(theta);
-				tempPoint.y = radius * cosf(phi);
-				tempPoint.z = radius * sinf(phi) * sinf(theta);
+				tempPoint.x = Radius * sinf(phi) * cosf(theta);
+				tempPoint.y = Radius * cosf(phi);
+				tempPoint.z = Radius * sinf(phi) * sinf(theta);
 				tempPoint.w = 1.0f;
 
 				tempTexCoords.x = theta / DirectX::XM_2PI;
@@ -312,10 +313,10 @@ void FRenderComponent::AddSphere(float radius, int sliceCount, int stackCount, D
 			}
 		}
 
-		Points.push_back({ 0.0f, -radius, 0.0f, 1.0f });
+		Points.push_back({ 0.0f, -Radius, 0.0f, 1.0f });
 		Points.push_back({ 0.0f, 1.0f, 0.0f, 0.0f, });
 
-		for (int i = 1; i <= sliceCount; i++)
+		for (int i = 1; i <= SliceCount; i++)
 		{
 			Indices.push_back(0);
 			Indices.push_back(i + 1);
@@ -323,10 +324,10 @@ void FRenderComponent::AddSphere(float radius, int sliceCount, int stackCount, D
 		}
 
 		int baseIndex = 1;
-		const int ringVertexCount = sliceCount + 1;
-		for (int i = 0; i < stackCount - 2; i++)
+		const int ringVertexCount = SliceCount + 1;
+		for (int i = 0; i < StackCount - 2; i++)
 		{
-			for (int j = 0; j < sliceCount; j++)
+			for (int j = 0; j < SliceCount; j++)
 			{
 				Indices.push_back(baseIndex + i * ringVertexCount + j);
 				Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
@@ -342,7 +343,7 @@ void FRenderComponent::AddSphere(float radius, int sliceCount, int stackCount, D
 
 		baseIndex = southPoleIndex - ringVertexCount;
 
-		for (int i = 0; i < sliceCount; i++)
+		for (int i = 0; i < SliceCount; i++)
 		{
 			Indices.push_back(southPoleIndex);
 			Indices.push_back(baseIndex + i);
@@ -352,46 +353,41 @@ void FRenderComponent::AddSphere(float radius, int sliceCount, int stackCount, D
 	else
 	{
 		int g = 0;
-		Points.push_back(DirectX::XMFLOAT4(0, radius, 0, 1));
+		Points.push_back(DirectX::XMFLOAT4(0, Radius, 0, 1));
 		Points.push_back(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
-		auto phiStep = DirectX::XM_PI / stackCount;
-		auto thetaStep = DirectX::XM_2PI / sliceCount;
-		DirectX::XMFLOAT4 colorBase[] = { { 1.0f, 0.3f, 0.3f, 1.0f }, { 0.5f, 1.0f, 0.5f, 1.0f }, { 0.7f, 0.7f, 1.0f, 1.0f }, { 0.9f, 0.9f, 0.9f, 1.0f } };
-		for (int i = 1; i <= stackCount - 1; i++)
+		auto phiStep = DirectX::XM_PI / StackCount;
+		auto thetaStep = DirectX::XM_2PI / SliceCount;
+		for (int i = 1; i <= StackCount - 1; i++)
 		{
 			auto phi = i * phiStep;
-			for (int j = 0; j <= sliceCount; j++)
+			for (int j = 0; j <= SliceCount; j++)
 			{
-				if (((j / 20 == g)) && (g < 4))
-				{
-					color = colorBase[g++];
-				}
 				auto theta = j * thetaStep;
 				Points.push_back(
 					DirectX::XMFLOAT4(
-						radius * sin(phi) * cos(theta),
-						radius * cos(phi),
-						radius * sin(phi) * sin(theta),
+						Radius * sin(phi) * cos(theta),
+						Radius * cos(phi),
+						Radius * sin(phi) * sin(theta),
 						1.0f)
 				);
-				Points.push_back(color);
+				Points.push_back(Color);
 			}
 			g = 0;
 		}
-		Points.push_back(DirectX::XMFLOAT4(0, -radius, 0, 1));
+		Points.push_back(DirectX::XMFLOAT4(0, -Radius, 0, 1));
 		Points.push_back(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		for (int i = 1; i <= sliceCount; i++)
+		for (int i = 1; i <= SliceCount; i++)
 		{
 			Indices.push_back(0);
 			Indices.push_back(i + 1);
 			Indices.push_back(i);
 		}
 		auto baseIndex = 1;
-		auto ringVertexCount = sliceCount + 1;
-		for (int i = 0; i < stackCount - 2; i++)
+		auto ringVertexCount = SliceCount + 1;
+		for (int i = 0; i < StackCount - 2; i++)
 		{
-			for (int j = 0; j < sliceCount; j++)
+			for (int j = 0; j < SliceCount; j++)
 			{
 				Indices.push_back(baseIndex + i * ringVertexCount + j);
 				Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
@@ -405,7 +401,7 @@ void FRenderComponent::AddSphere(float radius, int sliceCount, int stackCount, D
 
 		const int southPoleIndex = static_cast<int>(Indices.size()) - 1;
 		baseIndex = southPoleIndex - ringVertexCount;
-		for (int i = 0; i < sliceCount; i++)
+		for (int i = 0; i < SliceCount; i++)
 		{
 			Indices.push_back(southPoleIndex);
 			Indices.push_back(baseIndex + i);

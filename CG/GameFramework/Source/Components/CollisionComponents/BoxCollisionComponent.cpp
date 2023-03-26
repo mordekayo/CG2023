@@ -15,15 +15,6 @@ bool FBoxCollisionComponent::IsIntersectsWithSphere(DirectX::BoundingSphere* Sph
     return BoundingBox->Intersects(*SphereToCheck);
 }
 
-bool FBoxCollisionComponent::IsIntersectsWithBox(DirectX::BoundingBox* BoxToCheck)
-{
-    return BoundingBox->Intersects(*BoxToCheck);
-}
-
-void FBoxCollisionComponent::SetCenter(DirectX::XMFLOAT3 NewCenter)
-{
-    BoundingBox->Center = NewCenter;
-}
 
 void FBoxCollisionComponent::SetExtents(DirectX::XMFLOAT3 NewExtents)
 {

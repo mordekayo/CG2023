@@ -1,19 +1,37 @@
 #include "SphereCollisionComponent.h"
 
-FSphereCollisionComponent::FSphereCollisionComponent()
+#include "Components/RenderComponent.h"
+#include "GameObjects/GameObject.h"
+#include "Utils/SimpleMath.h"
+
+FSphereCollisionComponent::FSphereCollisionComponent(float Radius)
 {
     BoundingSphere = new DirectX::BoundingSphere();
-    SetCenter({0.0f, 0.0f, 0.0f});
+    BoundingSphere->Radius = Radius;
+    
+    CollisionVisualization = new FRenderComponent(L"../GameFramework/Source/Shaders/MyVeryFirstShader.hlsl");
+    CollisionVisualization->AddSphere(Radius, 64.0f, 64.0f, {0.97f, 0.84f, 0.1f, 1.0f});
+    CollisionVisualization->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+}
+
+void FSphereCollisionComponent::Update()
+{
+    FCollisionComponent::Update();
+
+    BoundingSphere->Center = Owner->GetWorldTranslation() + GetLocalTransform().Translation();
+    CollisionVisualization->SetComponentTranslation(GetLocalTransform().Translation());
+}
+
+void FSphereCollisionComponent::Init()
+{
+    FCollisionComponent::Init();
+    
+    Owner->AddComponent(CollisionVisualization);
 }
 
 DirectX::BoundingSphere* FSphereCollisionComponent::GetCollision()
 {
     return BoundingSphere;
-}
-
-void FSphereCollisionComponent::SetCenter(DirectX::XMFLOAT3 NewCenter)
-{
-    BoundingSphere->Center = NewCenter;
 }
 
 void FSphereCollisionComponent::SetRadius(float NewRadius)
@@ -26,7 +44,3 @@ bool FSphereCollisionComponent::IsIntersectsWithSphere(DirectX::BoundingSphere* 
     return BoundingSphere->Intersects(*SphereToCheck);
 }
 
-bool FSphereCollisionComponent::IsIntersectsWithBox(DirectX::BoundingBox* BoxToCheck)
-{
-    return BoundingSphere->Intersects(*BoxToCheck);
-}

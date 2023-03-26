@@ -7,6 +7,7 @@
 #include "Camera/Camera.h"
 #include "Camera/FPSCameraController.h"
 #include "Components/RenderComponent.h"
+#include "Components/CollisionComponents/SphereCollisionComponent.h"
 #include "Utils/DebugObject.h"
 
 KatamariGame* KatamariGame::Instance()
@@ -35,15 +36,7 @@ void KatamariGame::Construct()
     Terrain->AddComponent(TerrainMesh);
     
     Player = new PlayerBall();
-
-    FRenderComponent* SphereMesh =
-    new FRenderComponent(L"../GameFramework/Source/Shaders/MyTexturedShader.hlsl"
-                            ,L"../GameFramework/Source/Textures/core_01.png");    
-    SphereMesh->AddMesh(3.0f, "../GameFramework/Source/Models/core_01.obj");
-    SphereMesh->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     
-    Player->AddComponent(SphereMesh);
-
     Player->SetTranslation({0.0f,0.1f,0.0f});
     
     PlayerController = new FPlayerController();
@@ -58,12 +51,18 @@ void KatamariGame::Construct()
     {
         FGameObject* NewObject = new FGameObject();
 
+        const float ObjectScale = ScaleDistribution(Gen);
+        
         FRenderComponent* Mesh =
                 new FRenderComponent(L"../GameFramework/Source/Shaders/MyTexturedShader.hlsl"
                                     ,L"../GameFramework/Source/Textures/Gift.png");
-        Mesh->AddMesh(ScaleDistribution(Gen), "../GameFramework/Source/Models/GiftBox.obj");
+        Mesh->AddMesh(ObjectScale, "../GameFramework/Source/Models/GiftBox.obj");
         NewObject->AddComponent(Mesh);
 
+        FSphereCollisionComponent* BallCollision = new FSphereCollisionComponent(1.7f * ObjectScale);
+        BallCollision->SetComponentTranslation({0.0f, 1.0f * ObjectScale, 0.0f});
+        NewObject->AddComponent(BallCollision);
+        BallCollision->Init();
         
         NewObject->SetTranslation({ static_cast<float>(PlacementDistribution(Gen)), 0.0f, static_cast<float>(PlacementDistribution(Gen))});
         Objects.push_back(NewObject);
@@ -77,30 +76,5 @@ void KatamariGame::Construct()
 
 void KatamariGame::Update(float DeltaTime)
 {
-    // if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::F))
-    // {
-    //     bFreeCamera = true;
-    // }
-    // if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::G))
-    // {
-    //     bFreeCamera = false;
-    // }
-    //
-    // if(bFreeCamera)
-    // {
-    //     SetCurrentCamera(PlayerController->GetCamera());
-    //     PlayerController->Update(DeltaTime);
-    // }
-    // else
-    // {
-    //     SetCurrentCamera(FreeCameraController->GetCamera());
-    //     FreeCameraController->Update(DeltaTime);
-    // }
-
-    std::cout << PlayerController->GetLeftVector().x << " " << PlayerController->GetLeftVector().y << " " << PlayerController->GetLeftVector().z << std::endl << std::endl;
-
-    //std::cout << PlayerController->GetWorldTranslation().x << " " << PlayerController->GetWorldTranslation().y << " " << PlayerController->GetWorldTranslation().z << std::endl << std::endl;
-    
-    std::cout << Player->GetLeftVector().x << " " << Player->GetLeftVector().y << " " << Player->GetLeftVector().z << std::endl << std::endl;
     FGame::Update(DeltaTime);
 }

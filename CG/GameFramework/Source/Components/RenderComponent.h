@@ -34,7 +34,7 @@ public:
     void AddGrid(int GridSize, float CellSize, DirectX::SimpleMath::Color Color);
     void SetMeshPlane(float Size);
     void AddCube(float radius);
-    void AddSphere(float radius, int sliceCount, int stackCount, DirectX::XMFLOAT4 color);
+    void AddSphere(float Radius, int SliceCount, int StackCount, const DirectX::SimpleMath::Color& Color);
     void AddMesh(float scaleRate, std::string MeshPath);
 
     void ProcessNode(aiNode* node, const aiScene* scene, float scaleRate);
