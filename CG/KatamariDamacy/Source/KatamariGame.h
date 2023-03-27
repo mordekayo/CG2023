@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "GameObjects/PlayerBall.h"
 
+class StickyObject;
 class FPlayerController;
 class FFPSCameraController;
 
@@ -24,6 +25,6 @@ private:
 
     FPlayerController* PlayerController = nullptr;
     PlayerBall* Player = nullptr;
-    std::vector<FGameObject*> Objects;
+    std::vector<StickyObject*> StickyObjects;
 };
 

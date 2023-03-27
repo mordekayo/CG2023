@@ -7,6 +7,7 @@
 #include "Camera/Camera.h"
 #include "Components/RenderComponent.h"
 #include "Components/CollisionComponents/SphereCollisionComponent.h"
+#include "GameObjects/StickyObject.h"
 
 KatamariGame* KatamariGame::Instance()
 {
@@ -23,8 +24,8 @@ void KatamariGame::Construct()
 
     std::random_device RandomDevice;  // Will be used to obtain a seed for the random number engine
     std::mt19937 Gen(RandomDevice()); // Standard mersenne_twister_engine seeded with rd()
-    std::uniform_real_distribution<> PlacementDistribution(-1, 1);
-    std::uniform_real_distribution<> ScaleDistribution(0.01, 0.1);
+    std::uniform_real_distribution<> PlacementDistribution(-2.0, 2.0);
+    //std::uniform_real_distribution<> ScaleDistribution(0.01, 0.2);
     
     FGameObject* Terrain = new FGameObject();
     FRenderComponent* TerrainMesh =
@@ -40,7 +41,8 @@ void KatamariGame::Construct()
                         ,L"../GameFramework/Source/Textures/core_01.png");    
     SphereMesh->AddMesh(3.0f, "../GameFramework/Source/Models/core_01.obj");
     SphereMesh->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    
+
+    Player->SetScale(0.02);
     Player->AddComponent(SphereMesh);
     SphereMesh->Init();
 
@@ -60,9 +62,11 @@ void KatamariGame::Construct()
     
     for(int i = 0; i < 10; i++)
     {
-        FGameObject* NewObject = new FGameObject();
+        StickyObject* NewObject = new StickyObject();
 
-        const float ObjectScale = ScaleDistribution(Gen);
+        const float ObjectScale = 0.01f * (i+1);
+
+        NewObject->SetScale(ObjectScale);
         
         FRenderComponent* Mesh =
                 new FRenderComponent(L"../GameFramework/Source/Shaders/MyTexturedShader.hlsl"
@@ -76,27 +80,39 @@ void KatamariGame::Construct()
         BallCollision->Init();
         
         NewObject->SetTranslation({ static_cast<float>(PlacementDistribution(Gen)), 0.0f, static_cast<float>(PlacementDistribution(Gen))});
-        Objects.push_back(NewObject);
+        StickyObjects.push_back(NewObject);
     }
     
     AddGameObject(Player);
     AddGameObject(Terrain);
     AddGameObject(PlayerController);
-    AddGameObjects(Objects);
+    for(const auto Object : StickyObjects)
+    {
+        AddGameObject(Object);
+    }
+    
 }
 
 void KatamariGame::Update(float DeltaTime)
 {
     FGame::Update(DeltaTime);
     
-    for(std::vector<FGameObject*>::iterator GameObjectIt = Objects.begin(); GameObjectIt != Objects.end(); )
+    for(std::vector<StickyObject*>::iterator GameObjectIt = StickyObjects.begin(); GameObjectIt != StickyObjects.end(); )
     {
         const bool bHasIntersection = (*GameObjectIt)->GetCollisionComponent()->IsIntersectsWithSphere(Player->GetCollisionComponent());
         if(bHasIntersection)
         {
-            (*GameObjectIt)->SetTransform((*GameObjectIt)->GetWorldTransform() * Player->GetWorldTransform().Invert());
-            (*GameObjectIt)->SetParent(Player);
-            GameObjectIt = Objects.erase(GameObjectIt);
+            if(Player->GetScale() > (*GameObjectIt)->GetScale())
+            {
+                Player->SetScale(Player->GetScale() + 0.03f);
+                (*GameObjectIt)->SetTransform((*GameObjectIt)->GetWorldTransform() * Player->GetWorldTransform().Invert());
+                (*GameObjectIt)->SetParent(Player);
+                GameObjectIt = StickyObjects.erase(GameObjectIt);
+            }
+            else
+            {
+                ++GameObjectIt;
+            }
         }
         else
         {

@@ -5,9 +5,14 @@
 void StickyObject::Construct()
 {
     FGameObject::Construct();
+}
 
-    FSphereCollisionComponent* SphereCollision = new FSphereCollisionComponent(1.0f);
-    AddComponent(SphereCollision);
+void StickyObject::SetScale(float NewScale)
+{
+    Scale = NewScale;
+}
 
-    
+float StickyObject::GetScale()
+{
+    return Scale;
 }

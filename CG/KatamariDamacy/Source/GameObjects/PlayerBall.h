@@ -8,5 +8,12 @@ public:
 	PlayerBall();
 	
 	virtual void Construct() override;
+
+	void SetScale(float NewScale);
+	float GetScale() const;
+	
+private:
+
+	float Scale;
 };
 

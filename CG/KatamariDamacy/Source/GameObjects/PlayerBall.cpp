@@ -13,3 +13,14 @@ void PlayerBall::Construct()
 {
     FGameObject::Construct();
 }
+
+void PlayerBall::SetScale(float NewScale)
+{
+    Scale = NewScale;
+    //SetTransform(GetWorldTransform() * (1 + Scale));
+}
+
+float PlayerBall::GetScale() const
+{
+    return Scale;
+}
