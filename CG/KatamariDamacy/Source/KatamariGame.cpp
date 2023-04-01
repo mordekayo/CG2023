@@ -24,7 +24,7 @@ void KatamariGame::Construct()
 
     std::random_device RandomDevice;  // Will be used to obtain a seed for the random number engine
     std::mt19937 Gen(RandomDevice()); // Standard mersenne_twister_engine seeded with rd()
-    std::uniform_real_distribution<> PlacementDistribution(-2.0, 2.0);
+    std::uniform_real_distribution<> PlacementDistribution(-1.0, 1.0);
     //std::uniform_real_distribution<> ScaleDistribution(0.01, 0.2);
     
     FGameObject* Terrain = new FGameObject();
@@ -42,7 +42,7 @@ void KatamariGame::Construct()
     SphereMesh->AddMesh(3.0f, "../GameFramework/Source/Models/core_01.obj");
     SphereMesh->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    Player->SetScale(0.02);
+    Player->SetScale(0.03f);
     Player->AddComponent(SphereMesh);
     SphereMesh->Init();
 
@@ -60,11 +60,11 @@ void KatamariGame::Construct()
     PlayerController->SetCamera(PlayerCamera);
     SetCurrentCamera(PlayerController->GetCamera());
     
-    for(int i = 0; i < 10; i++)
+    for(int i = 0; i < 5; i++)
     {
         StickyObject* NewObject = new StickyObject();
 
-        const float ObjectScale = 0.01f * (i+1);
+        const float ObjectScale = 0.02f * (i+1);
 
         NewObject->SetScale(ObjectScale);
         
@@ -102,9 +102,9 @@ void KatamariGame::Update(float DeltaTime)
         const bool bHasIntersection = (*GameObjectIt)->GetCollisionComponent()->IsIntersectsWithSphere(Player->GetCollisionComponent());
         if(bHasIntersection)
         {
-            if(Player->GetScale() > (*GameObjectIt)->GetScale())
+            if(true)
             {
-                Player->SetScale(Player->GetScale() + 0.03f);
+                Player->SetScale(Player->GetScale() + 0.01f);
                 (*GameObjectIt)->SetTransform((*GameObjectIt)->GetWorldTransform() * Player->GetWorldTransform().Invert());
                 (*GameObjectIt)->SetParent(Player);
                 GameObjectIt = StickyObjects.erase(GameObjectIt);
