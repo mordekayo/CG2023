@@ -1,29 +1,38 @@
 #pragma once
-#include <d3d11.h>
-#include <dxgi.h>
-#include <wrl/client.h>
+
+#include "Sources.h"
+#include <vector>
+
+class DisplayWin32;
+class FRenderComponent;
+class RenderShadowsComponent;
 
 class FRenderSystem
 {
 public:
 
-    void Init();
+    FRenderSystem();
 
-    [[nodiscard]] Microsoft::WRL::ComPtr<ID3D11Device> GetDevice() const;
-    [[nodiscard]] Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetContext() const;
-    
-    void BeginFrame();
+    void PrepareFrame();
+    void Draw();
     void EndFrame();
-    
-private:
-    
-    Microsoft::WRL::ComPtr<IDXGISwapChain> SwapChain = nullptr;
-    Microsoft::WRL::ComPtr<ID3D11Device> Device = nullptr;
-    Microsoft::WRL::ComPtr<ID3D11DeviceContext> Context = nullptr;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> BackTex = nullptr;
-    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> RenderTargetView = nullptr;
-    D3D11_VIEWPORT Viewport;
 
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> DepthBuffer;
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> DepthView;
+    void InitializeShader(std::string shaderFileName);
+
+    std::shared_ptr<D3D11_VIEWPORT> viewport;
+    Microsoft::WRL::ComPtr<ID3D11Device> device;
+    Microsoft::WRL::ComPtr<ID3D11DeviceContext> context;
+    Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderView;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> depthBuffer;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthView;
+
+    Microsoft::WRL::ComPtr<ID3D11InputLayout>     inputLayout;
+    Microsoft::WRL::ComPtr<ID3D11VertexShader>    vertexShader;
+    Microsoft::WRL::ComPtr<ID3D11PixelShader>     pixelShader;
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> rastState;
+    Microsoft::WRL::ComPtr<ID3D11SamplerState>    samplerState;
+
+    std::vector<FRenderComponent*> renderComponents;
 };

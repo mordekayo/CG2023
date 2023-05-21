@@ -1,159 +1,77 @@
 #include "GameObject.h"
 
-#include "Components/ObjectComponent.h"
-#include "Components/CollisionComponents/SphereCollisionComponent.h"
+#include "Game.h"
+#include "Components/TransformComponent.h"
+#include "Components/MeshComponent.h"
 #include "Components/RenderComponent.h"
+#include "Components/ObjectComponent.h"
+#include "Components/CameraComponent.h"
+#include "Components/CameraControllerComponent.h"
+#include "Components/RenderShadowsComponent.h"
 
-void FGameObject::Init()
+FGameObject::FGameObject(FGameObject* parent)
 {
-    for(FObjectComponent* Component : Components)
+    TransformComponent = new FTransformComponent();
+    AddComponent(TransformComponent);
+}
+
+FGameObject::~FGameObject()
+{
+    for (auto component : components)
     {
-        Component->Init();
+        delete component;
+    }
+    components.clear();
+}
+
+void FGameObject::Initialize()
+{
+    for (const auto& component : components)
+    {
+        component->Initialize();
     }
 }
 
-void FGameObject::Update(float DeltaTime)
+void FGameObject::Update(float deltaTime)
 {
-    for(FObjectComponent* Component : Components)
+    for (const auto& component : components)
     {
-        Component->Update();
+        component->Update(deltaTime);
     }
 }
 
-void FGameObject::Draw() const
+void FGameObject::AddComponent(FObjectComponent* component)
 {
-    for(FObjectComponent* Component : Components)
-    {
-        if(FRenderComponent* RenderComponent = dynamic_cast<FRenderComponent*>(Component))
-        {
-            RenderComponent->Draw();
-        }
-    }
+    components.push_back(component);
+    component->gameObject = this;
 }
 
-DirectX::SimpleMath::Vector3 FGameObject::GetLocalTranslation() const
+void FGameObject::CreatePlane(float planeSize, std::string textureFileName)
 {
-    return Translation;
+    MeshComponent = new FMeshComponent(textureFileName);
+    MeshComponent->AddPlane(planeSize);
+    AddComponent(MeshComponent);
+	
+    //SHADOWS
+    RenderShadowsComponent = new FRenderShadowsComponent(MeshComponent);
+    AddComponent(RenderShadowsComponent);
+
+    //MAIN FRAME
+    RenderComponent = new FRenderComponent(MeshComponent);
+    AddComponent(RenderComponent);
 }
 
-DirectX::SimpleMath::Vector3 FGameObject::GetWorldTranslation() const
+void FGameObject::CreateMesh(float scaleRate, std::string textureFileName, std::string objectFileName)
 {
-    return GetWorldTransform().Translation();
-}
+    MeshComponent = new FMeshComponent(textureFileName);
+    MeshComponent->AddMesh(scaleRate, objectFileName);
+    AddComponent(MeshComponent);
+	
+    //SHADOWS
+    RenderShadowsComponent = new FRenderShadowsComponent(MeshComponent);
+    AddComponent(RenderShadowsComponent);
 
-void FGameObject::AddComponent(FObjectComponent* ComponentToAdd)
-{
-    ComponentToAdd->SetOwner(this);
-    Components.insert(ComponentToAdd);
-}
-
-void FGameObject::DeleteComponent(FObjectComponent* ComponentToDelete)
-{
-    Components.erase(ComponentToDelete);
-}
-
-void FGameObject::SetTransform(DirectX::SimpleMath::Matrix NewTransform)
-{
-    DirectX::SimpleMath::Vector3 Scale;
-    NewTransform.Decompose(Scale, Rotation, Translation);
-}
-
-void FGameObject::AddTranslation(DirectX::SimpleMath::Vector3 AdditionTranslation)
-{
-    Translation += AdditionTranslation;
-}
-
-void FGameObject::SetTranslation(DirectX::SimpleMath::Vector3 NewTranslation)
-{
-    Translation = NewTranslation;
-}
-
-DirectX::SimpleMath::Quaternion FGameObject::GetLocalRotationQuat() const
-{
-    return Rotation;
-}
-
-DirectX::SimpleMath::Vector3 FGameObject::GetLocalRotationEuler() const
-{
-    return Rotation.ToEuler();
-}
-
-void FGameObject::AddRotationQuat(DirectX::SimpleMath::Quaternion AdditionalRotation)
-{
-    Rotation *= AdditionalRotation;
-    Rotation.Normalize();
-}
-
-void FGameObject::SetLocalRotationQuat(DirectX::SimpleMath::Quaternion NewRotation)
-{
-    Rotation = NewRotation;
-    Rotation.Normalize();
-}
-
-void FGameObject::SetLocalRotationEuler(DirectX::SimpleMath::Vector3 NewRotation)
-{
-    Rotation = DirectX::SimpleMath::Quaternion(NewRotation);
-    Rotation.Normalize();
-}
-
-DirectX::SimpleMath::Vector3 FGameObject::GetForwardVector() const
-{
-    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Backward, GetWorldTransform());
-}
-
-DirectX::SimpleMath::Vector3 FGameObject::GetRightVector() const
-{
-    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Left, GetWorldTransform());
-}
-
-DirectX::SimpleMath::Vector3 FGameObject::GetLeftVector() const
-{
-    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Right, GetWorldTransform());
-}
-
-DirectX::SimpleMath::Vector3 FGameObject::GetBackwardVector() const
-{
-    return DirectX::SimpleMath::Vector3::TransformNormal(DirectX::SimpleMath::Vector3::Forward, GetWorldTransform());
-}
-
-void FGameObject::Construct()
-{
-    
-}
-
-void FGameObject::SetParent(FGameObject* NewParent)
-{
-    ParentObject = NewParent;
-}
-
-DirectX::SimpleMath::Matrix FGameObject::GetWorldTransform() const
-{
-    DirectX::SimpleMath::Matrix Result = DirectX::SimpleMath::Matrix::Identity;
-    const FGameObject* Object = this;
-    do
-    {
-        Result *= Object->GetLocalTransform();
-        Object = Object->ParentObject; 
-    }
-    while(Object != nullptr);
-    
-    return Result;
-}
-
-DirectX::SimpleMath::Matrix FGameObject::GetLocalTransform() const
-{
-    return DirectX::SimpleMath::Matrix::CreateFromQuaternion(Rotation) * DirectX::SimpleMath::Matrix::CreateTranslation(Translation);
-}
-
-FSphereCollisionComponent* FGameObject::GetCollisionComponent() const
-{
-    for(FObjectComponent* Component : Components)
-    {
-        FSphereCollisionComponent* SphereCollision = static_cast<FSphereCollisionComponent*>(Component);
-        if(SphereCollision != nullptr)
-        {
-            return SphereCollision;
-        }
-    }
-    return nullptr;
+    //MAIN FRAME
+    RenderComponent = new FRenderComponent(MeshComponent);
+    AddComponent(RenderComponent);
 }

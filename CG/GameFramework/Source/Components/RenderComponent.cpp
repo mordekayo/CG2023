@@ -1,509 +1,153 @@
 #include "RenderComponent.h"
 
-#include <iostream>
-#include <d3dcommon.h>
-#include <d3dcompiler.h>
-#include "Utils/SimpleMath.h"
-#include "DisplayWin32.h"
-#include "Game.h"
-#include "Camera/Camera.h"
-#include "GameObjects/GameObject.h"
-#include "Render/RenderSystem.h"
-
 #include <WICTextureLoader.h>
+#include "Game.h"
+#include "CameraComponent.h"
+#include "MeshComponent.h"
+#include "TransformComponent.h"
+#include "Render/RenderSystem.h"
+#include "GameObjects/GameObject.h"
+#include "Light/DirectionalLightComponent.h"
+#include "Render/ShadowsRenderSystem.h"
 
-
-FRenderComponent::FRenderComponent(std::wstring PathToShader)
+FRenderComponent::FRenderComponent(FMeshComponent* modelComponent)
 {
-	ShaderFileName = PathToShader;
-	bUseTexture = false;
+	this->modelComponent = modelComponent;
 }
 
-FRenderComponent::FRenderComponent(std::wstring PathToShader, std::wstring PathToTexture)
+struct alignas(16) CameraData
 {
-	ShaderFileName = PathToShader;
-	TextureFileName = PathToTexture;
-	bUseTexture = true;
+	DirectX::SimpleMath::Matrix view;
+	DirectX::SimpleMath::Matrix projection;
+	DirectX::SimpleMath::Matrix model;
+	DirectX::SimpleMath::Vector3 cameraPosition;
+};
+struct RemLightData
+{
+	DirectX::SimpleMath::Vector4 Direction;
+	DirectX::SimpleMath::Vector4 Ambient;
+	DirectX::SimpleMath::Vector4 Diffuse;
+	DirectX::SimpleMath::Vector4 Specular;
+};
+struct alignas(16) LightData
+{
+	RemLightData RemLight;
+};
+
+struct alignas(16) ShadowData
+{
+	DirectX::SimpleMath::Matrix viewProjMats[4]; //
+	float distances[4];     //
+};
+
+void FRenderComponent::Initialize()
+{
+	FGame::Instance()->GetRenderSystem()->renderComponents.push_back(this);
+
+	constBuffer = new ID3D11Buffer * [3];
+
+	D3D11_BUFFER_DESC firstConstBufferDesc = {};
+	firstConstBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	firstConstBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	firstConstBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	firstConstBufferDesc.MiscFlags = 0;
+	firstConstBufferDesc.StructureByteStride = 0;
+	firstConstBufferDesc.ByteWidth = sizeof(CameraData);
+	auto result = FGame::Instance()->GetRenderSystem()->device->CreateBuffer(&firstConstBufferDesc, nullptr, &constBuffer[0]);
+	assert(SUCCEEDED(result));
+
+	D3D11_BUFFER_DESC secondConstBufferDesc = {};
+	secondConstBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	secondConstBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	secondConstBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	secondConstBufferDesc.MiscFlags = 0;
+	secondConstBufferDesc.StructureByteStride = 0;
+	secondConstBufferDesc.ByteWidth = sizeof(LightData);
+	result = FGame::Instance()->GetRenderSystem()->device->CreateBuffer(&secondConstBufferDesc, nullptr, &constBuffer[1]);
+	assert(SUCCEEDED(result));
+
+	D3D11_BUFFER_DESC thirdConstBufferDesc = {};
+	thirdConstBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	thirdConstBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	thirdConstBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	thirdConstBufferDesc.MiscFlags = 0;
+	thirdConstBufferDesc.StructureByteStride = 0;
+	thirdConstBufferDesc.ByteWidth = sizeof(ShadowData);
+	result = FGame::Instance()->GetRenderSystem()->device->CreateBuffer(&thirdConstBufferDesc, nullptr, &constBuffer[2]);
+	assert(SUCCEEDED(result));
 }
 
-FRenderComponent::~FRenderComponent()
-{
-    
-}
+void FRenderComponent::Update(float deltaTime)
+{	
 
-void FRenderComponent::Init()
-{
-	FObjectComponent::Init();
-
-		Microsoft::WRL::ComPtr<ID3DBlob> VertexShaderByteCode;
-	ID3DBlob* ErrorCode = nullptr;
-	
-	HRESULT Result = D3DCompileFromFile(ShaderFileName.c_str(),
-		nullptr /*macros*/,
-		nullptr /*include*/,
-		"VSMain",
-		"vs_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-		0,
-		&VertexShaderByteCode,
-		&ErrorCode);
-
-	if (FAILED(Result))
-	{
-		// If the shader failed to compile it should have written something to the error message.
-		if (ErrorCode)
-		{
-			const char* CompileErrors = (char*)(ErrorCode->GetBufferPointer());
-
-			std::cout << CompileErrors << std::endl;
-		}
-		// If there was  nothing in the error message then it simply could not find the shader file itself.
-		else
-		{
-			MessageBox(FGame::Instance()->GetDisplay().GetHWnd(), L"MyVeryFirstShader.hlsl", L"Missing Shader File", MB_OK);
-		}
-
-		return;
-	}
-
-    const D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 0.0f, 0.0f, 1.0f)", nullptr, nullptr };
-
-	Microsoft::WRL::ComPtr<ID3DBlob> PixelShaderByteCode;
-	
-	Result = D3DCompileFromFile(ShaderFileName.c_str(),
-		nullptr /*macros*/,
-		nullptr /*include*/,
-		"PSMain",
-		"ps_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-		0,
-		&PixelShaderByteCode,
-		&ErrorCode);
-
-	FGame::GetRenderSystem()->GetDevice()->CreateVertexShader(
-		VertexShaderByteCode->GetBufferPointer(),
-		VertexShaderByteCode->GetBufferSize(),
-		nullptr, VertexShader.GetAddressOf());
-
-	FGame::GetRenderSystem()->GetDevice()->CreatePixelShader(
-		PixelShaderByteCode->GetBufferPointer(),
-		PixelShaderByteCode->GetBufferSize(),
-		nullptr, PixelShader.GetAddressOf());
-
-	D3D11_INPUT_ELEMENT_DESC InputElements[2];
-
-	const D3D11_INPUT_ELEMENT_DESC InputPositionElementDesc =
-		{
-		"POSITION",
-		0,
-		DXGI_FORMAT_R32G32B32A32_FLOAT,
-		0,
-		0,
-		D3D11_INPUT_PER_VERTEX_DATA,
-		0
-	};
-	InputElements[0] = InputPositionElementDesc;
-	
-	if (bUseTexture)
-	{
-		const D3D11_INPUT_ELEMENT_DESC InputTexcoordinatesElementDesc =
-		{
-			"TEXCOORD", //
-			0,
-			DXGI_FORMAT_R32G32B32A32_FLOAT,
-			0,
-			D3D11_APPEND_ALIGNED_ELEMENT,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0
-		};
-		InputElements[1] = InputTexcoordinatesElementDesc;
-	}
-	else
-	{
-		const D3D11_INPUT_ELEMENT_DESC InputColorElementDesc =
-		{
-				"COLOR",
-				0,
-				DXGI_FORMAT_R32G32B32A32_FLOAT,
-				0,
-				D3D11_APPEND_ALIGNED_ELEMENT,
-				D3D11_INPUT_PER_VERTEX_DATA,
-				0
-		};
-		InputElements[1] = InputColorElementDesc;
-	}
-	
-	FGame::GetRenderSystem()->GetDevice()->CreateInputLayout(
-	InputElements,
-	2,
-	VertexShaderByteCode->GetBufferPointer(),
-	VertexShaderByteCode->GetBufferSize(),
-	InputLayout.GetAddressOf()
-);
-	
-	Strides[0] = 32;
-	Offsets[0] = 0;
-
-	D3D11_BUFFER_DESC VertexBufDesc = {};
-	VertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
-	VertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	VertexBufDesc.CPUAccessFlags = 0;
-	VertexBufDesc.MiscFlags = 0;
-	VertexBufDesc.StructureByteStride = 0;
-	VertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * static_cast<UINT>(std::size(Points));
-
-	D3D11_SUBRESOURCE_DATA VertexData = {};
-	VertexData.pSysMem = Points.data();
-	VertexData.SysMemPitch = 0;
-	VertexData.SysMemSlicePitch = 0;
-	
-	FGame::GetRenderSystem()->GetDevice()->CreateBuffer(&VertexBufDesc, &VertexData, VertexBuffer.GetAddressOf());
-
-	D3D11_BUFFER_DESC IndexBufDesc = {};
-	IndexBufDesc.Usage = D3D11_USAGE_DEFAULT;
-	IndexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	IndexBufDesc.CPUAccessFlags = 0;
-	IndexBufDesc.MiscFlags = 0;
-	IndexBufDesc.StructureByteStride = 0;
-	IndexBufDesc.ByteWidth = sizeof(int) * static_cast<UINT>(std::size(Indices));
-
-	D3D11_SUBRESOURCE_DATA IndexData = {};
-	IndexData.pSysMem = Indices.data();
-	IndexData.SysMemPitch = 0;
-	IndexData.SysMemSlicePitch = 0;
-	
-	FGame::GetRenderSystem()->GetDevice()->CreateBuffer(&IndexBufDesc, &IndexData, IndexBuffer.GetAddressOf());
-	
-	D3D11_BUFFER_DESC ConstBufDesc = {};
-	ConstBufDesc.Usage = D3D11_USAGE_DEFAULT;
-	ConstBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	ConstBufDesc.CPUAccessFlags = 0;
-	ConstBufDesc.MiscFlags = 0;
-	ConstBufDesc.StructureByteStride = 0;
-	ConstBufDesc.ByteWidth = sizeof(DirectX::XMMATRIX);
-	FGame::GetRenderSystem()->GetDevice()->CreateBuffer(&ConstBufDesc, nullptr, &ConstantBuffer);
-
-	if (bUseTexture)
-	{
-		DirectX::CreateWICTextureFromFile(
-			FGame::GetRenderSystem()->GetDevice().Get(),
-			FGame::GetRenderSystem()->GetContext().Get(),
-			TextureFileName.c_str(),
-			Texture.GetAddressOf(),
-			TextureView.GetAddressOf()
-		);
-
-		D3D11_SAMPLER_DESC SamplerDesc = {};
-		SamplerDesc.Filter   = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		SamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-		// SamplerDesc.BorderColor[0] = 1.0f;
-		// SamplerDesc.BorderColor[1] = 0.0f;
-		// SamplerDesc.BorderColor[2] = 0.0f;
-		// SamplerDesc.BorderColor[3] = 1.0f;
-		SamplerDesc.MaxLOD = INT_MAX;
-
-		FGame::Instance()->GetRenderSystem()->GetDevice()->CreateSamplerState(&SamplerDesc, SamplerState.GetAddressOf());
-	}
-
-	CD3D11_RASTERIZER_DESC RastDesc = {};
-	RastDesc.CullMode = D3D11_CULL_BACK;
-	RastDesc.FillMode = D3D11_FILL_SOLID;
-	RastDesc.FrontCounterClockwise = true;
-
-	FGame::GetRenderSystem()->GetDevice()->CreateRasterizerState(&RastDesc, RasterizerState.GetAddressOf());
-}
-
-void FRenderComponent::Update()
-{
-	FObjectComponent::Update();
-
-	const DirectX::XMMATRIX ComponentTransform = Owner->GetWorldTransform() * GetLocalTransform();
-	const DirectX::XMMATRIX OwnerWorldViewProjectionMatrix = FGame::Instance()->GetCurrentCamera()->GetViewProjectionMatrix(ComponentTransform);
-	
-	const DirectX::XMMATRIX ScaledMatrix = DirectX::XMMatrixScaling(
-			static_cast<float>(FGame::Instance()->GetDisplay().GetScreenHeight())/
-			static_cast<float>(FGame::Instance()->GetDisplay().GetScreenWidth()),
-			1.0f,
-			1.0f);
-
-	const DirectX::XMMATRIX Transform = DirectX::XMMatrixTranspose(DirectX::XMMatrixMultiply(ScaledMatrix, OwnerWorldViewProjectionMatrix));
-
-	FGame::GetRenderSystem()->GetContext()->UpdateSubresource(ConstantBuffer, 0, nullptr, &Transform, 0, 0);
 }
 
 void FRenderComponent::Draw()
 {
-	FGame::GetRenderSystem()->GetContext()->RSSetState(RasterizerState.Get());
-	
-    FGame::GetRenderSystem()->GetContext()->IASetInputLayout(InputLayout.Get());
-    FGame::GetRenderSystem()->GetContext()->IASetPrimitiveTopology(Topology);
-    FGame::GetRenderSystem()->GetContext()->IASetIndexBuffer(IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-    FGame::GetRenderSystem()->GetContext()->IASetVertexBuffers(0, 1, VertexBuffer.GetAddressOf(), Strides, Offsets);
-    FGame::GetRenderSystem()->GetContext()->VSSetShader(VertexShader.Get(), nullptr, 0);
-    FGame::GetRenderSystem()->GetContext()->PSSetShader(PixelShader.Get(), nullptr, 0);
-
-	if (bUseTexture)
+	const CameraData cameraData
 	{
-		FGame::GetRenderSystem()->GetContext()->PSSetShaderResources(0, 1, TextureView.GetAddressOf()); //
-		FGame::GetRenderSystem()->GetContext()->PSSetSamplers(0, 1, SamplerState.GetAddressOf()); //
-	}
-	
-    FGame::GetRenderSystem()->GetContext()->VSSetConstantBuffers(0, 1, &ConstantBuffer);
-	
-    FGame::GetRenderSystem()->GetContext()->DrawIndexed(static_cast<UINT>(Indices.size()), 0, 0);
-}
-
-void FRenderComponent::SetPoints(std::vector<DirectX::SimpleMath::Vector4>&& NewPoints)
-{
-	Points = std::move(NewPoints);
-}
-
-void FRenderComponent::SetIndices(std::vector<int>&& NewIndices)
-{
-	Indices = std::move(NewIndices);
-}
-
-void FRenderComponent::SetTopology(D3D11_PRIMITIVE_TOPOLOGY NewTopology)
-{
-	Topology = NewTopology;
-}
-
-void FRenderComponent::AddCube(float radius)
-{
-	Points = {
-		DirectX::SimpleMath::Vector4(   radius,   radius, 0.0f, 1.0f), DirectX::SimpleMath::Vector4(radius * 2, radius * 2, 0.0f, 0.0f),
-		DirectX::SimpleMath::Vector4( - radius, - radius, 0.0f, 1.0f), DirectX::SimpleMath::Vector4( 0.0f,   0.0f,  0.0f, 0.0f),
-		DirectX::SimpleMath::Vector4(   radius, - radius, 0.0f, 1.0f), DirectX::SimpleMath::Vector4(radius * 2,  0.0f,  0.0f, 0.0f),
-		DirectX::SimpleMath::Vector4( - radius,   radius, 0.0f, 1.0f), DirectX::SimpleMath::Vector4( 0.0f,  radius * 2, 0.0f, 0.0f)
+		FGame::Instance()->currentCamera->gameObject->TransformComponent->GetView(),
+		FGame::Instance()->currentCamera->GetProjection(),
+		gameObject->TransformComponent->GetModel(),
+		FGame::Instance()->currentCamera->gameObject->TransformComponent->GetPosition()
 	};
-	Indices = { 0, 1, 2, 1, 0, 3 };
-}
-void FRenderComponent::AddSphere(float Radius, int SliceCount, int StackCount, const DirectX::SimpleMath::Color& Color)
-{
-	if (bUseTexture)
+	D3D11_MAPPED_SUBRESOURCE firstMappedResource;
+	FGame::Instance()->GetRenderSystem()->context->Map(constBuffer[0], 0, D3D11_MAP_WRITE_DISCARD, 0, &firstMappedResource);
+	memcpy(firstMappedResource.pData, &cameraData, sizeof(CameraData));
+	FGame::Instance()->GetRenderSystem()->context->Unmap(constBuffer[0], 0);
+
+	const LightData lightData
 	{
-		Points.push_back({ 0.0f, Radius, 0.0f, 1.0f });
-		Points.push_back({ 0.0f, 0.0f, 0.0f, 0.0f, });
-
-		const float phiStep = DirectX::XM_PI / static_cast<float>(StackCount);
-		const float thetaStep = DirectX::XM_2PI / static_cast<float>(SliceCount);
-
-		for (int i = 1; i <= StackCount - 1; i++) {
-			const float phi = static_cast<float>(i) * phiStep;
-
-			for (int j = 0; j <= SliceCount; j++) {
-				const float theta = static_cast<float>(j) * thetaStep;
-
-				DirectX::SimpleMath::Vector4 tempPoint = {};
-				DirectX::SimpleMath::Vector4 tempTexCoords = {};
-
-				tempPoint.x = Radius * sinf(phi) * cosf(theta);
-				tempPoint.y = Radius * cosf(phi);
-				tempPoint.z = Radius * sinf(phi) * sinf(theta);
-				tempPoint.w = 1.0f;
-
-				tempTexCoords.x = theta / DirectX::XM_2PI;
-				tempTexCoords.y = phi / DirectX::XM_2PI;
-
-				Points.push_back(tempPoint);
-				Points.push_back(tempTexCoords);
-			}
-		}
-
-		Points.push_back({ 0.0f, -Radius, 0.0f, 1.0f });
-		Points.push_back({ 0.0f, 1.0f, 0.0f, 0.0f, });
-
-		for (int i = 1; i <= SliceCount; i++)
+		RemLightData
 		{
-			Indices.push_back(0);
-			Indices.push_back(i + 1);
-			Indices.push_back(i);
+			FGame::Instance()->currentLight->direction,
+			modelComponent->ambient,
+			modelComponent->diffuse,
+			modelComponent->specular
 		}
-
-		int baseIndex = 1;
-		const int ringVertexCount = SliceCount + 1;
-		for (int i = 0; i < StackCount - 2; i++)
-		{
-			for (int j = 0; j < SliceCount; j++)
-			{
-				Indices.push_back(baseIndex + i * ringVertexCount + j);
-				Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
-				Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
-
-				Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
-				Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
-				Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
-			}
-		}
-
-		const int southPoleIndex = static_cast<int>(Points.size()) / 2 - 1;
-
-		baseIndex = southPoleIndex - ringVertexCount;
-
-		for (int i = 0; i < SliceCount; i++)
-		{
-			Indices.push_back(southPoleIndex);
-			Indices.push_back(baseIndex + i);
-			Indices.push_back(baseIndex + i + 1);
-		}
-	}
-	else
-	{
-		int g = 0;
-		Points.push_back(DirectX::XMFLOAT4(0, Radius, 0, 1));
-		Points.push_back(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
-		auto phiStep = DirectX::XM_PI / StackCount;
-		auto thetaStep = DirectX::XM_2PI / SliceCount;
-		for (int i = 1; i <= StackCount - 1; i++)
-		{
-			auto phi = i * phiStep;
-			for (int j = 0; j <= SliceCount; j++)
-			{
-				auto theta = j * thetaStep;
-				Points.push_back(
-					DirectX::XMFLOAT4(
-						Radius * sin(phi) * cos(theta),
-						Radius * cos(phi),
-						Radius * sin(phi) * sin(theta),
-						1.0f)
-				);
-				Points.push_back(Color);
-			}
-			g = 0;
-		}
-		Points.push_back(DirectX::XMFLOAT4(0, -Radius, 0, 1));
-		Points.push_back(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
-
-		for (int i = 1; i <= SliceCount; i++)
-		{
-			Indices.push_back(0);
-			Indices.push_back(i + 1);
-			Indices.push_back(i);
-		}
-		auto baseIndex = 1;
-		auto ringVertexCount = SliceCount + 1;
-		for (int i = 0; i < StackCount - 2; i++)
-		{
-			for (int j = 0; j < SliceCount; j++)
-			{
-				Indices.push_back(baseIndex + i * ringVertexCount + j);
-				Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
-				Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
-
-				Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
-				Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
-				Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
-			}
-		}
-
-		const int southPoleIndex = static_cast<int>(Indices.size()) - 1;
-		baseIndex = southPoleIndex - ringVertexCount;
-		for (int i = 0; i < SliceCount; i++)
-		{
-			Indices.push_back(southPoleIndex);
-			Indices.push_back(baseIndex + i);
-			Indices.push_back(baseIndex + i + 1);
-		}
-	}
-}
-void FRenderComponent::AddGrid(int GridSize, float CellSize, DirectX::SimpleMath::Color Color)
-{
-	for ( int Row = 0; Row < GridSize; ++Row )
-	{
-		for ( int Column = 0; Column < GridSize; ++Column)
-		{
-			Points.push_back({static_cast<float>(Column) * CellSize, 0.0f, static_cast<float>(Row) * CellSize, 1.0f});
-		}
-	}
-
-	int i = 0;
-
-	for ( int Row=0; Row < GridSize-1; ++Row )
-	{
-		if ((Row & 1) == 0)
-		{
-			// even rows
-			for ( int Column = 0; Column < GridSize; ++Column )
-			{
-				Indices.push_back(Column + Row * GridSize);
-				Indices.push_back(Column + (Row + 1) * GridSize);
-			}
-		}
-		else
-		{
-			// odd rows
-			for ( int Column = GridSize - 1; Column > 0; --Column)
-			{
-				Indices.push_back(Column + (Row+1) * GridSize);
-				Indices.push_back(Column - 1 + Row * GridSize);
-			}
-		}
-	}
-}
-
-void FRenderComponent::SetMeshPlane(float Size)
-{
-	
-	Points =
-	{
-		DirectX::SimpleMath::Vector4(   Size, 0.0f, Size, 1.0f), DirectX::SimpleMath::Vector4(Size * 2, 0.0f, Size * 2, 0.0f),
-		DirectX::SimpleMath::Vector4( Size, 0.0f, -Size, 1.0f), DirectX::SimpleMath::Vector4( 0.0f,   0.0f,  0.0f, 0.0f),
-		DirectX::SimpleMath::Vector4(   -Size, 0.0f, -Size, 1.0f), DirectX::SimpleMath::Vector4(Size * 2,  0.0f,  0.0f, 0.0f),
-		DirectX::SimpleMath::Vector4( -Size, 0.0f, Size, 1.0f), DirectX::SimpleMath::Vector4( 0.0f, 0.0f, Size * 2, 0.0f)
 	};
-	Indices = { 0, 1, 2, 2, 3, 0 };
-}
+	D3D11_MAPPED_SUBRESOURCE secondMappedResource;
+	FGame::Instance()->GetRenderSystem()->context->Map(constBuffer[1], 0, D3D11_MAP_WRITE_DISCARD, 0, &secondMappedResource);
+	memcpy(secondMappedResource.pData, &lightData, sizeof(LightData));
+	FGame::Instance()->GetRenderSystem()->context->Unmap(constBuffer[1], 0);
 
-void FRenderComponent::AddMesh(float scaleRate, std::string MeshPath)
-{
-	Assimp::Importer importer;
-	const aiScene* pScene = importer.ReadFile(MeshPath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
-
-	if (!pScene) { return; }
-
-	ProcessNode(pScene->mRootNode, pScene, scaleRate);
-}
-
-void FRenderComponent::ProcessNode(aiNode* node, const aiScene* scene, float scaleRate)
-{
-	for (UINT i = 0; i < node->mNumMeshes; i++)
+	const ShadowData lightShadowData
 	{
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		ProcessMesh(mesh, scene, scaleRate);
-	}
-
-	for (UINT i = 0; i < node->mNumChildren; i++)
-	{
-		ProcessNode(node->mChildren[i], scene, scaleRate);
-	}
-}
-
-void FRenderComponent::ProcessMesh(aiMesh* mesh, const aiScene* scene, float scaleRate)
-{
-	for (UINT i = 0; i < mesh->mNumVertices; i++)
-	{
-		DirectX::SimpleMath::Vector4 textureCoordinate = {};
-
-		if (mesh->mTextureCoords[0])
 		{
-			textureCoordinate.x = (float)mesh->mTextureCoords[0][i].x;
-			textureCoordinate.y = (float)mesh->mTextureCoords[0][i].y;
-		}
-
-		Points.push_back({ mesh->mVertices[i].x * scaleRate, mesh->mVertices[i].y * scaleRate, mesh->mVertices[i].z * scaleRate, 1.0f});
-		Points.push_back(textureCoordinate);
-	}
-
-	for (UINT i = 0; i < mesh->mNumFaces; i++)
-	{
-		aiFace face = mesh->mFaces[i];
-
-		for (UINT j = 0; j < face.mNumIndices; j++)
+			FGame::Instance()->currentLight->lightViewProjectionMatrices.at(0), FGame::Instance()->currentLight->lightViewProjectionMatrices.at(1),
+			FGame::Instance()->currentLight->lightViewProjectionMatrices.at(2), FGame::Instance()->currentLight->lightViewProjectionMatrices.at(3)
+		}, //
 		{
-			Indices.push_back(face.mIndices[j]);
-		}
-	}
+			FGame::Instance()->currentLight->shadowCascadeLevels.at(0),         FGame::Instance()->currentLight->shadowCascadeLevels.at(1),
+			FGame::Instance()->currentLight->shadowCascadeLevels.at(2),         FGame::Instance()->currentLight->shadowCascadeLevels.at(3)
+		} //
+	};
+	D3D11_MAPPED_SUBRESOURCE thirdMappedResource;
+	FGame::Instance()->GetRenderSystem()->context->Map(constBuffer[2], 0, D3D11_MAP_WRITE_DISCARD, 0, &thirdMappedResource);
+	memcpy(thirdMappedResource.pData, &lightShadowData, sizeof(ShadowData));
+	FGame::Instance()->GetRenderSystem()->context->Unmap(constBuffer[2], 0);
+
+	FGame::Instance()->GetRenderSystem()->context->PSSetShaderResources(0, 1, modelComponent->textureView.GetAddressOf());
+	FGame::Instance()->GetRenderSystem()->context->PSSetSamplers(0, 1, FGame::Instance()->GetRenderSystem()->samplerState.GetAddressOf());
+
+	FGame::Instance()->GetRenderSystem()->context->PSSetShaderResources(1, 1, FGame::Instance()->currentLight->textureResourceView.GetAddressOf());
+	FGame::Instance()->GetRenderSystem()->context->PSSetSamplers(1, 1, FGame::Instance()->GetRenderShadowsSystem()->sSamplerState.GetAddressOf());
+
+	FGame::Instance()->GetRenderSystem()->context->RSSetState(FGame::Instance()->GetRenderSystem()->rastState.Get());
+	FGame::Instance()->GetRenderSystem()->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
+	UINT strides[] { 48 };
+	UINT offsets[] { 0 };
+	FGame::Instance()->GetRenderSystem()->context->IASetVertexBuffers(0, 1, modelComponent->vertexBuffer.GetAddressOf(), strides, offsets);
+	FGame::Instance()->GetRenderSystem()->context->IASetInputLayout(FGame::Instance()->GetRenderSystem()->inputLayout.Get());
+	FGame::Instance()->GetRenderSystem()->context->IASetIndexBuffer(modelComponent->indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+	FGame::Instance()->GetRenderSystem()->context->VSSetShader(FGame::Instance()->GetRenderSystem()->vertexShader.Get(), nullptr, 0);
+	FGame::Instance()->GetRenderSystem()->context->PSSetShader(FGame::Instance()->GetRenderSystem()->pixelShader.Get(), nullptr, 0);
+	FGame::Instance()->GetRenderSystem()->context->GSSetShader(nullptr, nullptr, 0);
+	
+	FGame::Instance()->GetRenderSystem()->context->VSSetConstantBuffers(0, 3, constBuffer);
+	FGame::Instance()->GetRenderSystem()->context->PSSetConstantBuffers(0, 3, constBuffer);
+	
+	FGame::Instance()->GetRenderSystem()->context->DrawIndexed(modelComponent->indices.size(), 0, 0);
 }

@@ -1,168 +1,152 @@
 #include "Game.h"
 
 #include "DisplayWin32.h"
-#include "GameObjects/GameObject.h"
 #include "Utils/InputDevice.h"
-#include "Sources.h"
-#include <chrono>
 #include "Render/RenderSystem.h"
+#include "Render/ShadowsRenderSystem.h"
+#include "GameObjects/GameObject.h"
+#include "Components/CameraComponent.h"
+#include "Components/Light/DirectionalLightComponent.h"
+
+FGame* FGame::GameInstance = nullptr;
 
 FGame::FGame()
 {
-	ApplicationName = L"My FGame engine";
-	ScreenWidth = 800;
-	ScreenHeight = 800;
-}
-
-void FGame::CreateResources()
-{
-	Display = new FDisplayWin32(ApplicationName, ScreenWidth, ScreenHeight, WndProc);
-	Input = new InputDevice(this);
-	
-	RenderSystem = new FRenderSystem();
-
-	RenderSystem->Init();
-}
-
-void FGame::InitGameObjects() const
-{
-	for (FGameObject* Object : GameObjects)
-	{
-		Object->Init();
-	}
-}
-
-void FGame::UpdateGameObjects(float DeltaTime) const
-{
-	for (FGameObject* Object : GameObjects)
-	{
-		Object->Update(DeltaTime);
-	}
-}
-
-void FGame::DrawGameObjects() const
-{
-	for (FGameObject* Object : GameObjects)
-	{
-		Object->Draw();
-	}
+	name = L"My Game Engine";
+	clientWidth = 800;
+	clientHeight = 800;
+	totalTime = 0;
+	deltaTime = 0;
+	frameCount = 0;
+	startTime = std::make_shared<std::chrono::time_point<std::chrono::steady_clock>>();
+	prevTime = std::make_shared<std::chrono::time_point<std::chrono::steady_clock>>();
+	currentCamera = nullptr;
+	currentLight  = nullptr;
 }
 
 FGame* FGame::Instance()
 {
-	if(!GameInstance)
+	if (!GameInstance)
 	{
 		GameInstance = new FGame();
 	}
 	return GameInstance;
 }
 
-FRenderSystem* FGame::GetRenderSystem()
+void FGame::PrepareResources()
 {
-	return Instance()->RenderSystem;
+	display = std::make_shared<FDisplayWin32>(name, clientWidth, clientHeight, WndProc);
+	inputDevice = std::make_shared<InputDevice>(this);
+	render = std::make_shared<FRenderSystem>();
+	renderShadows = std::make_shared<FShadowsRenderSystem>();
 }
 
-void FGame::Update(float DeltaTime)
+void FGame::Initialize()
 {
-	if (totalTime > 1.0f)
-	{
-		float fps = frameCount / totalTime;
-
-		totalTime -= 1.0f;
-
-		WCHAR text[256];
-		swprintf_s(text, TEXT("FPS: %f"), fps);
-		SetWindowText(Display->GetHWnd(), text);
-
-		frameCount = 0;
-	}
-	
-	UpdateGameObjects(DeltaTime);
-	
-	RenderSystem->BeginFrame();
-	DrawGameObjects();
-	RenderSystem->EndFrame();
-}
-
-void FGame::Construct()
-{
-	for(const auto GameObject : GameObjects)
-	{
-		GameObject->Construct();
+	for (auto& object : gameObjects) {
+		object->Initialize();
 	}
 }
+
 
 void FGame::Run()
 {
-	CreateResources();
-	
-	Construct();
-	InitGameObjects();
-	
-	
-	PrevTime = std::chrono::steady_clock::now();
-	float totalTime = 0;
-	unsigned int frameCount = 0;
+	PrepareResources();
+	Initialize();
 
+	*startTime = std::chrono::steady_clock::now();
+	*prevTime = *startTime;
 
 	MSG msg = {};
-	while (!isExitRequested)
+	while (msg.message != WM_QUIT)
 	{
-	
-		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		
-		if (msg.message == WM_QUIT)
+		else
 		{
-			isExitRequested = true;
+			auto curTime = std::chrono::steady_clock::now();
+			deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - *prevTime).count() / 1000000.0f;
+			*prevTime = curTime;
+			totalTime += deltaTime;
+			frameCount++;
+			if (totalTime > 1.0f)
+			{
+				float fps = frameCount / totalTime;
+				totalTime -= 1.0f;
+				WCHAR text[256];
+				swprintf_s(text, TEXT("FPS: %f"), fps);
+				SetWindowText(FGame::Instance()->GetDisplay()->GetHWnd(), text);
+				frameCount = 0;
+			}
+			Update();
+			Draw();
 		}
-		
-		const auto CurTime = std::chrono::steady_clock::now();
-		const float DeltaTime = std::chrono::duration_cast<std::chrono::microseconds>(CurTime - PrevTime).count() / 1000000.0f;
-		PrevTime = CurTime;
-		totalTime += DeltaTime;
-		frameCount++;
-		
-		Update(DeltaTime);
+	}
+	DestroyResources();
+}
+
+void FGame::UpdateInternal()
+{
+	if (inputDevice->IsKeyDown(Keys::Escape))
+	{
+		PostQuitMessage(0);
 	}
 }
 
-FDisplayWin32& FGame::GetDisplay()
+void FGame::Update()
 {
-	return *Display;
+	UpdateInternal();
+	for (auto& object : gameObjects)
+	{
+		object->Update(deltaTime);
+	}
 }
 
-InputDevice* FGame::GetInputDevice() const
+void FGame::Draw()
 {
-	return Input;
+	renderShadows->PrepareFrame();
+	renderShadows->Draw();
+	renderShadows->EndFrame();
+	render->PrepareFrame();
+	render->Draw();
+	render->EndFrame();
 }
 
-void FGame::SetCurrentCamera(FCamera* NewCamera)
+void FGame::DestroyResources()
 {
-	CurrentCamera = NewCamera;
+	for (auto& object : gameObjects)
+	{
+		delete object;
+	}
+	gameObjects.clear();
 }
 
-FCamera* FGame::GetCurrentCamera() const
+void FGame::AddGameObject(FGameObject* gameObject)
 {
-	return CurrentCamera;
+	gameObjects.push_back(gameObject);
 }
 
-void FGame::AddGameObject(FGameObject* ObjectToAdd)
+std::shared_ptr<FDisplayWin32>  FGame::GetDisplay()
 {
-	GameObjects.insert(ObjectToAdd);
+	return display;
 }
 
-void FGame::AddGameObjects(std::vector<FGameObject*> ObjectsToAdd)
+std::shared_ptr<InputDevice>   FGame::GetInputDevice()
 {
-	GameObjects.insert(ObjectsToAdd.cbegin(), ObjectsToAdd.cend());
+	return inputDevice;
 }
 
-void FGame::DeleteGameObject(FGameObject* ObjectToDelete)
+std::shared_ptr<FRenderSystem>  FGame::GetRenderSystem()
 {
-	GameObjects.erase(ObjectToDelete);
+	return render;
+}
+
+std::shared_ptr<FShadowsRenderSystem> FGame::GetRenderShadowsSystem()
+{
+	return renderShadows;
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
@@ -170,69 +154,63 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 	return FGame::Instance()->MessageHandler(hwnd, umessage, wparam, lparam);
 }
 
-LRESULT FGame::MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
-	switch (umessage)
+LRESULT FGame::MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
+{
 	{
-	case WM_CLOSE:
+		switch (umessage)
 		{
-			PostQuitMessage(0);
-			isExitRequested = true;
-			return 0;
-		}
-	case WM_INPUT:
-	{
-		UINT dwSize = 0;
-		GetRawInputData(reinterpret_cast<HRAWINPUT>(lparam), RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER));
-		LPBYTE lpb = new BYTE[dwSize];
+			case WM_CLOSE:
+			{
+				PostQuitMessage(0);
+				return 0;
+			}
+			case WM_INPUT:
+			{
+				UINT dwSize = 0;
+				GetRawInputData(reinterpret_cast<HRAWINPUT>(lparam), RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER));
+				LPBYTE lpb = new BYTE[dwSize];
 
-		if (lpb == nullptr)
+				if (lpb == nullptr)
+				{
+					return 0;
+				}
+
+				if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
+				{
+					OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
+				}
+
+				RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(lpb);
+
+				if (raw->header.dwType == RIM_TYPEKEYBOARD)
+				{
+					FGame::Instance()->GetInputDevice()->OnKeyDown({
+						raw->data.keyboard.MakeCode,
+						raw->data.keyboard.Flags,
+						raw->data.keyboard.VKey,
+						raw->data.keyboard.Message
+						});
+				}
+				else if (raw->header.dwType == RIM_TYPEMOUSE)
+				{
+					FGame::Instance()->GetInputDevice()->OnMouseMove({
+						raw->data.mouse.usFlags,
+						raw->data.mouse.usButtonFlags,
+						static_cast<int>(raw->data.mouse.ulExtraInformation),
+						static_cast<int>(raw->data.mouse.ulRawButtons),
+						static_cast<short>(raw->data.mouse.usButtonData),
+						raw->data.mouse.lLastX,
+						raw->data.mouse.lLastY
+						});
+				}
+
+				delete[] lpb;
+				return DefWindowProc(hwnd, umessage, wparam, lparam);
+		}
+		default:
 		{
-			return 0;
+			return DefWindowProc(hwnd, umessage, wparam, lparam);
 		}
-
-		if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
-		{
-			OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
 		}
-
-		RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(lpb);
-
-		if (raw->header.dwType == RIM_TYPEKEYBOARD)
-		{
-			//printf(" Kbd: make=%04i Flags:%04i Reserved:%04i ExtraInformation:%08i, msg=%04i VK=%i \n",
-			//	raw->data.keyboard.MakeCode,
-			//	raw->data.keyboard.Flags,
-			//	raw->data.keyboard.Reserved,
-			//	raw->data.keyboard.ExtraInformation,
-			//	raw->data.keyboard.Message,
-			//	raw->data.keyboard.VKey);
-
-			Input->OnKeyDown({
-				raw->data.keyboard.MakeCode,
-				raw->data.keyboard.Flags,
-				raw->data.keyboard.VKey,
-				raw->data.keyboard.Message
-				});
-		}
-		else if (raw->header.dwType == RIM_TYPEMOUSE)
-		{
-			//printf(" Mouse: X=%04d Y:%04d \n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-			Input->OnMouseMove({
-				raw->data.mouse.usFlags,
-				raw->data.mouse.usButtonFlags,
-				static_cast<int>(raw->data.mouse.ulExtraInformation),
-				static_cast<int>(raw->data.mouse.ulRawButtons),
-				static_cast<short>(raw->data.mouse.usButtonData),
-				raw->data.mouse.lLastX,
-				raw->data.mouse.lLastY
-				});
-		}
-		delete[] lpb;
-		return DefWindowProc(hwnd, umessage, wparam, lparam);
-	}
-	default:
-	{
-		return DefWindowProc(hwnd, umessage, wparam, lparam);
-	}
 	}
 }

@@ -1,28 +1,18 @@
 #pragma once
-#include "Utils/SimpleMath.h"
+#include "Sources.h"
+#include "Utils/InputDevice.h"
 
 class FGameObject;
 
 class FObjectComponent
 {
-
 public:
 
-    virtual void Init();
-    virtual void Update();
+    FGameObject* gameObject;
 
-    void SetOwner(FGameObject* NewOwner);
+    virtual ~FObjectComponent() {}
+    virtual void Initialize() {}
+    virtual void Update(float deltaTime) {}
 
-    DirectX::SimpleMath::Matrix GetLocalTransform() const;
-
-    void AddComponentTranslation(DirectX::SimpleMath::Vector3 AdditionalTranslation);
-    void SetComponentTranslation(DirectX::SimpleMath::Vector3 NewTranslation);
-protected:
-
-    FGameObject* Owner = nullptr;
-
-    DirectX::SimpleMath::Matrix LocalTransform = DirectX::SimpleMath::Matrix::Identity;
-
-    DirectX::SimpleMath::Vector3 Translation = {0.0f, 0.0f, 0.0f};
-    DirectX::SimpleMath::Quaternion Rotation = DirectX::SimpleMath::Quaternion::Identity;
+    virtual void MouseEventHandler(const InputDevice::MouseMoveEventArgs& mouseData) {}
 };

@@ -1,86 +1,59 @@
 #pragma once
-
 #include <chrono>
-#include <windows.h>
-#include <wrl.h>
-#include <d3d.h>
-#include <d3d11.h>
-#include <set>
 
-class FRenderSystem;
-class FTargetCameraController;
-class FFPSCameraController;
-class FCamera;
+#include "Sources.h"
+
 class FDisplayWin32;
-class FGameObject;
 class InputDevice;
+class FRenderSystem;
+class FShadowsRenderSystem;
+class FGameObject;
+class FCameraComponent;
+class FDirectionalLightComponent;
 
 class FGame
 {
 public:
-	
+
+	LPCWSTR	name;
+	int clientWidth;
+	int clientHeight;
+	static FGame* GameInstance;
+	FGame();
 	FGame(const FGame&) = delete;
 	void operator = (const FGame&) = delete;
 	virtual ~FGame() = default;
-
 	static FGame* Instance();
-	static FRenderSystem* GetRenderSystem();
+	float totalTime;
+	float deltaTime;
+	unsigned int frameCount;
+	std::shared_ptr<std::chrono::time_point<std::chrono::steady_clock>> startTime;
+	std::shared_ptr<std::chrono::time_point<std::chrono::steady_clock>> prevTime;
+	std::shared_ptr<FDisplayWin32>  display;
+	std::shared_ptr<InputDevice>   inputDevice;
+	std::shared_ptr<FRenderSystem>  render;
+	std::shared_ptr<FShadowsRenderSystem> renderShadows;
 
-	virtual void Run();
+	FCameraComponent* currentCamera;
+	FDirectionalLightComponent* currentLight;
+	std::vector<FGameObject*> gameObjects;
 
-	FDisplayWin32& GetDisplay();
-	InputDevice* GetInputDevice() const;
+	void Run();
+	virtual void PrepareResources();
+	virtual void Initialize();
+	virtual void Update();
+	virtual void UpdateInternal();
+	virtual void Draw();
+	virtual void DestroyResources();
 
-	void SetCurrentCamera(FCamera* NewCamera);
-	FCamera* GetCurrentCamera() const;
+	void AddGameObject(FGameObject* gameObject);
 
-	void AddGameObject(FGameObject* ObjectToAdd);
-	void AddGameObjects(std::vector<FGameObject*> ObjectsToAdd);
-	void DeleteGameObject(FGameObject* ObjectToDelete);
-	
+	std::shared_ptr<FDisplayWin32>  GetDisplay();
+	std::shared_ptr<InputDevice>   GetInputDevice();
+	std::shared_ptr<FRenderSystem>  GetRenderSystem();
+	std::shared_ptr<FShadowsRenderSystem> GetRenderShadowsSystem();
+
 	LRESULT MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
-
-	bool bIsFPS = true;
-
-	FTargetCameraController* GetTargetCameraController();
-protected:
-
-	inline static FGame* GameInstance = nullptr;
-
-	FGame();
-
-	virtual void Update(float DeltaTime);
-
-	virtual void Construct();
-	InputDevice* Input;
-
-	LPCWSTR ApplicationName;
-	int ScreenWidth;
-	int ScreenHeight;
-
-	FCamera* CurrentCamera;
-	FFPSCameraController* FPSCameraController;
-	FTargetCameraController* TargetCameraController;
-
-private:
-
-	FRenderSystem* RenderSystem;
-	FDisplayWin32* Display;
-	
-	void CreateResources();
-	
-	void InitGameObjects() const;
-	void UpdateGameObjects(float DeltaTime) const;
-	void DrawGameObjects() const;
-	
-	std::set<FGameObject*> GameObjects;
-	
-	std::chrono::time_point<std::chrono::steady_clock> PrevTime;
-	float totalTime = 0;
-	unsigned frameCount = 0;
-
-	bool isExitRequested = false;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-

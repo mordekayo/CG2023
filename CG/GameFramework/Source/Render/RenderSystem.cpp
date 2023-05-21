@@ -1,96 +1,208 @@
 #include "RenderSystem.h"
-#include <wrl.h>
-#include <d3d.h>
-#include <d3d11.h>
 
 #include "DisplayWin32.h"
+#include "Components/RenderComponent.h"
 #include "Game.h"
+#include "ShadowsRenderSystem.h"
 
-void FRenderSystem::Init()
+FRenderSystem::FRenderSystem()
 {
-    constexpr D3D_FEATURE_LEVEL FeatureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
+	//FRAME
+	D3D_FEATURE_LEVEL featureLevel[] = { D3D_FEATURE_LEVEL_11_1 }; //ok
+	DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
+	swapChainDesc.BufferCount = 2;
+	swapChainDesc.BufferDesc.Width = FGame::Instance()->GetDisplay()->GetScreenWidth();
+	swapChainDesc.BufferDesc.Height = FGame::Instance()->GetDisplay()->GetScreenHeight();
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
+	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.OutputWindow = FGame::Instance()->GetDisplay()->GetHWnd();
+	swapChainDesc.Windowed = true;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc.SampleDesc.Quality = 0;
+	auto result = D3D11CreateDeviceAndSwapChain(
+		nullptr,
+		D3D_DRIVER_TYPE_HARDWARE,
+		nullptr,
+		D3D11_CREATE_DEVICE_DEBUG,
+		featureLevel,
+		1,
+		D3D11_SDK_VERSION,
+		&swapChainDesc,
+		swapChain.GetAddressOf(),
+		device.GetAddressOf(),
+		nullptr,
+		context.GetAddressOf()
+	);
+	assert(SUCCEEDED(result));
+	result = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+	assert(SUCCEEDED(result));
+	result = device->CreateRenderTargetView(backBuffer.Get(), nullptr, &renderView);
+	assert(SUCCEEDED(result));
 
-    DXGI_SWAP_CHAIN_DESC SwapChainDesc = {};
-    SwapChainDesc.BufferCount = 2;
-    SwapChainDesc.BufferDesc.Width = FGame::Instance()->GetDisplay().GetScreenWidth();
-    SwapChainDesc.BufferDesc.Height = FGame::Instance()->GetDisplay().GetScreenHeight();
-    SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    SwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-    SwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-    SwapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-    SwapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-    SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    SwapChainDesc.OutputWindow = FGame::Instance()->GetDisplay().GetHWnd();
-    SwapChainDesc.Windowed = true;
-    SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-    SwapChainDesc.SampleDesc.Count = 1;
-    SwapChainDesc.SampleDesc.Quality = 0;
-	
-    D3D11CreateDeviceAndSwapChain(
-        nullptr,
-        D3D_DRIVER_TYPE_HARDWARE,
-        nullptr,
-        D3D11_CREATE_DEVICE_DEBUG,
-        FeatureLevel,
-        1,
-        D3D11_SDK_VERSION,
-        &SwapChainDesc,
-        &SwapChain,
-        &Device,
-        nullptr,
-        &Context);
-	
-    SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackTex);	// __uuidof(ID3D11Texture2D)
-    Device->CreateRenderTargetView(BackTex.Get(), nullptr, &RenderTargetView);
-    
-    D3D11_TEXTURE2D_DESC DepthTexDesc = {};
-    DepthTexDesc.ArraySize = 1;
-    DepthTexDesc.MipLevels = 1;
-    DepthTexDesc.Format = DXGI_FORMAT_D32_FLOAT;
-    DepthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-    DepthTexDesc.CPUAccessFlags = 0;
-    DepthTexDesc.MiscFlags = 0;
-    DepthTexDesc.Usage = D3D11_USAGE_DEFAULT;
-    DepthTexDesc.Width = FGame::Instance()->GetDisplay().GetScreenWidth();
-    DepthTexDesc.Height = FGame::Instance()->GetDisplay().GetScreenHeight();
-    DepthTexDesc.SampleDesc = { 1, 0 };
+	D3D11_TEXTURE2D_DESC depthTexDesc = {}; //ok
+	depthTexDesc.ArraySize = 1;
+	depthTexDesc.MipLevels = 1;
+	depthTexDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthTexDesc.CPUAccessFlags = 0;
+	depthTexDesc.MiscFlags = 0;
+	depthTexDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthTexDesc.Width = FGame::Instance()->GetDisplay()->GetScreenWidth();
+	depthTexDesc.Height = FGame::Instance()->GetDisplay()->GetScreenHeight();
+	depthTexDesc.SampleDesc = { 1, 0 };
+	result = device->CreateTexture2D(&depthTexDesc, nullptr, depthBuffer.GetAddressOf());
+	assert(SUCCEEDED(result));
+	result = device->CreateDepthStencilView(depthBuffer.Get(), nullptr, &depthView);
+	assert(SUCCEEDED(result));
 
-    Device->CreateTexture2D(&DepthTexDesc, nullptr, &DepthBuffer);
-    Device->CreateDepthStencilView(DepthBuffer.Get(), nullptr, &DepthView);
+	viewport = std::make_shared<D3D11_VIEWPORT>();
+	viewport->TopLeftX = 0;
+	viewport->TopLeftY = 0;
+	viewport->Width = static_cast<float>(FGame::Instance()->GetDisplay()->GetScreenWidth());
+	viewport->Height = static_cast<float>(FGame::Instance()->GetDisplay()->GetScreenHeight());
+	viewport->MinDepth = 0;
+	viewport->MaxDepth = 1.0f;
+
+	//SHADERS
+	InitializeShader("../GameFramework/Source/Shaders/LightAndShadowsShader.hlsl");
+
+	//TEXTURE
+	D3D11_SAMPLER_DESC samplerStateDesc = {};
+	samplerStateDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerStateDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerStateDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerStateDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	result = device->CreateSamplerState(&samplerStateDesc, samplerState.GetAddressOf());
+	assert(SUCCEEDED(result));
 }
 
-Microsoft::WRL::ComPtr<ID3D11Device> FRenderSystem::GetDevice() const
+void FRenderSystem::InitializeShader(std::string shaderFileName)
 {
-    return Device;
+	std::wstring fileName(shaderFileName.begin(), shaderFileName.end());
+	ID3DBlob* errorCode = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderByteCode;
+	auto result = D3DCompileFromFile(
+		fileName.c_str(),
+		nullptr,
+		nullptr,
+		"VSMain",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		vertexShaderByteCode.GetAddressOf(),
+		&errorCode
+	);
+	if (FAILED(result))
+	{
+		if (errorCode)
+		{
+			const char* compileErrors = (char*)(errorCode->GetBufferPointer());
+			std::cout << compileErrors << std::endl;
+		}
+		else
+		{
+			std::cout << "Missing Shader File: " << shaderFileName << std::endl;
+		}
+		return;
+	}
+	result = device->CreateVertexShader(
+		vertexShaderByteCode->GetBufferPointer(),
+		vertexShaderByteCode->GetBufferSize(),
+		nullptr, vertexShader.GetAddressOf()
+	);
+	assert(SUCCEEDED(result));
+
+	Microsoft::WRL::ComPtr<ID3DBlob> pixelShaderByteCode;
+	result = D3DCompileFromFile(
+		fileName.c_str(),
+		nullptr,
+		nullptr,
+		"PSMain",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		pixelShaderByteCode.GetAddressOf(),
+		&errorCode
+	);
+	assert(SUCCEEDED(result));
+	result = device->CreatePixelShader(
+		pixelShaderByteCode->GetBufferPointer(),
+		pixelShaderByteCode->GetBufferSize(),
+		nullptr, pixelShader.GetAddressOf()
+	);
+	assert(SUCCEEDED(result));
+
+	D3D11_INPUT_ELEMENT_DESC inputElements[] = {
+		D3D11_INPUT_ELEMENT_DESC {
+			"POSITION",
+			0,
+			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			0,
+			0,
+			D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+		D3D11_INPUT_ELEMENT_DESC {
+			"TEXCOORD",
+			0,
+			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			0,
+			D3D11_APPEND_ALIGNED_ELEMENT,
+			D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		},
+		D3D11_INPUT_ELEMENT_DESC {
+			"NORMAL",
+			0,
+			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			0,
+			D3D11_APPEND_ALIGNED_ELEMENT,
+			D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		}
+	};
+	result = device->CreateInputLayout(
+		inputElements,
+		3,
+		vertexShaderByteCode->GetBufferPointer(),
+		vertexShaderByteCode->GetBufferSize(),
+		inputLayout.GetAddressOf()
+	);
+	assert(SUCCEEDED(result));
+
+	CD3D11_RASTERIZER_DESC rastDesc = {};
+	rastDesc.CullMode = D3D11_CULL_FRONT;
+	rastDesc.FillMode = D3D11_FILL_SOLID;
+	result = device->CreateRasterizerState(&rastDesc, rastState.GetAddressOf());
+	assert(SUCCEEDED(result));
 }
 
-Microsoft::WRL::ComPtr<ID3D11DeviceContext> FRenderSystem::GetContext() const
+void FRenderSystem::PrepareFrame()
 {
-    return Context;
+	context->ClearState();
+	context->OMSetRenderTargets(1, renderView.GetAddressOf(), depthView.Get());
+	context->RSSetViewports(1, viewport.get());
+	float backgroundColor[] = { 0.2f, 0.2f, 0.2f };
+	context->ClearRenderTargetView(renderView.Get(), backgroundColor);
+	context->ClearDepthStencilView(depthView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
-void FRenderSystem::BeginFrame()
+void FRenderSystem::Draw()
 {
-    Viewport.Width = static_cast<float>(FGame::Instance()->GetDisplay().GetScreenWidth());
-    Viewport.Height = static_cast<float>(FGame::Instance()->GetDisplay().GetScreenHeight());
-    Viewport.MinDepth = 0;
-    Viewport.MaxDepth = 1.0f;
-    Viewport.TopLeftX = 0;
-    Viewport.TopLeftY = 0;
-
-    Context->ClearState();
-    Context->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), DepthView.Get());
-    Context->RSSetViewports(1, &Viewport);
-    
-    const float Color[] = { 0.53f, 0.8f, 0.92f, 1.0f };
-    Context->ClearRenderTargetView(RenderTargetView.Get(), Color);
-    Context->ClearDepthStencilView(DepthView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	for (auto& renderComponent : renderComponents)
+	{
+		renderComponent->Draw();
+	}
 }
 
 void FRenderSystem::EndFrame()
 {
-    Context->OMSetRenderTargets(0, nullptr, nullptr);
-
-    SwapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
+	context->OMSetRenderTargets(0, nullptr, nullptr);
+	swapChain->Present(1, 0);
 }
