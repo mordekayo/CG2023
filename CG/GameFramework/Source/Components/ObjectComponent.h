@@ -8,11 +8,11 @@ class FObjectComponent
 {
 public:
 
-    FGameObject* gameObject;
+    FGameObject* GameObject;
 
     virtual ~FObjectComponent() {}
     virtual void Initialize() {}
-    virtual void Update(float deltaTime) {}
+    virtual void Update(float DeltaTime) {}
 
-    virtual void MouseEventHandler(const InputDevice::MouseMoveEventArgs& mouseData) {}
+    virtual void MouseEventHandler(const FInputDevice::MouseMoveEventArgs& MouseData) {}
 };

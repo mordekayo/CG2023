@@ -17,61 +17,57 @@ FGameObject::FGameObject(FGameObject* parent)
 
 FGameObject::~FGameObject()
 {
-    for (auto component : components)
+    for (FObjectComponent* Component : Components)
     {
-        delete component;
+        delete Component;
     }
-    components.clear();
+    Components.clear();
 }
 
 void FGameObject::Initialize()
 {
-    for (const auto& component : components)
+    for (FObjectComponent* Component : Components)
     {
-        component->Initialize();
+        Component->Initialize();
     }
 }
 
 void FGameObject::Update(float deltaTime)
 {
-    for (const auto& component : components)
+    for (FObjectComponent* Component : Components)
     {
-        component->Update(deltaTime);
+        Component->Update(deltaTime);
     }
 }
 
-void FGameObject::AddComponent(FObjectComponent* component)
+void FGameObject::AddComponent(FObjectComponent* Component)
 {
-    components.push_back(component);
-    component->gameObject = this;
+    Components.push_back(Component);
+    Component->GameObject = this;
 }
 
-void FGameObject::CreatePlane(float planeSize, std::string textureFileName)
+void FGameObject::CreatePlane(float PlaneSize, const std::string& TextureFileName)
 {
-    MeshComponent = new FMeshComponent(textureFileName);
-    MeshComponent->AddPlane(planeSize);
+    MeshComponent = new FMeshComponent(TextureFileName);
+    MeshComponent->AddPlane(PlaneSize);
     AddComponent(MeshComponent);
-	
-    //SHADOWS
+    
     RenderShadowsComponent = new FRenderShadowsComponent(MeshComponent);
     AddComponent(RenderShadowsComponent);
-
-    //MAIN FRAME
+    
     RenderComponent = new FRenderComponent(MeshComponent);
     AddComponent(RenderComponent);
 }
 
-void FGameObject::CreateMesh(float scaleRate, std::string textureFileName, std::string objectFileName)
+void FGameObject::CreateMesh(float ScaleRate, const std::string& TextureFileName, const std::string& ObjectFileName)
 {
-    MeshComponent = new FMeshComponent(textureFileName);
-    MeshComponent->AddMesh(scaleRate, objectFileName);
+    MeshComponent = new FMeshComponent(TextureFileName);
+    MeshComponent->AddMesh(ScaleRate, ObjectFileName);
     AddComponent(MeshComponent);
-	
-    //SHADOWS
+    
     RenderShadowsComponent = new FRenderShadowsComponent(MeshComponent);
     AddComponent(RenderShadowsComponent);
 
-    //MAIN FRAME
     RenderComponent = new FRenderComponent(MeshComponent);
     AddComponent(RenderComponent);
 }

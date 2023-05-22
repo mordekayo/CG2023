@@ -3,8 +3,8 @@
 
 #include "Sources.h"
 
+class FInputDevice;
 class FDisplayWin32;
-class InputDevice;
 class FRenderSystem;
 class FShadowsRenderSystem;
 class FGameObject;
@@ -15,28 +15,32 @@ class FGame
 {
 public:
 
-	LPCWSTR	name;
-	int clientWidth;
-	int clientHeight;
-	static FGame* GameInstance;
 	FGame();
 	FGame(const FGame&) = delete;
 	void operator = (const FGame&) = delete;
 	virtual ~FGame() = default;
-	static FGame* Instance();
-	float totalTime;
-	float deltaTime;
-	unsigned int frameCount;
-	std::shared_ptr<std::chrono::time_point<std::chrono::steady_clock>> startTime;
-	std::shared_ptr<std::chrono::time_point<std::chrono::steady_clock>> prevTime;
-	std::shared_ptr<FDisplayWin32>  display;
-	std::shared_ptr<InputDevice>   inputDevice;
-	std::shared_ptr<FRenderSystem>  render;
-	std::shared_ptr<FShadowsRenderSystem> renderShadows;
 
-	FCameraComponent* currentCamera;
-	FDirectionalLightComponent* currentLight;
-	std::vector<FGameObject*> gameObjects;
+	static FGame* Instance();
+	static FGame* GameInstance;
+	
+	LPCWSTR	Name;
+	int ClientWidth;
+	int ClientHeight;
+	
+	float TotalTime;
+	float DeltaTime;
+	unsigned int FrameCount;
+	std::chrono::time_point<std::chrono::steady_clock> StartTime;
+	std::chrono::time_point<std::chrono::steady_clock> PrevTime;
+	
+	FDisplayWin32*  Display;
+	FInputDevice*  InputDevice;
+	FRenderSystem* RenderSystem;
+	FShadowsRenderSystem* RenderShadows;
+
+	FCameraComponent* CurrentCamera;
+	FDirectionalLightComponent* CurrentLight;
+	std::vector<FGameObject*> GameObjects;
 
 	void Run();
 	virtual void PrepareResources();
@@ -48,10 +52,10 @@ public:
 
 	void AddGameObject(FGameObject* gameObject);
 
-	std::shared_ptr<FDisplayWin32>  GetDisplay();
-	std::shared_ptr<InputDevice>   GetInputDevice();
-	std::shared_ptr<FRenderSystem>  GetRenderSystem();
-	std::shared_ptr<FShadowsRenderSystem> GetRenderShadowsSystem();
+	FDisplayWin32*  GetDisplay();
+	FInputDevice*   GetInputDevice();
+	FRenderSystem*  GetRenderSystem();
+	FShadowsRenderSystem* GetRenderShadowsSystem();
 
 	LRESULT MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
 };

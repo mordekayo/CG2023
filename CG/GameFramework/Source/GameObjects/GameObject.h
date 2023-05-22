@@ -14,21 +14,21 @@ class FGameObject
 public:
 
 	//COMPONENTS
-	FTransformComponent* TransformComponent;
-	FRenderComponent* RenderComponent;
-	FMeshComponent* MeshComponent;
-	FRenderShadowsComponent* RenderShadowsComponent;
+	FTransformComponent* TransformComponent = nullptr;
+	FRenderComponent* RenderComponent = nullptr;
+	FMeshComponent* MeshComponent = nullptr;
+	FRenderShadowsComponent* RenderShadowsComponent = nullptr;
 	
-	std::vector<FObjectComponent*> components;
+	std::vector<FObjectComponent*> Components;
 
 	FGameObject(FGameObject* parent = nullptr);
-	~FGameObject();
+	virtual ~FGameObject();
 
 	virtual void Initialize();
-	virtual void Update(float deltaTime);
+	virtual void Update(float DeltaTime);
 
-	void AddComponent(FObjectComponent* component);
+	void AddComponent(FObjectComponent* Component);
 
-	void CreatePlane(float planeSize, std::string textureFileName);
-	void CreateMesh(float scaleRate, std::string textureFileName, std::string objectFileName);
+	void CreatePlane(float PlaneSize, const std::string& TextureFileName);
+	void CreateMesh(float ScaleRate, const std::string& TextureFileName, const std::string& ObjectFileName);
 };

@@ -12,16 +12,16 @@ FGame* FGame::GameInstance = nullptr;
 
 FGame::FGame()
 {
-	name = L"My Game Engine";
-	clientWidth = 800;
-	clientHeight = 800;
-	totalTime = 0;
-	deltaTime = 0;
-	frameCount = 0;
-	startTime = std::make_shared<std::chrono::time_point<std::chrono::steady_clock>>();
-	prevTime = std::make_shared<std::chrono::time_point<std::chrono::steady_clock>>();
-	currentCamera = nullptr;
-	currentLight  = nullptr;
+	Name = L"My Game Engine";
+	ClientWidth = 800;
+	ClientHeight = 800;
+	TotalTime = 0;
+	DeltaTime = 0;
+	FrameCount = 0;
+	StartTime = std::chrono::time_point<std::chrono::steady_clock>();
+	PrevTime = std::chrono::time_point<std::chrono::steady_clock>();
+	CurrentCamera = nullptr;
+	CurrentLight  = nullptr;
 }
 
 FGame* FGame::Instance()
@@ -35,27 +35,27 @@ FGame* FGame::Instance()
 
 void FGame::PrepareResources()
 {
-	display = std::make_shared<FDisplayWin32>(name, clientWidth, clientHeight, WndProc);
-	inputDevice = std::make_shared<InputDevice>(this);
-	render = std::make_shared<FRenderSystem>();
-	renderShadows = std::make_shared<FShadowsRenderSystem>();
+	Display = new FDisplayWin32(Name, ClientWidth, ClientHeight, WndProc);
+	InputDevice = new FInputDevice(this);
+	RenderSystem =  new FRenderSystem();
+	RenderShadows = new FShadowsRenderSystem();
 }
 
 void FGame::Initialize()
 {
-	for (auto& object : gameObjects) {
-		object->Initialize();
+	for (const auto& Object : GameObjects)
+	{
+		Object->Initialize();
 	}
 }
-
 
 void FGame::Run()
 {
 	PrepareResources();
 	Initialize();
 
-	*startTime = std::chrono::steady_clock::now();
-	*prevTime = *startTime;
+	StartTime = std::chrono::steady_clock::now();
+	PrevTime = StartTime;
 
 	MSG msg = {};
 	while (msg.message != WM_QUIT)
@@ -68,18 +68,18 @@ void FGame::Run()
 		else
 		{
 			auto curTime = std::chrono::steady_clock::now();
-			deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - *prevTime).count() / 1000000.0f;
-			*prevTime = curTime;
-			totalTime += deltaTime;
-			frameCount++;
-			if (totalTime > 1.0f)
+			DeltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
+			PrevTime = curTime;
+			TotalTime += DeltaTime;
+			FrameCount++;
+			if (TotalTime > 1.0f)
 			{
-				float fps = frameCount / totalTime;
-				totalTime -= 1.0f;
+				float fps = FrameCount / TotalTime;
+				TotalTime -= 1.0f;
 				WCHAR text[256];
 				swprintf_s(text, TEXT("FPS: %f"), fps);
 				SetWindowText(FGame::Instance()->GetDisplay()->GetHWnd(), text);
-				frameCount = 0;
+				FrameCount = 0;
 			}
 			Update();
 			Draw();
@@ -90,7 +90,7 @@ void FGame::Run()
 
 void FGame::UpdateInternal()
 {
-	if (inputDevice->IsKeyDown(Keys::Escape))
+	if (InputDevice->IsKeyDown(Keys::Escape))
 	{
 		PostQuitMessage(0);
 	}
@@ -99,54 +99,55 @@ void FGame::UpdateInternal()
 void FGame::Update()
 {
 	UpdateInternal();
-	for (auto& object : gameObjects)
+	for (const auto& Object : GameObjects)
 	{
-		object->Update(deltaTime);
+		Object->Update(DeltaTime);
 	}
 }
 
 void FGame::Draw()
 {
-	renderShadows->PrepareFrame();
-	renderShadows->Draw();
-	renderShadows->EndFrame();
-	render->PrepareFrame();
-	render->Draw();
-	render->EndFrame();
+	RenderShadows->PrepareFrame();
+	RenderShadows->Draw();
+	RenderShadows->EndFrame();
+	
+	RenderSystem->PrepareFrame();
+	RenderSystem->Draw();
+	RenderSystem->EndFrame();
 }
 
 void FGame::DestroyResources()
 {
-	for (auto& object : gameObjects)
+	for (const FGameObject* object : GameObjects)
 	{
 		delete object;
 	}
-	gameObjects.clear();
+	GameObjects.clear();
 }
 
 void FGame::AddGameObject(FGameObject* gameObject)
 {
-	gameObjects.push_back(gameObject);
+	GameObjects.push_back(gameObject);
 }
 
-std::shared_ptr<FDisplayWin32>  FGame::GetDisplay()
+FDisplayWin32*  FGame::GetDisplay()
 {
-	return display;
+	return Display;
 }
 
-std::shared_ptr<InputDevice>   FGame::GetInputDevice()
+FInputDevice*   FGame::GetInputDevice()
 {
-	return inputDevice;
+	return InputDevice;
 }
 
-std::shared_ptr<FRenderSystem>  FGame::GetRenderSystem()
+FRenderSystem*  FGame::GetRenderSystem()
 {
-	return render;
+	return RenderSystem;
 }
 
-std::shared_ptr<FShadowsRenderSystem> FGame::GetRenderShadowsSystem()
+FShadowsRenderSystem* FGame::GetRenderShadowsSystem()
 {
-	return renderShadows;
+	return RenderShadows;
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)

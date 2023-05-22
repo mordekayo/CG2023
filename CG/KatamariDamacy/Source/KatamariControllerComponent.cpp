@@ -6,36 +6,36 @@
 
 KatamariControllerComponent::KatamariControllerComponent()
 {
-    this->katamariSpeed = 0.0f;
-    this->cameraTransform = nullptr;
+    KatamariSpeed = 0.0f;
+    CameraTransform = nullptr;
 }
 
-void KatamariControllerComponent::Update(float deltaTime)
+void KatamariControllerComponent::Update(float DeltaTime)
 {
-    DirectX::SimpleMath::Vector3 left = cameraTransform->GetLeft();
-    DirectX::SimpleMath::Vector3 forward = left.Cross(DirectX::SimpleMath::Vector3::UnitY);
+    const DirectX::SimpleMath::Vector3 Left = CameraTransform->GetLeft();
+    const DirectX::SimpleMath::Vector3 Forward = Left.Cross(DirectX::SimpleMath::Vector3::UnitY);
     if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::A))
     {
-        gameObject->TransformComponent->SetRotation(gameObject->TransformComponent->GetRotation() *
-            DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, - katamariSpeed * deltaTime / 1.0f));
-        gameObject->TransformComponent->SetPosition(gameObject->TransformComponent->GetPosition() + katamariSpeed * deltaTime * left);
+        GameObject->TransformComponent->SetRotation(GameObject->TransformComponent->GetRotation() *
+            DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(Forward, - KatamariSpeed * DeltaTime / 1.0f));
+        GameObject->TransformComponent->SetPosition(GameObject->TransformComponent->GetPosition() + KatamariSpeed * DeltaTime * Left);
     }
     if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::D))
     {
-        gameObject->TransformComponent->SetRotation(gameObject->TransformComponent->GetRotation() *
-            DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(forward, katamariSpeed * deltaTime / 1.0f));
-        gameObject->TransformComponent->SetPosition(gameObject->TransformComponent->GetPosition() - katamariSpeed * deltaTime * left);
+        GameObject->TransformComponent->SetRotation(GameObject->TransformComponent->GetRotation() *
+            DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(Forward, KatamariSpeed * DeltaTime / 1.0f));
+        GameObject->TransformComponent->SetPosition(GameObject->TransformComponent->GetPosition() - KatamariSpeed * DeltaTime * Left);
     }
     if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::W))
     {
-        gameObject->TransformComponent->SetRotation(gameObject->TransformComponent->GetRotation() *
-            DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(left, katamariSpeed * deltaTime / 1.0f));
-        gameObject->TransformComponent->SetPosition(gameObject->TransformComponent->GetPosition() + katamariSpeed * deltaTime * forward);
+        GameObject->TransformComponent->SetRotation(GameObject->TransformComponent->GetRotation() *
+            DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(Left, KatamariSpeed * DeltaTime / 1.0f));
+        GameObject->TransformComponent->SetPosition(GameObject->TransformComponent->GetPosition() + KatamariSpeed * DeltaTime * Forward);
     }
     if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::S))
     {
-        gameObject->TransformComponent->SetRotation(gameObject->TransformComponent->GetRotation() *
-            DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(left, - katamariSpeed * deltaTime / 1.0f));
-        gameObject->TransformComponent->SetPosition(gameObject->TransformComponent->GetPosition() - katamariSpeed * deltaTime * forward);
+        GameObject->TransformComponent->SetRotation(GameObject->TransformComponent->GetRotation() *
+            DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(Left, - KatamariSpeed * DeltaTime / 1.0f));
+        GameObject->TransformComponent->SetPosition(GameObject->TransformComponent->GetPosition() - KatamariSpeed * DeltaTime * Forward);
     }
 }

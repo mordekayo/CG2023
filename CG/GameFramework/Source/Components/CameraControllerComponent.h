@@ -9,15 +9,15 @@ class FCameraControllerComponent : public FObjectComponent
 {
 public:
 
-    FTransformComponent* aim;
-    float yaw;
-    float pitch;
-    float minPitch;
-    float maxPitch;
-    float armLength;
+    FTransformComponent* Target;
+    float Yaw;
+    float Pitch;
+    float MinPitch;
+    float MaxPitch;
+    float ArmLength;
 
     FCameraControllerComponent();
-    virtual void Update(float deltaTime) override;
+    virtual void Update(float DeltaTime) override;
     virtual void Initialize() override;
-    virtual void MouseEventHandler(const InputDevice::MouseMoveEventArgs& mouseData) override;
+    virtual void MouseEventHandler(const FInputDevice::MouseMoveEventArgs& MouseData) override;
 };

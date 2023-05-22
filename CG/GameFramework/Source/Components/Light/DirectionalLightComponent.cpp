@@ -18,8 +18,8 @@ void FDirectionalLightComponent::Initialize()
 {
 	D3D11_TEXTURE2D_DESC textureDesc = {}; // ok
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
-	textureDesc.Width = static_cast<float>(shadowMapSize);
-	textureDesc.Height = static_cast<float>(shadowMapSize);
+	textureDesc.Width = static_cast<UINT>(shadowMapSize);
+	textureDesc.Height = static_cast<UINT>(shadowMapSize);
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 4; // shadowCascadeLevels.size()
 	textureDesc.Format = DXGI_FORMAT_R32_TYPELESS;
@@ -28,7 +28,7 @@ void FDirectionalLightComponent::Initialize()
 	textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.CPUAccessFlags = 0;
 	textureDesc.MiscFlags = 0;
-	auto result = FGame::Instance()->GetRenderSystem()->device->CreateTexture2D(&textureDesc, nullptr, shadowMapTexture2D.GetAddressOf());
+	auto result = FGame::Instance()->GetRenderSystem()->Device->CreateTexture2D(&textureDesc, nullptr, shadowMapTexture2D.GetAddressOf());
 	assert(SUCCEEDED(result));
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc; // ok
@@ -38,7 +38,7 @@ void FDirectionalLightComponent::Initialize()
 	depthStencilViewDesc.Texture2DArray.MipSlice = 0;
 	depthStencilViewDesc.Texture2DArray.FirstArraySlice = 0;
 	depthStencilViewDesc.Texture2DArray.ArraySize = 4; // shadowCascadeLevels.size()
-	result = FGame::Instance()->GetRenderSystem()->device->CreateDepthStencilView(shadowMapTexture2D.Get(), &depthStencilViewDesc, depthStencilView.GetAddressOf());
+	result = FGame::Instance()->GetRenderSystem()->Device->CreateDepthStencilView(shadowMapTexture2D.Get(), &depthStencilViewDesc, depthStencilView.GetAddressOf());
 	assert(SUCCEEDED(result));
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc; // ok
@@ -48,7 +48,7 @@ void FDirectionalLightComponent::Initialize()
 	shaderResourceViewDesc.Texture2DArray.MipLevels = 1;
 	shaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
 	shaderResourceViewDesc.Texture2DArray.ArraySize = 4; // shadowCascadeLevels.size()
-	result = FGame::Instance()->GetRenderSystem()->device->CreateShaderResourceView(shadowMapTexture2D.Get(), &shaderResourceViewDesc, textureResourceView.GetAddressOf());
+	result = FGame::Instance()->GetRenderSystem()->Device->CreateShaderResourceView(shadowMapTexture2D.Get(), &shaderResourceViewDesc, textureResourceView.GetAddressOf());
 	assert(SUCCEEDED(result));
 
 	viewport = std::make_shared<D3D11_VIEWPORT>(); // ok
@@ -62,7 +62,7 @@ void FDirectionalLightComponent::Initialize()
 
 DirectX::SimpleMath::Matrix FDirectionalLightComponent::GetViewMatrix()
 {
-	return gameObject->TransformComponent->GetView();
+	return GameObject->TransformComponent->GetView();
 }
 
 DirectX::SimpleMath::Matrix FDirectionalLightComponent::GetProjectionMatrix()
@@ -86,9 +86,9 @@ std::vector<DirectX::SimpleMath::Vector4> FDirectionalLightComponent::GetFrustum
 			{
 				const DirectX::SimpleMath::Vector4 pt =
 					DirectX::SimpleMath::Vector4::Transform(DirectX::SimpleMath::Vector4(
-						2.0f * x - 1.0f,
-						2.0f * y - 1.0f,
-						z,
+						2.0f * static_cast<float>(x) - 1.0f,
+						2.0f * static_cast<float>(y) - 1.0f,
+						static_cast<float>(z),
 						1.0f), inv);
 				frustumCorners.push_back(pt / pt.w);
 			}
@@ -101,19 +101,19 @@ DirectX::SimpleMath::Matrix FDirectionalLightComponent::GetLightSpaceMatrix(cons
 {
 	DirectX::SimpleMath::Matrix rotation = DirectX::SimpleMath::Matrix::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Up, DirectX::XM_PI);
 	const DirectX::SimpleMath::Matrix perspective = rotation * DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(
-		FGame::Instance()->currentCamera->fovAngle,
-		FGame::Instance()->currentCamera->aspect,
+		FGame::Instance()->CurrentCamera->FovAngle,
+		FGame::Instance()->CurrentCamera->Aspect,
 		nearZ,
 		farZ
 	);
-	const std::vector<DirectX::SimpleMath::Vector4> corners = GetFrustumCornerWorldSpace(FGame::Instance()->currentCamera->gameObject->TransformComponent->GetView(), perspective);
+	const std::vector<DirectX::SimpleMath::Vector4> corners = GetFrustumCornerWorldSpace(FGame::Instance()->CurrentCamera->GameObject->TransformComponent->GetView(), perspective);
 
 	DirectX::SimpleMath::Vector3 center = DirectX::SimpleMath::Vector3::Zero;
 	for (const auto& v : corners)
 	{
 		center += DirectX::SimpleMath::Vector3(v);
 	}
-	center /= corners.size();
+	center /= static_cast<float>(corners.size());
 	const auto lightView = DirectX::SimpleMath::Matrix::CreateLookAt(
 		center,
 		center + direction,
@@ -148,9 +148,9 @@ DirectX::SimpleMath::Matrix FDirectionalLightComponent::GetLightSpaceMatrix(cons
 std::vector<DirectX::SimpleMath::Matrix> FDirectionalLightComponent::GetLightSpaceMatrices()
 {
 	std::vector<DirectX::SimpleMath::Matrix> ret;
-	ret.push_back(GetLightSpaceMatrix(FGame::Instance()->currentCamera->nearZ, shadowCascadeLevels[0]));
+	ret.push_back(GetLightSpaceMatrix(FGame::Instance()->CurrentCamera->NearZ, shadowCascadeLevels[0]));
 	ret.push_back(GetLightSpaceMatrix(shadowCascadeLevels[0], shadowCascadeLevels[1]));
 	ret.push_back(GetLightSpaceMatrix(shadowCascadeLevels[1], shadowCascadeLevels[2]));
-	ret.push_back(GetLightSpaceMatrix(shadowCascadeLevels[2], FGame::Instance()->currentCamera->farZ));
+	ret.push_back(GetLightSpaceMatrix(shadowCascadeLevels[2], FGame::Instance()->CurrentCamera->FarZ));
 	return ret;
 }

@@ -7,11 +7,11 @@ class KatamariControllerComponent : public FObjectComponent
 {
 public:
 
-    float katamariSpeed;
+    float KatamariSpeed;
 
-    FTransformComponent* cameraTransform;
+    FTransformComponent* CameraTransform;
 
     KatamariControllerComponent();
-    virtual void Update(float deltaTime) override;
+    virtual void Update(float DeltaTime) override;
 };
 

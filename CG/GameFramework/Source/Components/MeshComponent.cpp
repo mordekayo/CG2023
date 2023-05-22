@@ -3,114 +3,120 @@
 #include "Render/RenderSystem.h"
 #include <WICTextureLoader.h>
 
-FMeshComponent::FMeshComponent(std::string textureFileName)
+FMeshComponent::FMeshComponent(const std::string& TextureFileName)
 {
-	this->textureFileName = textureFileName;
+	this->TextureFileName = TextureFileName;
 }
 
 void FMeshComponent::Initialize()
 {
-	D3D11_BUFFER_DESC vertexBufDesc = {};
-	vertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufDesc.CPUAccessFlags = 0;
-	vertexBufDesc.MiscFlags = 0;
-	vertexBufDesc.StructureByteStride = 0;
-	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * static_cast<UINT>(std::size(points));
-	D3D11_SUBRESOURCE_DATA vertexData = {};
-	vertexData.pSysMem = points.data();
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
-	auto result = FGame::Instance()->GetRenderSystem()->device->CreateBuffer(&vertexBufDesc, &vertexData, vertexBuffer.GetAddressOf());
+	D3D11_BUFFER_DESC VertexBufDesc = {};
+	VertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
+	VertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	VertexBufDesc.CPUAccessFlags = 0;
+	VertexBufDesc.MiscFlags = 0;
+	VertexBufDesc.StructureByteStride = 0;
+	VertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * static_cast<UINT>(std::size(Points));
+	D3D11_SUBRESOURCE_DATA VertexData = {};
+	VertexData.pSysMem = Points.data();
+	VertexData.SysMemPitch = 0;
+	VertexData.SysMemSlicePitch = 0;
+	auto result = FGame::Instance()->GetRenderSystem()->Device->CreateBuffer(&VertexBufDesc, &VertexData, VertexBuffer.GetAddressOf());
 	assert(SUCCEEDED(result));
 
-	D3D11_BUFFER_DESC indexBufDesc = {};
-	indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufDesc.CPUAccessFlags = 0;
-	indexBufDesc.MiscFlags = 0;
-	indexBufDesc.StructureByteStride = 0;
-	indexBufDesc.ByteWidth = sizeof(int) * static_cast<UINT>(std::size(indices));
-	D3D11_SUBRESOURCE_DATA indexData = {};
-	indexData.pSysMem = indices.data();
-	indexData.SysMemPitch = 0;
-	indexData.SysMemSlicePitch = 0;
-	result = FGame::Instance()->GetRenderSystem()->device->CreateBuffer(&indexBufDesc, &indexData, indexBuffer.GetAddressOf());
+	D3D11_BUFFER_DESC IndexBufDesc = {};
+	IndexBufDesc.Usage = D3D11_USAGE_DEFAULT;
+	IndexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	IndexBufDesc.CPUAccessFlags = 0;
+	IndexBufDesc.MiscFlags = 0;
+	IndexBufDesc.StructureByteStride = 0;
+	IndexBufDesc.ByteWidth = sizeof(int) * static_cast<UINT>(std::size(Indices));
+	D3D11_SUBRESOURCE_DATA IndexData = {};
+	IndexData.pSysMem = Indices.data();
+	IndexData.SysMemPitch = 0;
+	IndexData.SysMemSlicePitch = 0;
+	result = FGame::Instance()->GetRenderSystem()->Device->CreateBuffer(&IndexBufDesc, &IndexData, IndexBuffer.GetAddressOf());
 	assert(SUCCEEDED(result));
 
-	std::wstring textureName(textureFileName.begin(), textureFileName.end());
+	std::wstring TextureName(TextureFileName.begin(), TextureFileName.end());
 	result = DirectX::CreateWICTextureFromFile(
-		FGame::Instance()->GetRenderSystem()->device.Get(),
-		FGame::Instance()->GetRenderSystem()->context.Get(),
-		textureName.c_str(),
-		texture.GetAddressOf(),
-		textureView.GetAddressOf()
+		FGame::Instance()->GetRenderSystem()->Device.Get(),
+		FGame::Instance()->GetRenderSystem()->Context.Get(),
+		TextureName.c_str(),
+		Texture.GetAddressOf(),
+		TextureView.GetAddressOf()
 	);
 	assert(SUCCEEDED(result));
 }
 
-void FMeshComponent::AddPlane(float planeSize)
+void FMeshComponent::AddPlane(float PlaneSize)
 {
-	points = {
-		Vector4(planeSize,   planeSize, 0.0f, 1.0f), Vector4(planeSize, planeSize, 0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 0.0f),
-		Vector4(-planeSize, -planeSize, 0.0f, 1.0f), Vector4(0.0f,       0.0f,    0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 0.0f),
-		Vector4(planeSize, -planeSize, 0.0f, 1.0f), Vector4(planeSize,   0.0f,    0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 0.0f),
-		Vector4(-planeSize,   planeSize, 0.0f, 1.0f), Vector4(0.0f,     planeSize, 0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 0.0f)
+	Points =
+	{
+		Vector4(PlaneSize,   PlaneSize, 0.0f, 1.0f), Vector4(PlaneSize, PlaneSize, 0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 0.0f),
+		Vector4(-PlaneSize, -PlaneSize, 0.0f, 1.0f), Vector4(0.0f,       0.0f,    0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 0.0f),
+		Vector4(PlaneSize, -PlaneSize, 0.0f, 1.0f), Vector4(PlaneSize,   0.0f,    0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 0.0f),
+		Vector4(-PlaneSize,   PlaneSize, 0.0f, 1.0f), Vector4(0.0f,     PlaneSize, 0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 0.0f)
 	};
-	indices = { 0, 1, 2, 1, 0, 3 };
+	Indices = { 0, 1, 2, 1, 0, 3 };
 }
-void FMeshComponent::AddMesh(float scaleRate, std::string objectFileName)
+void FMeshComponent::AddMesh(float ScaleRate, const std::string& ObjectFileName)
 {
-	Assimp::Importer importer;
-	const aiScene* pScene = importer.ReadFile(objectFileName, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
+	Assimp::Importer Importer;
+	const aiScene* Scene = Importer.ReadFile(ObjectFileName, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
 
-	if (!pScene) { return; }
-
-	ProcessNode(pScene->mRootNode, pScene, scaleRate);
-}
-void FMeshComponent::ProcessNode(aiNode* node, const aiScene* scene, float scaleRate)
-{
-	for (UINT i = 0; i < node->mNumMeshes; i++)
+	if (!Scene)
 	{
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		ProcessMesh(mesh, scene, scaleRate);
+		return;
 	}
 
-	for (UINT i = 0; i < node->mNumChildren; i++)
+	ProcessNode(Scene->mRootNode, Scene, ScaleRate);
+}
+void FMeshComponent::ProcessNode(aiNode* Node, const aiScene* Scene, float ScaleRate)
+{
+	for (UINT i = 0; i < Node->mNumMeshes; i++)
 	{
-		ProcessNode(node->mChildren[i], scene, scaleRate);
+		aiMesh* Mesh = Scene->mMeshes[Node->mMeshes[i]];
+		ProcessMesh(Mesh, Scene, ScaleRate);
+	}
+
+	for (UINT i = 0; i < Node->mNumChildren; i++)
+	{
+		ProcessNode(Node->mChildren[i], Scene, ScaleRate);
 	}
 }
-void FMeshComponent::ProcessMesh(aiMesh* mesh, const aiScene* scene, float scaleRate)
+void FMeshComponent::ProcessMesh(aiMesh* Mesh, const aiScene* Scene, float ScaleRate)
 {
-	for (UINT i = 0; i < mesh->mNumVertices; i++) {
-		DirectX::SimpleMath::Vector4 textureCoordinate = {};
+	for (UINT i = 0; i < Mesh->mNumVertices; i++)
+	{
+		DirectX::SimpleMath::Vector4 TextureCoordinate = {};
 
-		if (mesh->mTextureCoords[0])
+		if (Mesh->mTextureCoords[0])
 		{
-			textureCoordinate.x = (float)mesh->mTextureCoords[0][i].x;
-			textureCoordinate.y = (float)mesh->mTextureCoords[0][i].y;
-			textureCoordinate.z = 0;
-			textureCoordinate.w = 0;
+			TextureCoordinate.x = (float)Mesh->mTextureCoords[0][i].x;
+			TextureCoordinate.y = (float)Mesh->mTextureCoords[0][i].y;
+			TextureCoordinate.z = 0;
+			TextureCoordinate.w = 0;
 		}
 
-		DirectX::XMFLOAT4 normal;
-		normal.x = mesh->mNormals[i].x;
-		normal.y = mesh->mNormals[i].y;
-		normal.z = mesh->mNormals[i].z;
-		normal.w = 0;
+		DirectX::XMFLOAT4 Normal;
+		Normal.x = Mesh->mNormals[i].x;
+		Normal.y = Mesh->mNormals[i].y;
+		Normal.z = Mesh->mNormals[i].z;
+		Normal.w = 0;
 
-		points.push_back({ mesh->mVertices[i].x * scaleRate, mesh->mVertices[i].y * scaleRate, mesh->mVertices[i].z * scaleRate, 1.0f });
-		points.push_back(textureCoordinate);
-		points.push_back(normal);
+		Points.push_back({ Mesh->mVertices[i].x * ScaleRate, Mesh->mVertices[i].y * ScaleRate, Mesh->mVertices[i].z * ScaleRate, 1.0f });
+		Points.push_back(TextureCoordinate);
+		Points.push_back(Normal);
 	}
 
-	for (UINT i = 0; i < mesh->mNumFaces; i++) {
-		aiFace face = mesh->mFaces[i];
+	for (UINT i = 0; i < Mesh->mNumFaces; i++)
+	{
+		aiFace Face = Mesh->mFaces[i];
 
-		for (UINT j = 0; j < face.mNumIndices; j++)
+		for (UINT j = 0; j < Face.mNumIndices; j++)
 		{
-			indices.push_back(face.mIndices[j]);
+			Indices.push_back(Face.mIndices[j]);
 		}
 	}
 }

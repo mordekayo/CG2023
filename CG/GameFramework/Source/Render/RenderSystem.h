@@ -17,22 +17,22 @@ public:
     void Draw();
     void EndFrame();
 
-    void InitializeShader(std::string shaderFileName);
+    void InitializeShader(const std::string& ShaderFileName);
 
-    std::shared_ptr<D3D11_VIEWPORT> viewport;
-    Microsoft::WRL::ComPtr<ID3D11Device> device;
-    Microsoft::WRL::ComPtr<ID3D11DeviceContext> context;
-    Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
-    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderView;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> depthBuffer;
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthView;
+    std::shared_ptr<D3D11_VIEWPORT> Viewport;
+    Microsoft::WRL::ComPtr<ID3D11Device> Device;
+    Microsoft::WRL::ComPtr<ID3D11DeviceContext> Context;
+    Microsoft::WRL::ComPtr<IDXGISwapChain> SwapChain;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> BackBuffer;
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> RenderView;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> DepthBuffer;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> DepthView;
 
-    Microsoft::WRL::ComPtr<ID3D11InputLayout>     inputLayout;
-    Microsoft::WRL::ComPtr<ID3D11VertexShader>    vertexShader;
-    Microsoft::WRL::ComPtr<ID3D11PixelShader>     pixelShader;
-    Microsoft::WRL::ComPtr<ID3D11RasterizerState> rastState;
-    Microsoft::WRL::ComPtr<ID3D11SamplerState>    samplerState;
+    Microsoft::WRL::ComPtr<ID3D11InputLayout> InputLayout;
+    Microsoft::WRL::ComPtr<ID3D11VertexShader> VertexShader;
+    Microsoft::WRL::ComPtr<ID3D11PixelShader> PixelShader;
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> RasterizerState;
+    Microsoft::WRL::ComPtr<ID3D11SamplerState> SamplerState;
 
-    std::vector<FRenderComponent*> renderComponents;
+    std::vector<FRenderComponent*> RenderComponents;
 };

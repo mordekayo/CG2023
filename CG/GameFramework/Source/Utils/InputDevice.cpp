@@ -6,7 +6,7 @@
 
 using namespace DirectX::SimpleMath;
 
-InputDevice::InputDevice(FGame* inGame) : game(inGame)
+FInputDevice::FInputDevice(FGame* inGame) : game(inGame)
 {
 	keys = new std::unordered_set<Keys>();
 	
@@ -15,12 +15,12 @@ InputDevice::InputDevice(FGame* inGame) : game(inGame)
 	Rid[0].usUsagePage = 0x01;
 	Rid[0].usUsage = 0x02;
 	Rid[0].dwFlags = 0;   // adds HID mouse and also ignores legacy mouse messages
-	Rid[0].hwndTarget = game->GetDisplay().get()->GetHWnd();
+	Rid[0].hwndTarget = game->GetDisplay()->GetHWnd();
 
 	Rid[1].usUsagePage = 0x01;
 	Rid[1].usUsage = 0x06;
 	Rid[1].dwFlags = 0;   // adds HID keyboard and also ignores legacy keyboard messages
-	Rid[1].hwndTarget = game->GetDisplay().get()->GetHWnd();
+	Rid[1].hwndTarget = game->GetDisplay()->GetHWnd();
 
 	if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE)
 	{
@@ -29,12 +29,12 @@ InputDevice::InputDevice(FGame* inGame) : game(inGame)
 	}
 }
 
-InputDevice::~InputDevice()
+FInputDevice::~FInputDevice()
 {
 	delete keys;
 }
 
-void InputDevice::OnKeyDown(KeyboardInputEventArgs args)
+void FInputDevice::OnKeyDown(KeyboardInputEventArgs args)
 {
 	bool Break = args.Flags & 0x01;
 
@@ -50,7 +50,7 @@ void InputDevice::OnKeyDown(KeyboardInputEventArgs args)
 	}
 }
 
-void InputDevice::OnMouseMove(RawMouseEventArgs args)
+void FInputDevice::OnMouseMove(RawMouseEventArgs args)
 {
 	if(args.ButtonFlags & static_cast<int>(MouseButtonFlags::LeftButtonDown))
 		AddPressedKey(Keys::LeftButton);
@@ -67,7 +67,7 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 
 	POINT p;
 	GetCursorPos(&p);
-	ScreenToClient(game->GetDisplay().get()->GetHWnd(), &p);
+	ScreenToClient(game->GetDisplay()->GetHWnd(), &p);
 	
 	MousePosition	= Vector2(static_cast<float>(p.x), static_cast<float>(p.y));
 	MouseOffset		= Vector2(static_cast<float>(args.X), static_cast<float>(args.Y));
@@ -85,7 +85,7 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 	MouseMove.Broadcast(moveArgs);
 }
 
-void InputDevice::AddPressedKey(Keys key)
+void FInputDevice::AddPressedKey(Keys key)
 {
 	//if (!game->isActive) {
 	//	return;
@@ -93,12 +93,12 @@ void InputDevice::AddPressedKey(Keys key)
 	keys->insert(key);
 }
 
-void InputDevice::RemovePressedKey(Keys key)
+void FInputDevice::RemovePressedKey(Keys key)
 {
 	keys->erase(key);
 }
 
-bool InputDevice::IsKeyDown(Keys key)
+bool FInputDevice::IsKeyDown(Keys key)
 {
 	return keys->count(key);
 }

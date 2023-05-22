@@ -8,7 +8,7 @@
 
 class FGame;
 
-class /*GAMEFRAMEWORK_API*/ InputDevice
+class /*GAMEFRAMEWORK_API*/ FInputDevice
 {
 	friend class FGame;
 	
@@ -33,8 +33,8 @@ public:
 	
 public:
 	
-	InputDevice(FGame* inGame);
-	~InputDevice();
+	FInputDevice(FGame* inGame);
+	~FInputDevice();
 
 
 	void AddPressedKey(Keys key);

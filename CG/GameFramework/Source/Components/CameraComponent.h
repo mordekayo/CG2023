@@ -11,8 +11,8 @@ public:
     virtual void Initialize() override;
 
     DirectX::SimpleMath::Matrix GetProjection();
-    float fovAngle = DirectX::XM_PIDIV2;
-    float aspect;
-    float nearZ;
-    float farZ;
+    float FovAngle = DirectX::XM_PIDIV2;
+    float Aspect;
+    float NearZ;
+    float FarZ;
 };

@@ -14,15 +14,14 @@ class FRenderComponent : public FObjectComponent
 {
 public:
 
-    FRenderComponent(FMeshComponent* modelComponent);
+    FRenderComponent(FMeshComponent* MeshComponent);
     FRenderComponent() = delete;
 
     virtual void Initialize() override;
-    virtual void Update(float deltaTime) override;
 
     void Draw();
 
-    FMeshComponent* modelComponent;
+    FMeshComponent* MeshComponent;
 
-    ID3D11Buffer** constBuffer;
+    ID3D11Buffer** ConstBuffer;
 };

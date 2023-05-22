@@ -8,35 +8,43 @@
 
 FCameraControllerComponent::FCameraControllerComponent()
 {
-    this->aim = nullptr;
-    this->yaw = 0;
-    this->pitch = 0;
-    this->minPitch = 0.0 / 180.0 * DirectX::XM_PI;
-    this->maxPitch = 90.0 / 180.0 * DirectX::XM_PI;
-    this->armLength = 5.0f;
+    Target = nullptr;
+    Yaw = 0;
+    Pitch = 0;
+    MinPitch = 0.0 / 180.0 * DirectX::XM_PI;
+    MaxPitch = 90.0 / 180.0 * DirectX::XM_PI;
+    ArmLength = 5.0f;
 }
 
 void FCameraControllerComponent::Initialize()
 {
     FGame::Instance()->GetInputDevice()->MouseMove.AddRaw(this, &FCameraControllerComponent::MouseEventHandler);
-    this->pitch = minPitch;
+    Pitch = MinPitch;
 }
 
-void FCameraControllerComponent::Update(float deltaTime)
+void FCameraControllerComponent::Update(float DeltaTime)
 {
     if (FGame::Instance()->GetInputDevice()->IsKeyDown(Keys::E))
     {
-        std::cout << " X: " << gameObject->TransformComponent->GetLeft().x << " Y: " << gameObject->TransformComponent->GetLeft().y << " Z: " << gameObject->TransformComponent->GetLeft().z << std::endl;
+        std::cout << " X: " << GameObject->TransformComponent->GetLeft().x << " Y: " << GameObject->TransformComponent->GetLeft().y << " Z: " << GameObject->TransformComponent->GetLeft().z << std::endl;
     }
-    DirectX::SimpleMath::Vector3 arm = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0,0, - armLength), DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(yaw, pitch, 0));
-    gameObject->TransformComponent->SetPosition(aim->GetPosition() + arm);
-    gameObject->TransformComponent->SetRotation(DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(yaw, pitch, 0));
+    const DirectX::SimpleMath::Vector3 Arm = DirectX::SimpleMath::Vector3::Transform(DirectX::SimpleMath::Vector3(0,0, - ArmLength), DirectX::SimpleMath::Matrix::CreateFromYawPitchRoll(Yaw, Pitch, 0));
+    GameObject->TransformComponent->SetPosition(Target->GetPosition() + Arm);
+    GameObject->TransformComponent->SetRotation(DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(Yaw, Pitch, 0));
 }
 
-void FCameraControllerComponent::MouseEventHandler(const InputDevice::MouseMoveEventArgs& mouseData)
+void FCameraControllerComponent::MouseEventHandler(const FInputDevice::MouseMoveEventArgs& MouseData)
 {
-    yaw   -= mouseData.Offset.x * 0.003f;
-    pitch += mouseData.Offset.y * 0.003f;
-    if (pitch > maxPitch) { pitch = maxPitch; }
-    if (pitch < minPitch) { pitch = minPitch; }
+    Yaw   -= MouseData.Offset.x * 0.003f;
+    Pitch += MouseData.Offset.y * 0.003f;
+    
+    if (Pitch > MaxPitch)
+    {
+        Pitch = MaxPitch;
+    }
+    
+    if (Pitch < MinPitch)
+    {
+        Pitch = MinPitch;
+    }
 }

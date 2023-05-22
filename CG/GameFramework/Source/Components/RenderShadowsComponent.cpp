@@ -30,41 +30,41 @@ void FRenderShadowsComponent::Initialize()
 	constBufferDesc.MiscFlags = 0;
 	constBufferDesc.StructureByteStride = 0;
 	constBufferDesc.ByteWidth = sizeof(CascadeData);
-	FGame::Instance()->GetRenderSystem()->device->CreateBuffer(&constBufferDesc, nullptr, sConstBuffer.GetAddressOf());	
+	FGame::Instance()->GetRenderSystem()->Device->CreateBuffer(&constBufferDesc, nullptr, sConstBuffer.GetAddressOf());	
 }
 
 void FRenderShadowsComponent::Draw()
 {
-	FGame::Instance()->currentLight->lightViewProjectionMatrices = FGame::Instance()->currentLight->GetLightSpaceMatrices();
+	FGame::Instance()->CurrentLight->lightViewProjectionMatrices = FGame::Instance()->CurrentLight->GetLightSpaceMatrices();
 	const CascadeData cascadeData
 	{
-		gameObject->TransformComponent->GetModel(),
+		GameObject->TransformComponent->GetModel(),
 		{ 
-			FGame::Instance()->currentLight->lightViewProjectionMatrices.at(0), FGame::Instance()->currentLight->lightViewProjectionMatrices.at(1),
-		    FGame::Instance()->currentLight->lightViewProjectionMatrices.at(2), FGame::Instance()->currentLight->lightViewProjectionMatrices.at(3)
+			FGame::Instance()->CurrentLight->lightViewProjectionMatrices.at(0), FGame::Instance()->CurrentLight->lightViewProjectionMatrices.at(1),
+		    FGame::Instance()->CurrentLight->lightViewProjectionMatrices.at(2), FGame::Instance()->CurrentLight->lightViewProjectionMatrices.at(3)
 		} //
 	};
 	D3D11_MAPPED_SUBRESOURCE firstMappedResource;
-	FGame::Instance()->GetRenderSystem()->context->Map(sConstBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &firstMappedResource);
+	FGame::Instance()->GetRenderSystem()->Context->Map(sConstBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &firstMappedResource);
 	memcpy(firstMappedResource.pData, &cascadeData, sizeof(CascadeData));
-	FGame::Instance()->GetRenderSystem()->context->Unmap(sConstBuffer.Get(), 0);
+	FGame::Instance()->GetRenderSystem()->Context->Unmap(sConstBuffer.Get(), 0);
 
 
-	FGame::Instance()->GetRenderSystem()->context->RSSetState(FGame::Instance()->GetRenderShadowsSystem()->sRastState.Get());	
-	FGame::Instance()->GetRenderSystem()->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	FGame::Instance()->GetRenderSystem()->Context->RSSetState(FGame::Instance()->GetRenderShadowsSystem()->sRastState.Get());	
+	FGame::Instance()->GetRenderSystem()->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	UINT strides[] = { 48 };
 	UINT offsets[] = { 0 };
-	FGame::Instance()->GetRenderSystem()->context->IASetVertexBuffers(0, 1, MeshComponent->vertexBuffer.GetAddressOf(), strides, offsets); //
-	FGame::Instance()->GetRenderSystem()->context->IASetInputLayout(FGame::Instance()->GetRenderShadowsSystem()->sInputLayout.Get());
-	FGame::Instance()->GetRenderSystem()->context->IASetIndexBuffer(MeshComponent->indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	FGame::Instance()->GetRenderSystem()->Context->IASetVertexBuffers(0, 1, MeshComponent->VertexBuffer.GetAddressOf(), strides, offsets); //
+	FGame::Instance()->GetRenderSystem()->Context->IASetInputLayout(FGame::Instance()->GetRenderShadowsSystem()->sInputLayout.Get());
+	FGame::Instance()->GetRenderSystem()->Context->IASetIndexBuffer(MeshComponent->IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
-	FGame::Instance()->GetRenderSystem()->context->VSSetShader(FGame::Instance()->GetRenderShadowsSystem()->sVertexShader.Get(), nullptr, 0);
-	FGame::Instance()->GetRenderSystem()->context->PSSetShader(nullptr, nullptr, 0);
-	FGame::Instance()->GetRenderSystem()->context->GSSetShader(FGame::Instance()->GetRenderShadowsSystem()->sGeometryShader.Get(), nullptr, 0);
+	FGame::Instance()->GetRenderSystem()->Context->VSSetShader(FGame::Instance()->GetRenderShadowsSystem()->sVertexShader.Get(), nullptr, 0);
+	FGame::Instance()->GetRenderSystem()->Context->PSSetShader(nullptr, nullptr, 0);
+	FGame::Instance()->GetRenderSystem()->Context->GSSetShader(FGame::Instance()->GetRenderShadowsSystem()->sGeometryShader.Get(), nullptr, 0);
 
-	FGame::Instance()->GetRenderSystem()->context->VSSetConstantBuffers(0, 1, sConstBuffer.GetAddressOf());
-	FGame::Instance()->GetRenderSystem()->context->GSSetConstantBuffers(0, 1, sConstBuffer.GetAddressOf());
+	FGame::Instance()->GetRenderSystem()->Context->VSSetConstantBuffers(0, 1, sConstBuffer.GetAddressOf());
+	FGame::Instance()->GetRenderSystem()->Context->GSSetConstantBuffers(0, 1, sConstBuffer.GetAddressOf());
 
-	FGame::Instance()->GetRenderSystem()->context->DrawIndexed(MeshComponent->indices.size(), 0, 0);
+	FGame::Instance()->GetRenderSystem()->Context->DrawIndexed(MeshComponent->Indices.size(), 0, 0);
 }

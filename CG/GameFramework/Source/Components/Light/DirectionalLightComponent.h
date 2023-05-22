@@ -32,10 +32,10 @@ public:
 
     std::vector<float> shadowCascadeLevels //
     {
-        FGame::Instance()->currentCamera->farZ / 20,
-        FGame::Instance()->currentCamera->farZ / 10,
-        FGame::Instance()->currentCamera->farZ / 5,
-        FGame::Instance()->currentCamera->farZ
+        FGame::Instance()->CurrentCamera->FarZ / 20,
+        FGame::Instance()->CurrentCamera->FarZ / 10,
+        FGame::Instance()->CurrentCamera->FarZ / 5,
+        FGame::Instance()->CurrentCamera->FarZ
     };
     std::vector<DirectX::SimpleMath::Vector4> GetFrustumCornerWorldSpace(const DirectX::SimpleMath::Matrix& projection, const DirectX::SimpleMath::Matrix& view); //
     DirectX::SimpleMath::Matrix GetLightSpaceMatrix(const float nearZ, const float farZ); //
