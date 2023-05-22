@@ -90,7 +90,7 @@ void FRenderComponent::Draw()
 
 	const LightData lightData
 	{
-		FGame::Instance()->CurrentLight->direction,
+		FGame::Instance()->CurrentLight->Direction,
 		MeshComponent->Ambient,
 		MeshComponent->Diffuse,
 		MeshComponent->Specular
@@ -103,12 +103,12 @@ void FRenderComponent::Draw()
 	const ShadowData LightShadowData
 	{
 		{
-			FGame::Instance()->CurrentLight->lightViewProjectionMatrices.at(0), FGame::Instance()->CurrentLight->lightViewProjectionMatrices.at(1),
-			FGame::Instance()->CurrentLight->lightViewProjectionMatrices.at(2), FGame::Instance()->CurrentLight->lightViewProjectionMatrices.at(3)
+			FGame::Instance()->CurrentLight->LightViewProjectionMatrices.at(0), FGame::Instance()->CurrentLight->LightViewProjectionMatrices.at(1),
+			FGame::Instance()->CurrentLight->LightViewProjectionMatrices.at(2), FGame::Instance()->CurrentLight->LightViewProjectionMatrices.at(3)
 		}, //
 		{
-			FGame::Instance()->CurrentLight->shadowCascadeLevels.at(0),         FGame::Instance()->CurrentLight->shadowCascadeLevels.at(1),
-			FGame::Instance()->CurrentLight->shadowCascadeLevels.at(2),         FGame::Instance()->CurrentLight->shadowCascadeLevels.at(3)
+			FGame::Instance()->CurrentLight->ShadowCascadeLevels.at(0),         FGame::Instance()->CurrentLight->ShadowCascadeLevels.at(1),
+			FGame::Instance()->CurrentLight->ShadowCascadeLevels.at(2),         FGame::Instance()->CurrentLight->ShadowCascadeLevels.at(3)
 		} //
 	};
 	D3D11_MAPPED_SUBRESOURCE ThirdMappedResource;
@@ -119,7 +119,7 @@ void FRenderComponent::Draw()
 	FGame::Instance()->GetRenderSystem()->Context->PSSetShaderResources(0, 1, MeshComponent->TextureView.GetAddressOf());
 	FGame::Instance()->GetRenderSystem()->Context->PSSetSamplers(0, 1, FGame::Instance()->GetRenderSystem()->SamplerState.GetAddressOf());
 
-	FGame::Instance()->GetRenderSystem()->Context->PSSetShaderResources(1, 1, FGame::Instance()->CurrentLight->textureResourceView.GetAddressOf());
+	FGame::Instance()->GetRenderSystem()->Context->PSSetShaderResources(1, 1, FGame::Instance()->CurrentLight->TextureResourceView.GetAddressOf());
 	FGame::Instance()->GetRenderSystem()->Context->PSSetSamplers(1, 1, FGame::Instance()->GetRenderShadowsSystem()->sSamplerState.GetAddressOf());
 
 	FGame::Instance()->GetRenderSystem()->Context->RSSetState(FGame::Instance()->GetRenderSystem()->RasterizerState.Get());

@@ -8,36 +8,36 @@ class FDirectionalLightComponent : public FObjectComponent
 {
 public:
 
-    FDirectionalLightComponent(int shadowMapSize, float viewWidth, float viewHeight, float nearZ, float farZ);
+    FDirectionalLightComponent(int ShadowMapSize, float ViewWidth, float ViewHeight, float NearZ, float FarZ);
     FDirectionalLightComponent() = delete;
 	
     virtual void Initialize() override;
 
-    DirectX::SimpleMath::Vector4 direction { DirectX::SimpleMath::Vector3(0.0f, -1.0f, 0.1f) };
-    int shadowMapSize;
-    float viewWidth;
-    float viewHeight;
-    float nearZ;
-    float farZ;
+    DirectX::SimpleMath::Vector4 Direction { DirectX::SimpleMath::Vector3(0.0f, -1.0f, 0.1f) };
+    int ShadowMapSize;
+    float ViewWidth;
+    float ViewHeight;
+    float NearZ;
+    float FarZ;
 
-    std::vector<DirectX::SimpleMath::Matrix> lightViewProjectionMatrices;
+    std::vector<DirectX::SimpleMath::Matrix> LightViewProjectionMatrices;
 
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> shadowMapTexture2D;
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureResourceView;
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
-    std::shared_ptr<D3D11_VIEWPORT> viewport;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> ShadowMapTexture2D;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> TextureResourceView;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> DepthStencilView;
+    std::shared_ptr<D3D11_VIEWPORT> Viewport;
 
     DirectX::SimpleMath::Matrix GetViewMatrix();
     DirectX::SimpleMath::Matrix GetProjectionMatrix();
 
-    std::vector<float> shadowCascadeLevels //
+    std::vector<float> ShadowCascadeLevels
     {
         FGame::Instance()->CurrentCamera->FarZ / 20,
         FGame::Instance()->CurrentCamera->FarZ / 10,
         FGame::Instance()->CurrentCamera->FarZ / 5,
         FGame::Instance()->CurrentCamera->FarZ
     };
-    std::vector<DirectX::SimpleMath::Vector4> GetFrustumCornerWorldSpace(const DirectX::SimpleMath::Matrix& projection, const DirectX::SimpleMath::Matrix& view); //
-    DirectX::SimpleMath::Matrix GetLightSpaceMatrix(const float nearZ, const float farZ); //
-    std::vector<DirectX::SimpleMath::Matrix> GetLightSpaceMatrices(); //
+    std::vector<DirectX::SimpleMath::Vector4> GetFrustumCornerWorldSpace(const DirectX::SimpleMath::Matrix& projection, const DirectX::SimpleMath::Matrix& view);
+    DirectX::SimpleMath::Matrix GetLightSpaceMatrix(const float NearZ, const float FarZ);
+    std::vector<DirectX::SimpleMath::Matrix> GetLightSpaceMatrices();
 };

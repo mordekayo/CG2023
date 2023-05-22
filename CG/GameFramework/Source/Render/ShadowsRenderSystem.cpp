@@ -116,9 +116,9 @@ FShadowsRenderSystem::FShadowsRenderSystem()
 void FShadowsRenderSystem::PrepareFrame()
 {
 	FGame::Instance()->GetRenderSystem()->Context->RSSetState(sRastState.Get());
-	FGame::Instance()->GetRenderSystem()->Context->OMSetRenderTargets(0, nullptr, FGame::Instance()->CurrentLight->depthStencilView.Get());
-	FGame::Instance()->GetRenderSystem()->Context->RSSetViewports(1, FGame::Instance()->CurrentLight->viewport.get());
-	FGame::Instance()->GetRenderSystem()->Context->ClearDepthStencilView(FGame::Instance()->CurrentLight->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	FGame::Instance()->GetRenderSystem()->Context->OMSetRenderTargets(0, nullptr, FGame::Instance()->CurrentLight->DepthStencilView.Get());
+	FGame::Instance()->GetRenderSystem()->Context->RSSetViewports(1, FGame::Instance()->CurrentLight->Viewport.get());
+	FGame::Instance()->GetRenderSystem()->Context->ClearDepthStencilView(FGame::Instance()->CurrentLight->DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void FShadowsRenderSystem::Draw()

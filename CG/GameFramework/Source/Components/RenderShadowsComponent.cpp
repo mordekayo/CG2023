@@ -35,13 +35,13 @@ void FRenderShadowsComponent::Initialize()
 
 void FRenderShadowsComponent::Draw()
 {
-	FGame::Instance()->CurrentLight->lightViewProjectionMatrices = FGame::Instance()->CurrentLight->GetLightSpaceMatrices();
+	FGame::Instance()->CurrentLight->LightViewProjectionMatrices = FGame::Instance()->CurrentLight->GetLightSpaceMatrices();
 	const CascadeData cascadeData
 	{
 		GameObject->TransformComponent->GetModel(),
 		{ 
-			FGame::Instance()->CurrentLight->lightViewProjectionMatrices.at(0), FGame::Instance()->CurrentLight->lightViewProjectionMatrices.at(1),
-		    FGame::Instance()->CurrentLight->lightViewProjectionMatrices.at(2), FGame::Instance()->CurrentLight->lightViewProjectionMatrices.at(3)
+			FGame::Instance()->CurrentLight->LightViewProjectionMatrices.at(0), FGame::Instance()->CurrentLight->LightViewProjectionMatrices.at(1),
+		    FGame::Instance()->CurrentLight->LightViewProjectionMatrices.at(2), FGame::Instance()->CurrentLight->LightViewProjectionMatrices.at(3)
 		} //
 	};
 	D3D11_MAPPED_SUBRESOURCE firstMappedResource;
