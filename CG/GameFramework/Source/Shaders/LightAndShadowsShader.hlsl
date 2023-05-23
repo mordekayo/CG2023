@@ -97,36 +97,28 @@ float3 CalcDirLight(LightData Light, float3 Normal, float3 FromPointToCamera, fl
     const float3 Diffuse  = DiffuseValue * Light.DiffuseReflectionCoefficient * max(dot(FromPointToLightSrc, Normal), 0.0);
     const float3 Specular = DiffuseValue * Light.AbsorptionCoef * pow(max(dot(FromPointToCamera, ReflectDirection), 0.0), 128);
     const float3 Ambient  = DiffuseValue * Light.AmbientConstant;
-    
+
     float1 isLighted = 1;   
     isLighted = IsLighted(FromPointToCamera, Normal, PosViewProj, Layer);
     
-    return (Ambient + (Diffuse + Specular) * isLighted);
+    return (float3(0.3f, 0.3f, Layer * 0.3f) + Ambient + (Diffuse + Specular) * isLighted);
 }
 
 float IsLighted(float3 FromPointToCamera, float3 Normal, float4 PosViewProj, float Layer)
 {
-    float ndotl = dot(Normal, FromPointToCamera);
-    float bias = clamp(0.005f * (1.0f - ndotl), 0.0f, 0.0005f);
+    float NormalDotCamera = dot(Normal, FromPointToCamera);
+    float Bias = clamp(0.005f * (1.0f - NormalDotCamera), 0.0f, 0.0005f);
     
-    float3 projectTexCoord;
+    float3 ProjectTexCoord;
 
-    projectTexCoord.x = PosViewProj.x / PosViewProj.w;
-    projectTexCoord.y = PosViewProj.y / PosViewProj.w;
-    projectTexCoord.z = PosViewProj.z / PosViewProj.w;
+    ProjectTexCoord.x = PosViewProj.x / PosViewProj.w;
+    ProjectTexCoord.y = PosViewProj.y / PosViewProj.w;
+    ProjectTexCoord.z = PosViewProj.z / PosViewProj.w;
 
-    projectTexCoord.x = projectTexCoord.x * 0.5 + 0.5f;
-    projectTexCoord.y = projectTexCoord.y * -0.5 + 0.5f;
+    ProjectTexCoord.x = ProjectTexCoord.x * 0.5 + 0.5f;
+    ProjectTexCoord.y = ProjectTexCoord.y * -0.5 + 0.5f;
     
-    float MaxDepth = ShadowMap.SampleCmpLevelZero(ShadowMapSampler, float3(projectTexCoord.x, projectTexCoord.y, Layer), projectTexCoord.z);
-
-    float CurrentDepth = (PosViewProj.z / PosViewProj.w);
-
-    CurrentDepth = CurrentDepth - bias;
+    float MaxDepth = ShadowMap.SampleCmpLevelZero(ShadowMapSampler, float3(ProjectTexCoord.x, ProjectTexCoord.y, Layer), ProjectTexCoord.z - Bias);
     
-    if (MaxDepth < CurrentDepth)
-    {
-        return 0;
-    }
     return MaxDepth;
 }

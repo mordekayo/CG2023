@@ -20,7 +20,7 @@ public:
     virtual void Initialize() override;
 
     Vector4 Ambient  { Vector3(0.5f, 0.5f, 0.5f) };
-    Vector4 Diffuse  { Vector3(0.2f, 0.5f, 0.9f) };
+    Vector4 Diffuse  { Vector3(0.2775f, 0.2775f, 0.2775f) };
     Vector4 Specular { Vector3(1.0f, 1.0f, 1.0f) };
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> VertexBuffer;

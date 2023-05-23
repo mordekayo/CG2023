@@ -24,11 +24,11 @@ void KatamariGame::Initialize()
 {
 	FGameObject* Ground = new FGameObject();
 	
-	Ground->CreatePlane(25.0f, "../KatamariDamacy/Textures/ice.png");
+	Ground->CreatePlane(400.0f, "../KatamariDamacy/Textures/white.jpg");
 	Ground->TransformComponent->SetRotation(DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Right, -DirectX::XM_PIDIV2));
 	
 	FGameObject* Katamari = new FGameObject();
-	Katamari->CreateMesh(50.0f, "../KatamariDamacy/Textures/katamari.png", "../KatamariDamacy/Models/katamari.obj");
+	Katamari->CreateMesh(1.0f, "../KatamariDamacy/Textures/8ball.jpg", "../KatamariDamacy/Models/8ball.obj");
 	Katamari->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(0, 1, 0));
 	
 	KatamariControllerComponent* KatamariController = new KatamariControllerComponent();
@@ -58,54 +58,20 @@ void KatamariGame::Initialize()
 	FGame::Instance()->AddGameObject(RemoveLight); // 3
 	
 	FGameObject* Statue = new FGameObject();
-	Statue->CreateMesh(0.02f, "../KatamariDamacy/Textures/bull.jpg", "../KatamariDamacy/Models/bull.obj");
+	Statue->CreateMesh(1.0f, "../KatamariDamacy/Textures/pig.jpg", "../KatamariDamacy/Models/pig.fbx");
 	Statue->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f));
 	Statue->TransformComponent->SetRotation(
-		DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Right, DirectX::XM_PIDIV2)
-		* 
-		DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Up, DirectX::XM_PI)
+		DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Left, DirectX::XM_PI)
 	);
 	FGame::Instance()->AddGameObject(Statue);
 
-	FGameObject* Spider0 = new FGameObject();
-	Spider0->CreateMesh(15.0f, "../KatamariDamacy/Textures/infrared.jpg", "../KatamariDamacy/Models/spider.fbx");
-	Spider0->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(10.0f, 5.0f, 0.0f));
-	Spider0->TransformComponent->SetRotation(
-		DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Right, DirectX::XM_PIDIV2)
-		*
-		DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Up, DirectX::XM_PI)
+	FGameObject* Deer = new FGameObject();
+	Deer->CreateMesh(0.1f, "../KatamariDamacy/Textures/skat.png", "../KatamariDamacy/Models/skat.fbx");
+	Deer->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(15.0f, 15.0f, 15.0f));
+	Deer->TransformComponent->SetRotation(
+		DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(0.0f, 120.0f, 0.0f)
 	);
-	FGame::Instance()->AddGameObject(Spider0);
-
-	FGameObject* Spider1 = new FGameObject();
-	Spider1->CreateMesh(15.0f, "../KatamariDamacy/Textures/infrared.jpg", "../KatamariDamacy/Models/spider.fbx");
-	Spider1->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(-10.0f, 5.0f, 0.0f));
-	Spider1->TransformComponent->SetRotation(
-		DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Right, DirectX::XM_PIDIV2)
-		*
-		DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Up, DirectX::XM_PI)
-	);
-	FGame::Instance()->AddGameObject(Spider1);
-
-	FGameObject* Spider2 = new FGameObject();
-	Spider2->CreateMesh(15.0f, "../KatamariDamacy/Textures/infrared.jpg", "../KatamariDamacy/Models/spider.fbx");
-	Spider2->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(0.0f, 5.0f, 10.0f));
-	Spider2->TransformComponent->SetRotation(
-		DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Right, DirectX::XM_PIDIV2)
-		*
-		DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Up, DirectX::XM_PI)
-	);
-	FGame::Instance()->AddGameObject(Spider2);
-
-	FGameObject* Spider3 = new FGameObject();
-	Spider3->CreateMesh(15.0f, "../KatamariDamacy/Textures/infrared.jpg", "../KatamariDamacy/Models/spider.fbx");
-	Spider3->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(0.0f, 5.0f, -10.0f));
-	Spider3->TransformComponent->SetRotation(
-		DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Right, DirectX::XM_PIDIV2)
-		*
-		DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Up, DirectX::XM_PI)
-	);
-	FGame::Instance()->AddGameObject(Spider3);
+	FGame::Instance()->AddGameObject(Deer);
 	
 	FGame::Initialize();
 }
