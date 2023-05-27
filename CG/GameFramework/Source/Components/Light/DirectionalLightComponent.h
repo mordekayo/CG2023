@@ -13,6 +13,7 @@ public:
 	
     virtual void Initialize() override;
 
+    DirectX::SimpleMath::Vector4 Color = { DirectX::SimpleMath::Vector3(0.5f, 0.5f, 0.5f) };
     DirectX::SimpleMath::Vector4 Direction { DirectX::SimpleMath::Vector3(0.615457f, -0.615457f, 0.492366f) };
     int ShadowMapSize;
     float ViewWidth;

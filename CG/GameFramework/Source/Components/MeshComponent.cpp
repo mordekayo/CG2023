@@ -53,10 +53,10 @@ void FMeshComponent::AddPlane(float PlaneSize)
 {
 	Points =
 	{
-		Vector4(PlaneSize,   PlaneSize, 0.0f, 1.0f), Vector4(PlaneSize, PlaneSize, 0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 0.0f),
-		Vector4(-PlaneSize, -PlaneSize, 0.0f, 1.0f), Vector4(0.0f,       0.0f,    0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 0.0f),
-		Vector4(PlaneSize, -PlaneSize, 0.0f, 1.0f), Vector4(PlaneSize,   0.0f,    0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 0.0f),
-		Vector4(-PlaneSize,   PlaneSize, 0.0f, 1.0f), Vector4(0.0f,     PlaneSize, 0.0f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 0.0f)
+		DirectX::SimpleMath::Vector4(PlaneSize,   PlaneSize, 0.0f, 1.0f), DirectX::SimpleMath::Vector4(PlaneSize, PlaneSize, 0.0f, 0.0f), DirectX::SimpleMath::Vector4(0.0f, 0.0f, 1.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(-PlaneSize, -PlaneSize, 0.0f, 1.0f), DirectX::SimpleMath::Vector4(0.0f,       0.0f,    0.0f, 0.0f), DirectX::SimpleMath::Vector4(0.0f, 0.0f, 1.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(PlaneSize, -PlaneSize, 0.0f, 1.0f), DirectX::SimpleMath::Vector4(PlaneSize,   0.0f,    0.0f, 0.0f), DirectX::SimpleMath::Vector4(0.0f, 0.0f, 1.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(-PlaneSize,   PlaneSize, 0.0f, 1.0f), DirectX::SimpleMath::Vector4(0.0f,     PlaneSize, 0.0f, 0.0f), DirectX::SimpleMath::Vector4(0.0f, 0.0f, 1.0f, 0.0f)
 	};
 	Indices = { 0, 1, 2, 1, 0, 3 };
 }

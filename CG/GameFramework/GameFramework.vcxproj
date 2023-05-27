@@ -22,6 +22,7 @@
     <ClCompile Include="Source\Components\CameraComponent.cpp" />
     <ClCompile Include="Source\Components\CameraControllerComponent.cpp" />
     <ClCompile Include="Source\Components\Light\DirectionalLightComponent.cpp" />
+    <ClCompile Include="Source\Components\Light\PointLightComponent.cpp" />
     <ClCompile Include="Source\Components\MeshComponent.cpp" />
     <ClCompile Include="Source\Components\ObjectComponent.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
@@ -172,7 +173,10 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Source\Render\GBuffer.cpp" />
     <ClCompile Include="Source\Render\RenderSystem.cpp" />
+    <None Include="Source\Shaders\DefferedLight.hlsl" />
+    <None Include="Source\Shaders\DefferedOpaque.hlsl" />
     <None Include="Source\Shaders\DepthShader.hlsl" />
     <None Include="Source\Shaders\LightAndShadowsShader.hlsl" />
     <ClCompile Include="Source\Render\ShadowsRenderSystem.cpp" />
@@ -184,6 +188,7 @@
     <ClInclude Include="Source\Components\CameraComponent.h" />
     <ClInclude Include="Source\Components\CameraControllerComponent.h" />
     <ClInclude Include="Source\Components\Light\DirectionalLightComponent.h" />
+    <ClInclude Include="Source\Components\Light\PointLightComponent.h" />
     <ClInclude Include="Source\Components\MeshComponent.h" />
     <ClInclude Include="Source\Components\ObjectComponent.h" />
     <ClInclude Include="Source\Components\RenderComponent.h" />
@@ -192,6 +197,7 @@
     <ClInclude Include="Source\DisplayWin32.h" />
     <ClInclude Include="Source\Game.h" />
     <ClInclude Include="Source\GameObjects\GameObject.h" />
+    <ClInclude Include="Source\Render\GBuffer.h" />
     <ClInclude Include="Source\Render\RenderSystem.h" />
     <ClInclude Include="Source\Render\ShadowsRenderSystem.h" />
     <ClInclude Include="Source\Sources.h" />

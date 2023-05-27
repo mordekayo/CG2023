@@ -3,7 +3,8 @@
 #include "Sources.h"
 #include <vector>
 
-class DisplayWin32;
+class FGBuffer;
+class FDisplayWin32;
 class FRenderComponent;
 class RenderShadowsComponent;
 
@@ -12,13 +13,13 @@ class FRenderSystem
 public:
 
     FRenderSystem();
-
-    void PrepareFrame();
+    
     void Draw();
     void EndFrame();
 
-    void InitializeShader(const std::string& ShaderFileName);
-
+    void InitializeOpaqueShader(const std::string& ShaderFileName);
+    void InitializeLightingShader(const std::string& ShaderFileName);
+    
     std::shared_ptr<D3D11_VIEWPORT> Viewport;
     Microsoft::WRL::ComPtr<ID3D11Device> Device;
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> Context;
@@ -34,5 +35,24 @@ public:
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> RasterizerState;
     Microsoft::WRL::ComPtr<ID3D11SamplerState> SamplerState;
 
+    Microsoft::WRL::ComPtr<ID3D11BlendState> OpaqueBlendState;
+    Microsoft::WRL::ComPtr<ID3D11BlendState> LightBlendState;
+
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilState> OpaqueDepthStencilState;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilState> LightingLessDepthStencilState;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilState> LightingGreaterDepthStencilState;
+
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> CullBackRasterizerState;
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> CullFrontRasterizerState;
+
+    FGBuffer* GBuffer;
+
+    Microsoft::WRL::ComPtr<ID3D11InputLayout> OpaqueInputLayout;
+    Microsoft::WRL::ComPtr<ID3D11InputLayout> LightingInputLayout;
+    Microsoft::WRL::ComPtr<ID3D11VertexShader> OpaqueVertexShader;
+    Microsoft::WRL::ComPtr<ID3D11VertexShader> LightingVertexShader;
+    Microsoft::WRL::ComPtr<ID3D11PixelShader> OpaquePixelShader;
+    Microsoft::WRL::ComPtr<ID3D11PixelShader> LightingPixelShader;
+    
     std::vector<FRenderComponent*> RenderComponents;
 };

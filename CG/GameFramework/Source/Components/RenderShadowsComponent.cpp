@@ -21,7 +21,7 @@ FRenderShadowsComponent::FRenderShadowsComponent(FMeshComponent* modelComponent)
 
 void FRenderShadowsComponent::Initialize()
 {
-	FGame::Instance()->GetRenderShadowsSystem()->renderShadowsComponents.push_back(this);
+	FGame::Instance()->GetRenderShadowsSystem()->RenderShadowsComponents.push_back(this);
 
 	D3D11_BUFFER_DESC constBufferDesc = {};
 	constBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -35,13 +35,13 @@ void FRenderShadowsComponent::Initialize()
 
 void FRenderShadowsComponent::Draw()
 {
-	FGame::Instance()->CurrentLight->LightViewProjectionMatrices = FGame::Instance()->CurrentLight->GetLightSpaceMatrices();
+	FGame::Instance()->DirectionalLight->LightViewProjectionMatrices = FGame::Instance()->DirectionalLight->GetLightSpaceMatrices();
 	const CascadeData cascadeData
 	{
 		GameObject->TransformComponent->GetModel(),
 		{ 
-			FGame::Instance()->CurrentLight->LightViewProjectionMatrices.at(0), FGame::Instance()->CurrentLight->LightViewProjectionMatrices.at(1),
-		    FGame::Instance()->CurrentLight->LightViewProjectionMatrices.at(2), FGame::Instance()->CurrentLight->LightViewProjectionMatrices.at(3)
+			FGame::Instance()->DirectionalLight->LightViewProjectionMatrices.at(0), FGame::Instance()->DirectionalLight->LightViewProjectionMatrices.at(1),
+		    FGame::Instance()->DirectionalLight->LightViewProjectionMatrices.at(2), FGame::Instance()->DirectionalLight->LightViewProjectionMatrices.at(3)
 		} //
 	};
 	D3D11_MAPPED_SUBRESOURCE firstMappedResource;
@@ -50,18 +50,18 @@ void FRenderShadowsComponent::Draw()
 	FGame::Instance()->GetRenderSystem()->Context->Unmap(sConstBuffer.Get(), 0);
 
 
-	FGame::Instance()->GetRenderSystem()->Context->RSSetState(FGame::Instance()->GetRenderShadowsSystem()->sRastState.Get());	
+	FGame::Instance()->GetRenderSystem()->Context->RSSetState(FGame::Instance()->GetRenderShadowsSystem()->RastState.Get());	
 	FGame::Instance()->GetRenderSystem()->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	UINT strides[] = { 48 };
 	UINT offsets[] = { 0 };
 	FGame::Instance()->GetRenderSystem()->Context->IASetVertexBuffers(0, 1, MeshComponent->VertexBuffer.GetAddressOf(), strides, offsets); //
-	FGame::Instance()->GetRenderSystem()->Context->IASetInputLayout(FGame::Instance()->GetRenderShadowsSystem()->sInputLayout.Get());
+	FGame::Instance()->GetRenderSystem()->Context->IASetInputLayout(FGame::Instance()->GetRenderShadowsSystem()->InputLayout.Get());
 	FGame::Instance()->GetRenderSystem()->Context->IASetIndexBuffer(MeshComponent->IndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
-	FGame::Instance()->GetRenderSystem()->Context->VSSetShader(FGame::Instance()->GetRenderShadowsSystem()->sVertexShader.Get(), nullptr, 0);
+	FGame::Instance()->GetRenderSystem()->Context->VSSetShader(FGame::Instance()->GetRenderShadowsSystem()->VertexShader.Get(), nullptr, 0);
 	FGame::Instance()->GetRenderSystem()->Context->PSSetShader(nullptr, nullptr, 0);
-	FGame::Instance()->GetRenderSystem()->Context->GSSetShader(FGame::Instance()->GetRenderShadowsSystem()->sGeometryShader.Get(), nullptr, 0);
+	FGame::Instance()->GetRenderSystem()->Context->GSSetShader(FGame::Instance()->GetRenderShadowsSystem()->GeometryShader.Get(), nullptr, 0);
 
 	FGame::Instance()->GetRenderSystem()->Context->VSSetConstantBuffers(0, 1, sConstBuffer.GetAddressOf());
 	FGame::Instance()->GetRenderSystem()->Context->GSSetConstantBuffers(0, 1, sConstBuffer.GetAddressOf());

@@ -8,7 +8,12 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-using namespace DirectX::SimpleMath;
+struct FMaterial
+{
+    DirectX::SimpleMath::Vector4 DiffuseReflectionCoefficient { DirectX::SimpleMath::Vector3(0.5f, 0.5f, 0.5f) };
+    DirectX::SimpleMath::Vector4 AbsorptionCoef{ DirectX::SimpleMath::Vector3(1.0f, 1.0f, 1.0f) };
+    DirectX::SimpleMath::Vector4 AmbientConstant { DirectX::SimpleMath::Vector3(0.5f, 0.5f, 0.5f) };
+};
 
 class FMeshComponent : public FObjectComponent
 {
@@ -18,13 +23,11 @@ public:
     FMeshComponent() = delete;
 
     virtual void Initialize() override;
-
-    Vector4 Ambient  { Vector3(0.5f, 0.5f, 0.5f) };
-    Vector4 Diffuse  { Vector3(0.2775f, 0.2775f, 0.2775f) };
-    Vector4 Specular { Vector3(1.0f, 1.0f, 1.0f) };
+    
+    FMaterial Material;
 
     Microsoft::WRL::ComPtr<ID3D11Buffer> VertexBuffer;
-    std::vector<Vector4> Points;
+    std::vector<DirectX::SimpleMath::Vector4> Points;
     Microsoft::WRL::ComPtr<ID3D11Buffer> IndexBuffer;
     std::vector<int> Indices;
 

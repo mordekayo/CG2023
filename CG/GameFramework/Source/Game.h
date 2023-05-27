@@ -3,6 +3,7 @@
 
 #include "Sources.h"
 
+class FPointLightComponent;
 class FInputDevice;
 class FDisplayWin32;
 class FRenderSystem;
@@ -39,7 +40,8 @@ public:
 	FShadowsRenderSystem* RenderShadows;
 
 	FCameraComponent* CurrentCamera;
-	FDirectionalLightComponent* CurrentLight;
+	FDirectionalLightComponent* DirectionalLight;
+	std::vector<FPointLightComponent*> PointLights;
 	std::vector<FGameObject*> GameObjects;
 
 	void Run();

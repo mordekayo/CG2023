@@ -19,7 +19,8 @@ public:
 
     virtual void Initialize() override;
 
-    void Draw();
+    void DrawOpaque();
+    void DrawLighting();
 
     FMeshComponent* MeshComponent;
 

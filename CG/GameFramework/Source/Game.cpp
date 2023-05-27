@@ -7,6 +7,7 @@
 #include "GameObjects/GameObject.h"
 #include "Components/CameraComponent.h"
 #include "Components/Light/DirectionalLightComponent.h"
+#include "Render/GBuffer.h"
 
 FGame* FGame::GameInstance = nullptr;
 
@@ -21,7 +22,7 @@ FGame::FGame()
 	StartTime = std::chrono::time_point<std::chrono::steady_clock>();
 	PrevTime = std::chrono::time_point<std::chrono::steady_clock>();
 	CurrentCamera = nullptr;
-	CurrentLight  = nullptr;
+	DirectionalLight  = nullptr;
 }
 
 FGame* FGame::Instance()
@@ -38,6 +39,7 @@ void FGame::PrepareResources()
 	Display = new FDisplayWin32(Name, ClientWidth, ClientHeight, WndProc);
 	InputDevice = new FInputDevice(this);
 	RenderSystem =  new FRenderSystem();
+	RenderSystem->GBuffer = new FGBuffer();
 	RenderShadows = new FShadowsRenderSystem();
 }
 
@@ -111,7 +113,6 @@ void FGame::Draw()
 	RenderShadows->Draw();
 	RenderShadows->EndFrame();
 	
-	RenderSystem->PrepareFrame();
 	RenderSystem->Draw();
 	RenderSystem->EndFrame();
 }

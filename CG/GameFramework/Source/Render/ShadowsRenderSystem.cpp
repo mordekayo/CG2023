@@ -6,9 +6,9 @@
 #include "RenderSystem.h"
 #include "Components/RenderShadowsComponent.h"
 
-void FShadowsRenderSystem::InitializeShader(std::string shaderFileName)
+void FShadowsRenderSystem::InitializeShader(const std::string& ShaderFileName)
 {
-	std::wstring fileName(shaderFileName.begin(), shaderFileName.end());
+	std::wstring fileName(ShaderFileName.begin(), ShaderFileName.end());
 	ID3DBlob* errorCode = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> vertexShaderByteCode;
 	auto result = D3DCompileFromFile(
@@ -38,7 +38,7 @@ void FShadowsRenderSystem::InitializeShader(std::string shaderFileName)
 	result = FGame::Instance()->GetRenderSystem()->Device->CreateVertexShader(
 		vertexShaderByteCode->GetBufferPointer(),
 		vertexShaderByteCode->GetBufferSize(),
-		nullptr, sVertexShader.GetAddressOf()
+		nullptr, VertexShader.GetAddressOf()
 	);
 	assert(SUCCEEDED(result));
 
@@ -58,7 +58,7 @@ void FShadowsRenderSystem::InitializeShader(std::string shaderFileName)
 		1,
 		vertexShaderByteCode->GetBufferPointer(),
 		vertexShaderByteCode->GetBufferSize(),
-		sInputLayout.GetAddressOf()
+		InputLayout.GetAddressOf()
 	);
 	assert(SUCCEEDED(result));
 
@@ -78,13 +78,13 @@ void FShadowsRenderSystem::InitializeShader(std::string shaderFileName)
 	result = FGame::Instance()->GetRenderSystem()->Device->CreateGeometryShader(
 		geometryShaderByteCode->GetBufferPointer(),
 		geometryShaderByteCode->GetBufferSize(),
-		nullptr, sGeometryShader.GetAddressOf()
+		nullptr, GeometryShader.GetAddressOf()
 	);
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
-	result = FGame::Instance()->GetRenderSystem()->Device->CreateRasterizerState(&rastDesc, sRastState.GetAddressOf());
+	result = FGame::Instance()->GetRenderSystem()->Device->CreateRasterizerState(&rastDesc, RastState.GetAddressOf());
 	assert(SUCCEEDED(result));
 }
 
@@ -109,21 +109,21 @@ FShadowsRenderSystem::FShadowsRenderSystem()
 	sComparisonSamplerDesc.MaxAnisotropy = 0;
 	sComparisonSamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;        //
 	sComparisonSamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR; //
-	auto result = FGame::Instance()->GetRenderSystem()->Device->CreateSamplerState(&sComparisonSamplerDesc, sSamplerState.GetAddressOf());
+	auto result = FGame::Instance()->GetRenderSystem()->Device->CreateSamplerState(&sComparisonSamplerDesc, SamplerState.GetAddressOf());
 	assert(SUCCEEDED(result));
 }
 
 void FShadowsRenderSystem::PrepareFrame()
 {
-	FGame::Instance()->GetRenderSystem()->Context->RSSetState(sRastState.Get());
-	FGame::Instance()->GetRenderSystem()->Context->OMSetRenderTargets(0, nullptr, FGame::Instance()->CurrentLight->DepthStencilView.Get());
-	FGame::Instance()->GetRenderSystem()->Context->RSSetViewports(1, FGame::Instance()->CurrentLight->Viewport.get());
-	FGame::Instance()->GetRenderSystem()->Context->ClearDepthStencilView(FGame::Instance()->CurrentLight->DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	FGame::Instance()->GetRenderSystem()->Context->RSSetState(RastState.Get());
+	FGame::Instance()->GetRenderSystem()->Context->OMSetRenderTargets(0, nullptr, FGame::Instance()->DirectionalLight->DepthStencilView.Get());
+	FGame::Instance()->GetRenderSystem()->Context->RSSetViewports(1, FGame::Instance()->DirectionalLight->Viewport.get());
+	FGame::Instance()->GetRenderSystem()->Context->ClearDepthStencilView(FGame::Instance()->DirectionalLight->DepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void FShadowsRenderSystem::Draw()
 {
-	for (FRenderShadowsComponent* RenderShadowsComponent : renderShadowsComponents)
+	for (FRenderShadowsComponent* RenderShadowsComponent : RenderShadowsComponents)
 	{
 		RenderShadowsComponent->Draw();
 	}

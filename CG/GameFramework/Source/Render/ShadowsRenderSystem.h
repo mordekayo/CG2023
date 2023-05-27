@@ -17,13 +17,13 @@ public:
     void Draw();
     void EndFrame();
 
-    void InitializeShader(std::string shaderFileName);
+    void InitializeShader(const std::string& ShaderFileName);
 
-    Microsoft::WRL::ComPtr<ID3D11InputLayout>  sInputLayout;
-    Microsoft::WRL::ComPtr<ID3D11VertexShader> sVertexShader;
-    Microsoft::WRL::ComPtr<ID3D11GeometryShader> sGeometryShader;
-    Microsoft::WRL::ComPtr<ID3D11SamplerState> sSamplerState;
-    Microsoft::WRL::ComPtr<ID3D11RasterizerState> sRastState;
+    Microsoft::WRL::ComPtr<ID3D11InputLayout>  InputLayout;
+    Microsoft::WRL::ComPtr<ID3D11VertexShader> VertexShader;
+    Microsoft::WRL::ComPtr<ID3D11GeometryShader> GeometryShader;
+    Microsoft::WRL::ComPtr<ID3D11SamplerState> SamplerState;
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> RastState;
 
-    std::vector<FRenderShadowsComponent*> renderShadowsComponents;
+    std::vector<FRenderShadowsComponent*> RenderShadowsComponents;
 };

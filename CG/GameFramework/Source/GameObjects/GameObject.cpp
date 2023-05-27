@@ -19,7 +19,7 @@ FGameObject::~FGameObject()
 {
     for (FObjectComponent* Component : Components)
     {
-        delete Component;
+        //delete Component;
     }
     Components.clear();
 }
