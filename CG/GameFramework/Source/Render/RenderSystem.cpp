@@ -4,6 +4,7 @@
 #include "Components/RenderComponent.h"
 #include "Game.h"
 #include "ShadowsRenderSystem.h"
+#include "Components/Light/PointLightComponent.h"
 #include "GameObjects/GameObject.h"
 #include "Render/GBuffer.h"
 
@@ -96,16 +97,22 @@ FRenderSystem::FRenderSystem()
 
 	D3D11_DEPTH_STENCIL_DESC LightingLessDepthStencilDesc = {};    ///
 	LightingLessDepthStencilDesc.DepthEnable = TRUE;
-	LightingLessDepthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	LightingLessDepthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	LightingLessDepthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	Result = Device->CreateDepthStencilState(&LightingLessDepthStencilDesc, &LightingLessDepthStencilState);
 
 	D3D11_DEPTH_STENCIL_DESC LightingGreaterDepthStencilDesc = {}; ///
 	LightingGreaterDepthStencilDesc.DepthEnable = TRUE;
-	LightingGreaterDepthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	LightingGreaterDepthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	LightingGreaterDepthStencilDesc.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
 	Result = Device->CreateDepthStencilState(&LightingGreaterDepthStencilDesc, &LightingGreaterDepthStencilState);
 
+	D3D11_DEPTH_STENCIL_DESC DirectLightDepthStencilStateDesc = {};
+	DirectLightDepthStencilStateDesc.DepthEnable = FALSE;
+	DirectLightDepthStencilStateDesc.StencilEnable = FALSE;
+	DirectLightDepthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	Result = Device->CreateDepthStencilState(&DirectLightDepthStencilStateDesc, &DirectLightDepthStencilState);
+	
 	Viewport = std::make_shared<D3D11_VIEWPORT>();
 	Viewport->TopLeftX = 0;
 	Viewport->TopLeftY = 0;
@@ -115,7 +122,8 @@ FRenderSystem::FRenderSystem()
 	Viewport->MaxDepth = 1.0f;
 	
 	InitializeOpaqueShader("../GameFramework/Source/Shaders/DefferedOpaque.hlsl");
-	InitializeLightingShader("../GameFramework/Source/Shaders/DefferedLight.hlsl");
+	InitializeDirectLightShader("../GameFramework/Source/Shaders/DefferedDirectLight.hlsl");
+	InitializePointLightShader("../GameFramework/Source/Shaders/DefferedPointLights.hlsl");
 	
 	CD3D11_RASTERIZER_DESC CullBackRasterizerStateDesc = {};
 	CullBackRasterizerStateDesc.CullMode = D3D11_CULL_BACK;
@@ -238,7 +246,7 @@ void FRenderSystem::InitializeOpaqueShader(const std::string& ShaderFileName)
 	assert(SUCCEEDED(result));
 }
 
-void FRenderSystem::InitializeLightingShader(const std::string& ShaderFileName)
+void FRenderSystem::InitializeDirectLightShader(const std::string& ShaderFileName)
 {
 	const std::wstring FileName(ShaderFileName.begin(), ShaderFileName.end());
 	ID3DBlob* ErrorCode = nullptr;
@@ -273,7 +281,7 @@ void FRenderSystem::InitializeLightingShader(const std::string& ShaderFileName)
 	Result = Device->CreateVertexShader(
 		VertexShaderByteCode->GetBufferPointer(),
 		VertexShaderByteCode->GetBufferSize(),
-		nullptr, &LightingVertexShader
+		nullptr, &DirectLightVertexShader
 	);
 	assert(SUCCEEDED(result));
 
@@ -294,7 +302,7 @@ void FRenderSystem::InitializeLightingShader(const std::string& ShaderFileName)
 	Result = Device->CreatePixelShader(
 		PixelShaderByteCode->GetBufferPointer(),
 		PixelShaderByteCode->GetBufferSize(),
-		nullptr, &LightingPixelShader
+		nullptr, &DirectLightPixelShader
 	);
 	assert(SUCCEEDED(Result));
 
@@ -315,7 +323,88 @@ void FRenderSystem::InitializeLightingShader(const std::string& ShaderFileName)
 		1,
 		VertexShaderByteCode->GetBufferPointer(),
 		VertexShaderByteCode->GetBufferSize(),
-		&LightingInputLayout
+		&DirectLightInputLayout
+	);
+	assert(SUCCEEDED(Result));
+}
+
+void FRenderSystem::InitializePointLightShader(const std::string& ShaderFileName)
+{
+	const std::wstring FileName(ShaderFileName.begin(), ShaderFileName.end());
+	ID3DBlob* ErrorCode = nullptr;
+	
+	Microsoft::WRL::ComPtr<ID3DBlob> VertexShaderByteCode;
+	auto Result = D3DCompileFromFile(
+		FileName.c_str(),
+		nullptr,
+		nullptr,
+		"VSMain",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		VertexShaderByteCode.GetAddressOf(),
+		&ErrorCode
+	);
+	if (FAILED(Result))
+	{
+		if (ErrorCode)
+		{
+			const char* CompileErrors = static_cast<char*>(ErrorCode->GetBufferPointer());
+			std::cout << CompileErrors << std::endl;
+		}
+		else
+		{
+			std::cout << "Missing Shader File: " << ShaderFileName << std::endl;
+		}
+		return;
+	}
+
+	Result = Device->CreateVertexShader(
+		VertexShaderByteCode->GetBufferPointer(),
+		VertexShaderByteCode->GetBufferSize(),
+		nullptr, &PointLightsVertexShader
+	);
+	assert(SUCCEEDED(result));
+
+	Microsoft::WRL::ComPtr<ID3DBlob> PixelShaderByteCode;
+	Result = D3DCompileFromFile(
+		FileName.c_str(),
+		nullptr,
+		nullptr,
+		"PSMain",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		PixelShaderByteCode.GetAddressOf(),
+		&ErrorCode
+	);
+	assert(SUCCEEDED(Result));
+	
+	Result = Device->CreatePixelShader(
+		PixelShaderByteCode->GetBufferPointer(),
+		PixelShaderByteCode->GetBufferSize(),
+		nullptr, &PointLightsPixelShader
+	);
+	assert(SUCCEEDED(Result));
+
+	constexpr D3D11_INPUT_ELEMENT_DESC InputElements[] = {
+		D3D11_INPUT_ELEMENT_DESC {
+			"POSITION",
+			0,
+			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			0,
+			0,
+			D3D11_INPUT_PER_VERTEX_DATA,
+			0
+		}
+	};
+
+	Result = Device->CreateInputLayout(
+		InputElements,
+		1,
+		VertexShaderByteCode->GetBufferPointer(),
+		VertexShaderByteCode->GetBufferSize(),
+		&PointLightsInputLayout
 	);
 	assert(SUCCEEDED(Result));
 }
@@ -324,6 +413,10 @@ void FRenderSystem::Draw()
 {
 	Context->ClearState();
 
+	Context->ClearRenderTargetView(GBuffer->DiffuseRTV, DirectX::SimpleMath::Color(0.0f, 0.0f, 0.0f, 1.0f));
+	Context->ClearRenderTargetView(GBuffer->NormalRTV, DirectX::SimpleMath::Color(0.0f, 0.0f, 0.0f, 1.0f));
+	Context->ClearRenderTargetView(GBuffer->WorldPositionRTV, DirectX::SimpleMath::Color(0.0f, 0.0f, 0.0f, 1.0f));
+	
 	ID3D11RenderTargetView* RenderTargetViews[] = {
 		GBuffer->DiffuseRTV,
 		GBuffer->NormalRTV,
@@ -333,10 +426,6 @@ void FRenderSystem::Draw()
 	Context->OMSetRenderTargets(8, RenderTargetViews, DepthView.Get());
 
 	Context->RSSetViewports(1, Viewport.get());
-
-	Context->ClearRenderTargetView(GBuffer->DiffuseRTV, DirectX::SimpleMath::Color(0.0f, 0.0f, 0.0f, 1.0f));
-	Context->ClearRenderTargetView(GBuffer->NormalRTV, DirectX::SimpleMath::Color(0.0f, 0.0f, 0.0f, 1.0f));
-	Context->ClearRenderTargetView(GBuffer->WorldPositionRTV, DirectX::SimpleMath::Color(0.0f, 0.0f, 0.0f, 1.0f));
 
 	Context->ClearDepthStencilView(DepthView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -350,9 +439,13 @@ void FRenderSystem::Draw()
 	Context->RSSetViewports(1, Viewport.get());
 	constexpr float backgroundColor[] = { 0.2f, 0.2f, 0.2f };
 	Context->ClearRenderTargetView(RenderView.Get(), backgroundColor);
-	Context->ClearDepthStencilView(DepthView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	FGame::Instance()->DirectionalLight->GameObject->RenderComponent->DrawLighting();
+	FGame::Instance()->DirectionalLight->Draw();
+
+	for (const auto PointLight : FGame::Instance()->PointLights)
+	{
+		PointLight->Draw();
+	}
 }
 
 void FRenderSystem::EndFrame()

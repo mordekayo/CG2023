@@ -3,6 +3,7 @@
 
 #include "Sources.h"
 
+class FPointLightComponent;
 class FTransformComponent;
 class FRenderComponent;
 class FMeshComponent;

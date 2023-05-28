@@ -3,7 +3,6 @@ cbuffer CameraConstantBuffer : register(b0)
     row_major matrix ViewMatrix;
     row_major matrix ProjectionMatrix;
     row_major matrix ModelMatrix;
-    float3 CameraPosition;
 };
 
 struct VS_IN
@@ -31,7 +30,8 @@ PS_IN VSMain(VS_IN Input)
     const float4 ModelPosition = mul(float4(Input.Position, 1.0f), ModelMatrix);
     Output.Position = mul(mul(ModelPosition, ViewMatrix), ProjectionMatrix);
     Output.ModelPosition = ModelPosition;
-    Output.Normal = mul(transpose(ModelMatrix), Input.Normal);
+    //Output.Normal = mul(transpose(ModelMatrix), Input.Normal);
+    Output.Normal   = mul(Input.Normal, ModelMatrix);
     Output.TexCoords = Input.TexCoords;
     
     return Output;
@@ -53,9 +53,11 @@ PSOutput PSMain(PS_IN Input)
     Output.WorldPos = Input.ModelPosition;
     Output.Diffuse.a = float3(1, 1, 1);
 
-    const float3 Normal = Input.Normal;
-    float3 UnpackedNormal = normalize(Normal * 2.0f - 1.0f);
-    Output.Normal = float4(UnpackedNormal, 0);
+    //const float3 Normal = Input.Normal;
+    //float3 UnpackedNormal = normalize(Normal * 2.0f - 1.0f);
+    //Output.Normal = float4(UnpackedNormal, 0);
+    
+    Output.Normal = Input.Normal;
     
     return Output;
 }

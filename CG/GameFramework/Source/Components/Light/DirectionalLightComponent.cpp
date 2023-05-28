@@ -3,7 +3,25 @@
 #include "Game.h"
 #include "DisplayWin32.h"
 #include "Components/TransformComponent.h"
+#include "Render/GBuffer.h"
 #include "Render/RenderSystem.h"
+#include "Render/ShadowsRenderSystem.h"
+
+struct alignas(16) CameraData
+{
+	DirectX::SimpleMath::Matrix  CameraViewMatrix;
+	DirectX::SimpleMath::Vector3 CameraPosition;
+};
+struct alignas(16) LightData
+{
+	DirectX::SimpleMath::Vector4 Color;
+	DirectX::SimpleMath::Vector4 Direction;
+};
+struct alignas(16) ShadowData
+{
+	DirectX::SimpleMath::Matrix ViewProjMats[4];
+	float  Distances[4];
+};
 
 FDirectionalLightComponent::FDirectionalLightComponent(int ShadowMapSize, float ViewWidth, float ViewHeight, float NearZ, float FarZ)
 {
@@ -61,19 +79,126 @@ void FDirectionalLightComponent::Initialize()
 	Viewport->MaxDepth = 1.0f;
 	Viewport->TopLeftX = 0.0f;
 	Viewport->TopLeftY = 0.0f;
+
+	
+	ConstBuffer = new ID3D11Buffer * [3];
+
+	D3D11_BUFFER_DESC FirstConstBufferDesc = {};
+	FirstConstBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	FirstConstBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	FirstConstBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	FirstConstBufferDesc.MiscFlags = 0;
+	FirstConstBufferDesc.StructureByteStride = 0;
+	FirstConstBufferDesc.ByteWidth = sizeof(CameraData);
+	
+	Result = FGame::Instance()->GetRenderSystem()->Device->CreateBuffer(&FirstConstBufferDesc, nullptr, &ConstBuffer[0]);
+	assert(SUCCEEDED(result));
+
+	D3D11_BUFFER_DESC SecondConstBufferDesc = {};
+	SecondConstBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	SecondConstBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	SecondConstBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	SecondConstBufferDesc.MiscFlags = 0;
+	SecondConstBufferDesc.StructureByteStride = 0;
+	SecondConstBufferDesc.ByteWidth = sizeof(LightData);
+	
+	Result = FGame::Instance()->GetRenderSystem()->Device->CreateBuffer(&SecondConstBufferDesc, nullptr, &ConstBuffer[1]);
+	assert(SUCCEEDED(result));
+
+	D3D11_BUFFER_DESC thirdConstBufferDesc = {};
+	thirdConstBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	thirdConstBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	thirdConstBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	thirdConstBufferDesc.MiscFlags = 0;
+	thirdConstBufferDesc.StructureByteStride = 0;
+	thirdConstBufferDesc.ByteWidth = sizeof(ShadowData);
+	
+	Result = FGame::Instance()->GetRenderSystem()->Device->CreateBuffer(&thirdConstBufferDesc, nullptr, &ConstBuffer[2]);
+	assert(SUCCEEDED(result));
 }
 
-DirectX::SimpleMath::Matrix FDirectionalLightComponent::GetViewMatrix()
+void FDirectionalLightComponent::Draw()
+{
+	const CameraData cameraData
+	{
+		FGame::Instance()->CurrentCamera->GameObject->TransformComponent->GetView(),
+		FGame::Instance()->CurrentCamera->GameObject->TransformComponent->GetPosition()
+	};
+	D3D11_MAPPED_SUBRESOURCE FirstMappedResource;
+	FGame::Instance()->GetRenderSystem()->Context->Map(ConstBuffer[0], 0, D3D11_MAP_WRITE_DISCARD, 0, &FirstMappedResource);
+	memcpy(FirstMappedResource.pData, &cameraData, sizeof(CameraData));
+	FGame::Instance()->GetRenderSystem()->Context->Unmap(ConstBuffer[0], 0);
+	
+	// DIRECTIONAL LIGHT
+	const LightData lightData
+	{
+		FGame::Instance()->DirectionalLight->Color,
+		FGame::Instance()->DirectionalLight->Direction
+	};
+	D3D11_MAPPED_SUBRESOURCE secondMappedResource;
+	FGame::Instance()->GetRenderSystem()->Context->Map(ConstBuffer[1], 0, D3D11_MAP_WRITE_DISCARD, 0, &secondMappedResource);
+	memcpy(secondMappedResource.pData, &lightData, sizeof(LightData));
+	FGame::Instance()->GetRenderSystem()->Context->Unmap(ConstBuffer[1], 0);
+
+	const ShadowData lightShadowData
+	{
+		{
+			FGame::Instance()->DirectionalLight->LightViewProjectionMatrices.at(0), FGame::Instance()->DirectionalLight->LightViewProjectionMatrices.at(1),
+			FGame::Instance()->DirectionalLight->LightViewProjectionMatrices.at(2), FGame::Instance()->DirectionalLight->LightViewProjectionMatrices.at(3)
+		},
+		{
+			FGame::Instance()->DirectionalLight->ShadowCascadeLevels.at(0), FGame::Instance()->DirectionalLight->ShadowCascadeLevels.at(1),
+			FGame::Instance()->DirectionalLight->ShadowCascadeLevels.at(2), FGame::Instance()->DirectionalLight->ShadowCascadeLevels.at(3)
+		}
+	};
+	D3D11_MAPPED_SUBRESOURCE thirdMappedResource;
+	FGame::Instance()->GetRenderSystem()->Context->Map(ConstBuffer[2], 0, D3D11_MAP_WRITE_DISCARD, 0, &thirdMappedResource);
+	memcpy(thirdMappedResource.pData, &lightShadowData, sizeof(ShadowData));
+	FGame::Instance()->GetRenderSystem()->Context->Unmap(ConstBuffer[2], 0);
+
+	///
+
+	FGame::Instance()->GetRenderSystem()->Context->OMSetBlendState(FGame::Instance()->GetRenderSystem()->LightBlendState.Get(), nullptr, 0xffffffff); ///
+
+	ID3D11ShaderResourceView* resources[] = {
+		FGame::Instance()->GetRenderSystem()->GBuffer->DiffuseSRV,
+		FGame::Instance()->GetRenderSystem()->GBuffer->NormalSRV,
+		FGame::Instance()->GetRenderSystem()->GBuffer->WorldPositionSRV
+	};
+	FGame::Instance()->GetRenderSystem()->Context->PSSetShaderResources(0, 3, resources);
+	FGame::Instance()->GetRenderSystem()->Context->PSSetShaderResources(3, 1, FGame::Instance()->DirectionalLight->TextureResourceView.GetAddressOf());
+	FGame::Instance()->GetRenderSystem()->Context->PSSetSamplers(0, 1, FGame::Instance()->GetRenderShadowsSystem()->SamplerState.GetAddressOf());
+
+	//DIRECTIONAL
+	FGame::Instance()->GetRenderSystem()->Context->RSSetState(FGame::Instance()->GetRenderSystem()->CullBackRasterizerState.Get());
+	FGame::Instance()->GetRenderSystem()->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	FGame::Instance()->GetRenderSystem()->Context->OMSetDepthStencilState(FGame::Instance()->GetRenderSystem()->DirectLightDepthStencilState.Get(), 0);
+
+	FGame::Instance()->GetRenderSystem()->Context->IASetInputLayout(nullptr);
+	FGame::Instance()->GetRenderSystem()->Context->IASetIndexBuffer(nullptr, DXGI_FORMAT_R32_UINT, 0);
+
+	FGame::Instance()->GetRenderSystem()->Context->VSSetShader(FGame::Instance()->GetRenderSystem()->DirectLightVertexShader.Get(), nullptr, 0);
+	FGame::Instance()->GetRenderSystem()->Context->PSSetShader(FGame::Instance()->GetRenderSystem()->DirectLightPixelShader.Get(), nullptr, 0);
+	FGame::Instance()->GetRenderSystem()->Context->GSSetShader(nullptr, nullptr, 0);
+
+	FGame::Instance()->GetRenderSystem()->Context->VSSetConstantBuffers(0, 3, ConstBuffer);
+	FGame::Instance()->GetRenderSystem()->Context->PSSetConstantBuffers(0, 3, ConstBuffer);
+
+	FGame::Instance()->GetRenderSystem()->Context->Draw(4, 0);
+}
+
+
+DirectX::SimpleMath::Matrix FDirectionalLightComponent::GetViewMatrix() const
 {
 	return GameObject->TransformComponent->GetView();
 }
 
-DirectX::SimpleMath::Matrix FDirectionalLightComponent::GetProjectionMatrix()
+DirectX::SimpleMath::Matrix FDirectionalLightComponent::GetProjectionMatrix() const
 {
 	return DirectX::XMMatrixOrthographicLH(ViewWidth, ViewHeight, NearZ, FarZ);
 }
 
-std::vector<DirectX::SimpleMath::Vector4> FDirectionalLightComponent::GetFrustumCornerWorldSpace(const DirectX::SimpleMath::Matrix& View, const DirectX::SimpleMath::Matrix& Proj)
+std::vector<DirectX::SimpleMath::Vector4> FDirectionalLightComponent::GetFrustumCornerWorldSpace(const DirectX::SimpleMath::Matrix& View, const DirectX::SimpleMath::Matrix& Proj) const
 {
 	const auto ViewProj = View * Proj;
 	const auto InvertedViewProjection = ViewProj.Invert();
@@ -99,7 +224,7 @@ std::vector<DirectX::SimpleMath::Vector4> FDirectionalLightComponent::GetFrustum
 	return FrustumCorners;
 }
 
-DirectX::SimpleMath::Matrix FDirectionalLightComponent::GetLightSpaceMatrix(const float NearZ, const float FarZ)
+DirectX::SimpleMath::Matrix FDirectionalLightComponent::GetLightSpaceMatrix(const float NearZ, const float FarZ) const
 {
 	DirectX::SimpleMath::Matrix Rotation = DirectX::SimpleMath::Matrix::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Up, DirectX::XM_PI);
 	const DirectX::SimpleMath::Matrix Perspective = Rotation * DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(
@@ -147,7 +272,7 @@ DirectX::SimpleMath::Matrix FDirectionalLightComponent::GetLightSpaceMatrix(cons
 	return LightView * LightProjection;
 }
 
-std::vector<DirectX::SimpleMath::Matrix> FDirectionalLightComponent::GetLightSpaceMatrices()
+std::vector<DirectX::SimpleMath::Matrix> FDirectionalLightComponent::GetLightSpaceMatrices() const
 {
 	std::vector<DirectX::SimpleMath::Matrix> Ret;
 	Ret.push_back(GetLightSpaceMatrix(FGame::Instance()->CurrentCamera->NearZ, ShadowCascadeLevels[0]));

@@ -175,8 +175,9 @@
     </ClCompile>
     <ClCompile Include="Source\Render\GBuffer.cpp" />
     <ClCompile Include="Source\Render\RenderSystem.cpp" />
-    <None Include="Source\Shaders\DefferedLight.hlsl" />
+    <None Include="Source\Shaders\DefferedDirectLight.hlsl" />
     <None Include="Source\Shaders\DefferedOpaque.hlsl" />
+    <None Include="Source\Shaders\DefferedPointLights.hlsl" />
     <None Include="Source\Shaders\DepthShader.hlsl" />
     <None Include="Source\Shaders\LightAndShadowsShader.hlsl" />
     <ClCompile Include="Source\Render\ShadowsRenderSystem.cpp" />

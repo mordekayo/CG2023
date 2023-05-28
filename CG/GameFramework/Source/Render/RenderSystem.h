@@ -18,7 +18,8 @@ public:
     void EndFrame();
 
     void InitializeOpaqueShader(const std::string& ShaderFileName);
-    void InitializeLightingShader(const std::string& ShaderFileName);
+    void InitializeDirectLightShader(const std::string& ShaderFileName);
+    void InitializePointLightShader(const std::string& ShaderFileName);
     
     std::shared_ptr<D3D11_VIEWPORT> Viewport;
     Microsoft::WRL::ComPtr<ID3D11Device> Device;
@@ -41,18 +42,22 @@ public:
     Microsoft::WRL::ComPtr<ID3D11DepthStencilState> OpaqueDepthStencilState;
     Microsoft::WRL::ComPtr<ID3D11DepthStencilState> LightingLessDepthStencilState;
     Microsoft::WRL::ComPtr<ID3D11DepthStencilState> LightingGreaterDepthStencilState;
-
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilState> DirectLightDepthStencilState;
+    
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> CullBackRasterizerState;
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> CullFrontRasterizerState;
 
     FGBuffer* GBuffer;
 
     Microsoft::WRL::ComPtr<ID3D11InputLayout> OpaqueInputLayout;
-    Microsoft::WRL::ComPtr<ID3D11InputLayout> LightingInputLayout;
+    Microsoft::WRL::ComPtr<ID3D11InputLayout> DirectLightInputLayout;
+    Microsoft::WRL::ComPtr<ID3D11InputLayout> PointLightsInputLayout;
     Microsoft::WRL::ComPtr<ID3D11VertexShader> OpaqueVertexShader;
-    Microsoft::WRL::ComPtr<ID3D11VertexShader> LightingVertexShader;
+    Microsoft::WRL::ComPtr<ID3D11VertexShader> DirectLightVertexShader;
+    Microsoft::WRL::ComPtr<ID3D11VertexShader> PointLightsVertexShader;
     Microsoft::WRL::ComPtr<ID3D11PixelShader> OpaquePixelShader;
-    Microsoft::WRL::ComPtr<ID3D11PixelShader> LightingPixelShader;
+    Microsoft::WRL::ComPtr<ID3D11PixelShader> DirectLightPixelShader;
+    Microsoft::WRL::ComPtr<ID3D11PixelShader> PointLightsPixelShader;
     
     std::vector<FRenderComponent*> RenderComponents;
 };

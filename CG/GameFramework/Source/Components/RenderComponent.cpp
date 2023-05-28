@@ -12,17 +12,11 @@
 #include "Render/ShadowsRenderSystem.h"
 #include "Render/GBuffer.h"
 
-FRenderComponent::FRenderComponent(FMeshComponent* MeshComponent)
-{
-	this->MeshComponent = MeshComponent;
-}
-
 struct alignas(16) CameraData
 {
 	DirectX::SimpleMath::Matrix ViewMatrix;
 	DirectX::SimpleMath::Matrix ProjectionMatrix;
 	DirectX::SimpleMath::Matrix ModelMatrix;
-	DirectX::SimpleMath::Vector3 CameraPosition;
 };
 
 struct alignas(16) MaterialData
@@ -48,7 +42,7 @@ struct alignas(16) LightData
 {
 	MaterialData Material;
 	DirectionalLightData DirectionalLight;
-	PointLightData PointLights[2];
+	PointLightData PointLights;
 };
 
 struct alignas(16) ShadowData
@@ -56,6 +50,11 @@ struct alignas(16) ShadowData
 	DirectX::SimpleMath::Matrix ViewProjMats[4];
 	float distances[4];
 };
+
+FRenderComponent::FRenderComponent(FMeshComponent* MeshComponent)
+{
+	this->MeshComponent = MeshComponent;
+}
 
 void FRenderComponent::Initialize()
 {
@@ -101,7 +100,6 @@ void FRenderComponent::DrawOpaque()
 		FGame::Instance()->CurrentCamera->GameObject->TransformComponent->GetView(),
 		FGame::Instance()->CurrentCamera->GetProjection(),
 		GameObject->TransformComponent->GetModel(),
-		FGame::Instance()->CurrentCamera->GameObject->TransformComponent->GetPosition()
 	};
 	D3D11_MAPPED_SUBRESOURCE firstMappedResource;
 	FGame::Instance()->GetRenderSystem()->Context->Map(ConstBuffer[0], 0, D3D11_MAP_WRITE_DISCARD, 0, &firstMappedResource);
@@ -131,86 +129,4 @@ void FRenderComponent::DrawOpaque()
 	FGame::Instance()->GetRenderSystem()->Context->PSSetConstantBuffers(0, 1, &ConstBuffer[0]);
 
 	FGame::Instance()->GetRenderSystem()->Context->DrawIndexed(MeshComponent->Indices.size(), 0, 0);
-}
-
-void FRenderComponent::DrawLighting()
-{
-	const CameraData cameraData
-	{
-		FGame::Instance()->CurrentCamera->GameObject->TransformComponent->GetView(),
-		FGame::Instance()->CurrentCamera->GetProjection(),
-		FGame::Instance()->CurrentCamera->GameObject->TransformComponent->GetModel(),
-		FGame::Instance()->CurrentCamera->GameObject->TransformComponent->GetPosition()
-	};
-	D3D11_MAPPED_SUBRESOURCE FirstMappedResource;
-	FGame::Instance()->GetRenderSystem()->Context->Map(ConstBuffer[0], 0, D3D11_MAP_WRITE_DISCARD, 0, &FirstMappedResource);
-	memcpy(FirstMappedResource.pData, &cameraData, sizeof(CameraData));
-	FGame::Instance()->GetRenderSystem()->Context->Unmap(ConstBuffer[0], 0);
-
-	LightData Light{};
-	
-	Light.Material.DiffuseReflectionCoefficient = MeshComponent->Material.DiffuseReflectionCoefficient;
-	Light.Material.AbsorptionCoef = MeshComponent->Material.AbsorptionCoef;
-	Light.Material.AmbientConstant = MeshComponent->Material.AmbientConstant;
-	
-	Light.DirectionalLight.Color = FGame::Instance()->DirectionalLight->Color;
-	Light.DirectionalLight.Direction = FGame::Instance()->DirectionalLight->Direction;
-	
-	// for (int i = 0; i < FGame::Instance()->PointLights.size(); i++)
-	// {
-	// 	Light.PointLights[i].Color = DirectX::SimpleMath::Vector4(FGame::Instance()->PointLights[i]->Color);
-	// 	Light.PointLights[i].ConstLinearQuadCount = DirectX::SimpleMath::Vector4(1.0f, 0.09f, 0.032f, 2.0f);
-	// 	Light.PointLights[i].Position = DirectX::SimpleMath::Vector4(FGame::Instance()->PointLights[i]->GameObject->TransformComponent->GetPosition());
-	// }
-	
-	D3D11_MAPPED_SUBRESOURCE SecondMappedResource;
-	FGame::Instance()->GetRenderSystem()->Context->Map(ConstBuffer[1], 0, D3D11_MAP_WRITE_DISCARD, 0, &SecondMappedResource);
-	memcpy(SecondMappedResource.pData, &Light, sizeof(LightData));
-	FGame::Instance()->GetRenderSystem()->Context->Unmap(ConstBuffer[1], 0);
-
-	const ShadowData Shadow
-	{
-		{
-			FGame::Instance()->DirectionalLight->LightViewProjectionMatrices.at(0), FGame::Instance()->DirectionalLight->LightViewProjectionMatrices.at(1),
-			FGame::Instance()->DirectionalLight->LightViewProjectionMatrices.at(2), FGame::Instance()->DirectionalLight->LightViewProjectionMatrices.at(3)
-		},
-		{
-			FGame::Instance()->DirectionalLight->ShadowCascadeLevels.at(0),         FGame::Instance()->DirectionalLight->ShadowCascadeLevels.at(1),
-			FGame::Instance()->DirectionalLight->ShadowCascadeLevels.at(2),         FGame::Instance()->DirectionalLight->ShadowCascadeLevels.at(3)
-		}
-	};
-	
-	D3D11_MAPPED_SUBRESOURCE ThirdMappedResource;
-	FGame::Instance()->GetRenderSystem()->Context->Map(ConstBuffer[2], 0, D3D11_MAP_WRITE_DISCARD, 0, &ThirdMappedResource);
-	memcpy(ThirdMappedResource.pData, &Shadow, sizeof(ShadowData));
-	FGame::Instance()->GetRenderSystem()->Context->Unmap(ConstBuffer[2], 0);
-
-	FGame::Instance()->GetRenderSystem()->Context->OMSetBlendState(FGame::Instance()->GetRenderSystem()->LightBlendState.Get(), nullptr, 0xffffffff);
-
-	ID3D11ShaderResourceView* resources[] = {
-		FGame::Instance()->GetRenderSystem()->GBuffer->DiffuseSRV,
-		FGame::Instance()->GetRenderSystem()->GBuffer->NormalSRV,
-		FGame::Instance()->GetRenderSystem()->GBuffer->WorldPositionSRV
-	};
-	FGame::Instance()->GetRenderSystem()->Context->PSSetShaderResources(0, 3, resources);
-	FGame::Instance()->GetRenderSystem()->Context->PSSetShaderResources(3, 1, FGame::Instance()->DirectionalLight->TextureResourceView.GetAddressOf());
-
-	FGame::Instance()->GetRenderSystem()->Context->PSSetSamplers(0, 1, FGame::Instance()->GetRenderShadowsSystem()->SamplerState.GetAddressOf());
-	
-	FGame::Instance()->GetRenderSystem()->Context->RSSetState(FGame::Instance()->GetRenderSystem()->CullBackRasterizerState.Get());
-	FGame::Instance()->GetRenderSystem()->Context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	FGame::Instance()->GetRenderSystem()->Context->OMSetDepthStencilState(FGame::Instance()->GetRenderSystem()->LightingLessDepthStencilState.Get(), 0);
-
-	FGame::Instance()->GetRenderSystem()->Context->IASetInputLayout(nullptr);
-	FGame::Instance()->GetRenderSystem()->Context->IASetIndexBuffer(nullptr, DXGI_FORMAT_R32_UINT, 0);
-
-	FGame::Instance()->GetRenderSystem()->Context->VSSetShader(FGame::Instance()->GetRenderSystem()->LightingVertexShader.Get(), nullptr, 0);
-	FGame::Instance()->GetRenderSystem()->Context->PSSetShader(FGame::Instance()->GetRenderSystem()->LightingPixelShader.Get(), nullptr, 0);
-	FGame::Instance()->GetRenderSystem()->Context->GSSetShader(nullptr, nullptr, 0);
-
-	FGame::Instance()->GetRenderSystem()->Context->VSSetConstantBuffers(0, 3, ConstBuffer);
-	FGame::Instance()->GetRenderSystem()->Context->PSSetConstantBuffers(0, 3, ConstBuffer);
-
-	FGame::Instance()->GetRenderSystem()->Context->Draw(4, 0);
 }

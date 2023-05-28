@@ -49,57 +49,63 @@ void KatamariGame::Initialize()
 	KatamariController->CameraTransform = Camera->TransformComponent;
 	
 	FGameObject* DirectionalLight = new FGameObject();
-	DirectionalLight->CreatePlane(0.001f, "../KatamariDamacy/Textures/white.png");
 	FDirectionalLightComponent* DirectionalLightComponent = new FDirectionalLightComponent(1024, 40.0f, 40.0f, 0.1f, 200.0f);
+	DirectionalLightComponent->Direction = DirectX::SimpleMath::Vector4(DirectX::SimpleMath::Vector3(0.0f, -1.0f, 0.3f));
 	DirectionalLight->AddComponent(DirectionalLightComponent);
-	DirectionalLight->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(0, 10, 0));
-	DirectionalLight->TransformComponent->SetRotation(DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Right, DirectX::XM_PIDIV2));
 	FGame::Instance()->DirectionalLight = DirectionalLightComponent;
-
-	FGameObject* PointLight0 = new FGameObject();
-	PointLight0->CreateMesh(0.2f, "../Textures/LampAlbedo.png", "../Models/lamp.obj");
-	PointLight0->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(15, 1, 15));
-	FPointLightComponent* PointLightComponent = new FPointLightComponent(1.0f, 0.09f, 0.032f);
-	PointLightComponent->Color = DirectX::SimpleMath::Vector3( 1.0f, 0.0f, 0.0f);
-	PointLight0->AddComponent(PointLightComponent);
-	PointLight0->MeshComponent->Material.DiffuseReflectionCoefficient  = { 1.0f, 1.0f, 1.0f };
-	PointLight0->MeshComponent->Material.AbsorptionCoef = { 1.0f, 1.0f, 1.0f };
-	PointLight0->MeshComponent->Material.AmbientConstant  = { 1.0f, 1.0f, 1.0f };
-	FGame::Instance()->PointLights.push_back(PointLightComponent);
-
-	FGameObject* PointLight1 = new FGameObject();
-	PointLight1->CreateMesh(0.2f, "../Textures/LampAlbedo.png", "../Models/lamp.obj");
-	PointLight1->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(-15, 1, 15));
-	FPointLightComponent* PointLightComponent1 = new FPointLightComponent(1.0f, 0.09f, 0.032f);
-	PointLightComponent->Color = DirectX::SimpleMath::Vector3( 1.0f, 0.0f, 0.0f);
-	PointLight1->AddComponent(PointLightComponent);
-	PointLight1->MeshComponent->Material.DiffuseReflectionCoefficient  = { 1.0f, 1.0f, 1.0f };
-	PointLight1->MeshComponent->Material.AbsorptionCoef = { 1.0f, 1.0f, 1.0f };
-	PointLight1->MeshComponent->Material.AmbientConstant  = { 1.0f, 1.0f, 1.0f };
-	FGame::Instance()->PointLights.push_back(PointLightComponent1);
 	
-	FGame::Instance()->AddGameObject(Ground);      // 0
-	FGame::Instance()->AddGameObject(Camera);      // 1
-	FGame::Instance()->AddGameObject(Katamari);    // 2
-	FGame::Instance()->AddGameObject(DirectionalLight); // 3
-	FGame::Instance()->AddGameObject(PointLight0);
-	FGame::Instance()->AddGameObject(PointLight1);
+	FGameObject* pointLight0 = new FGameObject();
+	pointLight0->CreateMesh(1.0f, "../KatamariDamacy/Textures/LampAlbedo.png", "../KatamariDamacy/Models/lamp.obj");
+	pointLight0->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(4, 4, 4));
+	pointLight0->MeshComponent->Material.DiffuseReflectionCoefficient  = { 1.0f, 1.0f, 1.0f };
+	pointLight0->MeshComponent->Material.AbsorptionCoef = { 1.0f, 1.0f, 1.0f };
+	pointLight0->MeshComponent->Material.AmbientConstant  = { 1.0f, 1.0f, 1.0f };
+	FPointLightComponent* pointLightComponent0 = new FPointLightComponent(1.0f, 0.09f, 0.032f);
+	pointLightComponent0->Color = DirectX::SimpleMath::Vector3(1.0f, 0.0f, 0.0f);
+	pointLightComponent0->PoiAddMesh(5.0f, "../KatamariDamacy/Models/lightSphere.fbx");
+	FGameObject* pointLightSphere0 = new FGameObject();
+	pointLightSphere0->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(4, 4, 4));
+	pointLightSphere0->AddComponent(pointLightComponent0);
+	FGame::Instance()->PointLights.push_back(pointLightComponent0);
+
+	FGameObject* pointLight1 = new FGameObject();
+	pointLight1->CreateMesh(1.0f, "../KatamariDamacy/Textures/LampAlbedo.png", "../KatamariDamacy/Models/lamp.obj");
+	pointLight1->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(-15, 4, 15));
+	pointLight1->MeshComponent->Material.DiffuseReflectionCoefficient = { 1.0f, 1.0f, 1.0f };
+	pointLight1->MeshComponent->Material.AbsorptionCoef = { 1.0f, 1.0f, 1.0f };
+	pointLight1->MeshComponent->Material.AmbientConstant = { 1.0f, 1.0f, 1.0f };
+	FPointLightComponent* pointLightComponent1 = new FPointLightComponent(1.0f, 0.09f, 0.032f);
+	pointLightComponent1->Color = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
+	pointLightComponent1->PoiAddMesh(5.0f, "../KatamariDamacy/Models/lightSphere.fbx");
+	FGameObject* pointLightSphere1 = new FGameObject();
+	pointLightSphere1->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(-15, 4, 15));
+	pointLightSphere1->AddComponent(pointLightComponent1);
+	FGame::Instance()->PointLights.push_back(pointLightComponent1);
+	
+	FGame::Instance()->AddGameObject(Ground);
+	FGame::Instance()->AddGameObject(Camera);
+	FGame::Instance()->AddGameObject(Katamari);
+	FGame::Instance()->AddGameObject(DirectionalLight);
+	FGame::Instance()->AddGameObject(pointLight0);
+	FGame::Instance()->AddGameObject(pointLightSphere0);
+	FGame::Instance()->AddGameObject(pointLight1);
+	FGame::Instance()->AddGameObject(pointLightSphere1);
 		
-	FGameObject* Statue = new FGameObject();
-	Statue->CreateMesh(1.0f, "../KatamariDamacy/Textures/pig.jpg", "../KatamariDamacy/Models/pig.fbx");
-	Statue->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f));
-	Statue->TransformComponent->SetRotation(
+	FGameObject* Pig = new FGameObject();
+	Pig->CreateMesh(1.0f, "../KatamariDamacy/Textures/pig.jpg", "../KatamariDamacy/Models/pig.fbx");
+	Pig->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f));
+	Pig->TransformComponent->SetRotation(
 		DirectX::SimpleMath::Quaternion::CreateFromAxisAngle(DirectX::SimpleMath::Vector3::Left, DirectX::XM_PI)
 	);
-	FGame::Instance()->AddGameObject(Statue);
+	FGame::Instance()->AddGameObject(Pig);
 
-	FGameObject* Deer = new FGameObject();
-	Deer->CreateMesh(0.1f, "../KatamariDamacy/Textures/skat.png", "../KatamariDamacy/Models/skat.fbx");
-	Deer->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(15.0f, 15.0f, 15.0f));
-	Deer->TransformComponent->SetRotation(
+	FGameObject* Skat = new FGameObject();
+	Skat->CreateMesh(0.1f, "../KatamariDamacy/Textures/skat.png", "../KatamariDamacy/Models/skat.fbx");
+	Skat->TransformComponent->SetPosition(DirectX::SimpleMath::Vector3(15.0f, 15.0f, 15.0f));
+	Skat->TransformComponent->SetRotation(
 		DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(0.0f, 120.0f, 0.0f)
 	);
-	FGame::Instance()->AddGameObject(Deer);
+	FGame::Instance()->AddGameObject(Skat);
 	
 	FGame::Initialize();
 }

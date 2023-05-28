@@ -1,16 +1,7 @@
 cbuffer CameraConstantBuffer : register(b0)
 {
     row_major matrix ViewMatrix;
-    row_major matrix ProjectionMatrix;
-    row_major matrix ModelMatrix;
     float3 CameraPosition;
-};
-
-struct MaterialData
-{
-    float3 DiffuseReflectionCoefficient;
-    float3 AbsorptionCoef;
-    float3 AmbientConstant;
 };
 
 struct DirectionalLightData
@@ -19,18 +10,9 @@ struct DirectionalLightData
     float3 Direction;
 };
 
-struct PointLightData
-{
-    float3 Color;
-    float4 ValueConLinQuadCount;
-    float3 Position;
-};
-
 cbuffer LightConstantBuffer : register(b1)
 {
-    MaterialData Material;
     DirectionalLightData DirectionalLight;
-    PointLightData PointLights[2];
 };
 
 cbuffer LightCameraConstantBuffer : register(b2)
@@ -86,9 +68,9 @@ GBufferData ReadGBuffer(float2 screenPos)
 
 float3 CalcDirLight(DirectionalLightData DirectionalLight, float3 Normal, float3 FromPointToCamera, GBufferData GBuffer, float4 PosViewProj, float Layer);
 
-float4 PSMain(PS_IN input) : SV_Target
+float4 PSMain(PS_IN Input) : SV_Target
 {
-    GBufferData GBuffer = ReadGBuffer(input.pos.xy);
+    GBufferData GBuffer = ReadGBuffer(Input.pos.xy);
     
     float3 Normal = normalize(GBuffer.Normal);
     float3 ViewDirection = normalize(CameraPosition - GBuffer.WorldPos.xyz);
@@ -124,11 +106,11 @@ float3 CalcDirLight(DirectionalLightData DirectionalLight, float3 Normal, float3
     const float3 FromPointToLightSrc   = -NormalizedLightDirection;
     const float3 ReflectDirection = reflect(NormalizedLightDirection, Normal);
 
-    const float3 Diffuse  = DiffuseValue * Material.DiffuseReflectionCoefficient * max(dot(FromPointToLightSrc, Normal), 0.0);
-    const float3 Specular = DiffuseValue * Material.AbsorptionCoef * pow(max(dot(FromPointToCamera, ReflectDirection), 0.0), 128);
-    const float3 Ambient  = DiffuseValue * Material.AmbientConstant * DirectionalLight.Color;
+    const float3 Diffuse  = DiffuseValue * float3(0.2f, 0.2f, 0.2f) * max(dot(FromPointToLightSrc, Normal), 0.0);
+    const float3 Specular = DiffuseValue * float3(0.5f, 0.5f, 0.5f) * pow(max(dot(FromPointToCamera, ReflectDirection), 0.0), 128);
+    const float3 Ambient  = DiffuseValue * float3(0.5f, 0.5f, 0.5f) * DirectionalLight.Color;
     
-    float1 IsPixelLighted = 1;
+    float IsPixelLighted = 1;
     
     IsPixelLighted = IsLighted(FromPointToCamera, Normal, PosViewProj, Layer);
     

@@ -10,6 +10,8 @@
 
 class FMeshComponent;
 
+
+
 class FRenderComponent : public FObjectComponent
 {
 public:
@@ -20,7 +22,6 @@ public:
     virtual void Initialize() override;
 
     void DrawOpaque();
-    void DrawLighting();
 
     FMeshComponent* MeshComponent;
 
